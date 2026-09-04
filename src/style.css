@@ -1,0 +1,719 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  font-family: system-ui, sans-serif;
+}
+
+/* Wird per JS nach 3s ohne Mausbewegung gesetzt (siehe main.js) */
+body.cursor-hidden {
+  cursor: none;
+}
+
+#cesiumContainer {
+  width: 100%;
+  height: 100%;
+  filter: blur(0px);
+  transition: filter 0.4s ease;
+}
+
+/* Wird gesetzt, während neue Kacheln nachgeladen werden (siehe
+   waitForTilesReady in main.js) - kaschiert das Nachpoppen unfertiger/
+   grober Geometrie, z.B. direkt nach einem Orts-Sprung per Suche. */
+#cesiumContainer.tiles-loading {
+  filter: blur(12px);
+}
+
+/* Nur das CesiumJS-eigene Logo im Credit-Container ausblenden - rein
+   optionale Markenanzeige, von der Apache-2.0-Lizenz nicht vorgeschrieben.
+   .cesium-credit-textContainer (im selben Container) bleibt bewusst
+   unangetastet, da darüber Googles Pflicht-Attribution für die
+   Photorealistic 3D Tiles läuft. Kein eigenes ion-Konto im Einsatz
+   (Cesium.Ion.defaultAccessToken = undefined in main.js), daher keine
+   zusätzlichen ion-Attributionspflichten zu beachten. */
+.cesium-credit-logoContainer {
+  display: none !important;
+}
+
+#cesiumContainer .cesium-viewer-fullscreenContainer {
+  display: none !important;
+  top: 5px;
+  right: 5px;
+  bottom: auto;
+}
+
+body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
+  display: block !important;
+}
+
+#cesiumContainer .cesium-viewer-fullscreenContainer button{
+  background-color: #30333633;
+}
+
+#loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: #000;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: opacity 0.5s ease;
+}
+
+#loading-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#loading-overlay:not(.hidden) ~ #search-panel #random-spot-button {
+  display: none;
+}
+
+#hud {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  pointer-events: none;
+  display: flex;
+  gap: 12px;
+}
+
+#flight-data {
+  position: absolute;
+  bottom: 192px; /* über #horizon-wrapper (40px + 140px Höhe + 12px Abstand) */
+  left: 12px;
+  z-index: 10;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  pointer-events: none;
+  display: flex;
+  gap: 12px;
+}
+
+#minimap-wrapper {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 220px;
+  height: 220px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  z-index: 10;
+  background: #000;
+}
+
+#minimap,
+#minimap canvas {
+  width: 100%;
+  height: 100%;
+}
+
+/* Supersampling-Trick: der Canvas wird intern doppelt so groß gerendert
+   und dann per transform wieder auf die sichtbare Größe runterskaliert -
+   das wirkt wie Anti-Aliasing und macht die feinen OSM-Linien/Schrift
+   deutlich weniger matschig. */
+#minimap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 440px;
+  height: 440px;
+  margin: -220px 0 0 -220px;
+  transform: scale(0.5);
+  transform-origin: center;
+  filter: brightness(0.7);
+}
+
+/* fester Punkt in der Mitte - die Karte selbst wird pro Frame neu
+   auf die Spielerposition zentriert (siehe main.js) */
+/* Reiner Positionierungs-/Rotations-Wrapper - die Rotation wird in main.js
+   passend zur Flugrichtung (Heading) gesetzt. Ohne Rotation zeigt die Nase
+   nach Norden (oben), wie die Minimap selbst. Das eigentliche Symbol
+   (Rumpf/Flügel/Leitwerk) steckt in den Kind-Elementen darunter, damit es
+   sich unabhängig von der Positionierung selbst gestalten lässt. */
+#minimap-marker {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Rumpf: spitz zulaufend nach oben (= Nase/Flugrichtung), wie beim
+   bisherigen Dreieck, aber schmaler und länger für einen "Flugzeug"-Eindruck. */
+#minimap-marker-fuselage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  margin: -11px 0 0 -5px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 17px solid rgb(255, 255, 255);
+  filter: drop-shadow(0 0 1.5px #333333) drop-shadow(0 0 1.5px #333333);
+}
+
+/* Tragflächen: schmaler Querbalken, etwas hinter der Rumpfmitte. */
+#minimap-marker-wings {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 26px;
+  height: 4px;
+  margin: -4px 0 0 -13px;
+  background: rgb(255, 255, 255);
+  filter: drop-shadow(0 0 1.5px #333333) drop-shadow(0 0 1.5px #333333);
+}
+
+/* Leitwerk: kleiner Querbalken ganz hinten (Heck). */
+#minimap-marker-tail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: 3px;
+  margin: 4px 0 0 -5px;
+  background: rgb(255, 255, 255);
+  filter: drop-shadow(0 0 1.5px #333333) drop-shadow(0 0 1.5px #333333);
+}
+
+#search-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  width: min(420px, calc(100vw - 40px));
+  background: rgba(0, 0, 0, 0.75);
+  padding: 18px 22px;
+  border-radius: 8px;
+  color: #fff;
+}
+
+#search-panel.visible {
+  display: flex;
+}
+
+
+/* Während geocodeAndFlyTo() läuft (Suche/Anflug/Kacheln laden): nur noch
+   #search-status zeigen, alle Eingabefelder/Tabs/Settings ausblenden -
+   sonst wirkt es so, als könnte man mitten im Anflug noch etwas
+   umstellen, obwohl das gerade gar nicht sinnvoll ist. #search-status
+   bleibt bewusst INNERHALB von #tab-search verschachtelt (siehe HTML) und
+   wird hier gezielt wieder eingeblendet. */
+#search-panel.searching #current-location,
+#search-panel.searching #search-tabs,
+#search-panel.searching #search-input,
+#search-panel.searching #search-button,
+#search-panel.searching #random-spot-button,
+#search-panel.searching #tab-spots,
+#search-panel.searching #tab-favorites,
+#search-panel.searching #fov-row,
+#search-panel.searching #camera-tilt-row,
+#search-panel.searching #minimap-labels-row,
+#search-panel.searching #filters-heading,
+#search-panel.searching #contrast-row,
+#search-panel.searching #saturation-row,
+#search-panel.searching #brightness-row,
+#search-panel.searching #sepia-row,
+#search-panel.searching #vignette-row,
+#search-panel.searching #grain-row,
+#search-panel.searching #blur-row {
+  display: none;
+}
+
+#search-panel.searching #search-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  text-align: center;
+  padding: 10px 0;
+}
+
+/* #search-status ist immer nur sichtbar, wenn sein Elternelement
+   #tab-search es auch ist - ein display:none auf dem Elternelement
+   gewinnt immer, unabhängig vom eigenen display-Wert. War beim Start von
+   geocodeAndFlyTo() aus dem 3D-Spots- oder Favoriten-Tab heraus (siehe
+   renderSpotList()/flyToFavorite() in main.js) gerade der Suche-Tab NICHT
+   aktiv, trägt #tab-search noch das hidden-Attribut aus switchSearchTab()
+   - dadurch blieben Lade-/Status-Infos dort unsichtbar, obwohl der Text
+   korrekt gesetzt wurde. Deshalb hier zusätzlich erzwingen. flex-direction:
+   column ebenfalls erzwingen (wie bei #tab-search:not([hidden]) weiter
+   unten) - sonst ist die Cross-Achse horizontal, #search-status nimmt nur
+   seine eigene Inhaltsbreite statt der vollen Panel-Breite ein, und
+   text-align: center darauf zentriert dann nicht mehr übers ganze Panel. */
+#search-panel.searching #tab-search[hidden] {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Reiner CSS-Spinner (kein zusätzliches HTML-Element nötig) - erscheint
+   automatisch vor dem Statustext, solange #search-panel die
+   .searching-Klasse trägt. */
+#search-panel.searching #search-status::before {
+  content: '';
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.25);
+  border-top-color: #2a6df4;
+  animation: search-spinner-spin 0.8s linear infinite;
+}
+
+@keyframes search-spinner-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+#current-location {
+  font-size: 13px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  color: #dde;
+}
+
+#search-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.search-tab {
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: #dde;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.search-tab.active {
+  background: #2a6df4;
+  color: #fff;
+}
+
+/* :not([hidden]) statt einem pauschalen "display: flex" auf #tab-search /
+   #tab-spots - sonst gewinnt diese ID-Regel gegen das hidden-Attribut aus
+   dem HTML (das per UA-Stylesheet nur "display: none" setzt) und beide
+   Tab-Inhalte werden dauerhaft gleichzeitig angezeigt, unabhängig vom
+   aktiven Tab. War der eigentliche Grund, warum sich die Tabs "kaputt"
+   angefühlt haben. */
+#tab-search:not([hidden]),
+#tab-spots:not([hidden]),
+#tab-favorites:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#search-panel input,
+#search-panel select {
+  padding: 8px 10px;
+  border-radius: 4px;
+  border: none;
+  font-size: 14px;
+}
+
+#spot-status {
+  font-size: 12px;
+  min-height: 14px;
+  color: #dde;
+}
+
+#spot-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 220px;
+  overflow-y: auto;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.spot-item {
+  padding: 7px 10px;
+  font-size: 13px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.spot-item:last-child {
+  border-bottom: none;
+}
+
+.spot-item:hover {
+  background: rgba(42, 109, 244, 0.35);
+}
+
+#favorite-save-row {
+  display: flex;
+  gap: 6px;
+}
+
+#favorite-save-row input {
+  flex: 1;
+}
+
+#favorite-status {
+  font-size: 12px;
+  min-height: 14px;
+  color: #dde;
+}
+
+#favorite-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 220px;
+  overflow-y: auto;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.favorite-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 10px;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.favorite-item:last-child {
+  border-bottom: none;
+}
+
+.favorite-item-info {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.favorite-item-info:hover {
+  color: #fff;
+}
+
+.favorite-item-name {
+  display: block;
+  font-weight: 600;
+}
+
+.favorite-item-location {
+  display: block;
+  font-size: 11px;
+  color: #bcd;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.favorite-item-delete {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: #dde;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.favorite-item-delete:hover {
+  background: rgba(220, 50, 50, 0.6);
+  color: #fff;
+}
+
+#search-panel button {
+  padding: 8px 10px;
+  border-radius: 4px;
+  border: none;
+  background: #2a6df4;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+#search-panel button:hover {
+  background: #1d55c4;
+}
+
+#search-status {
+  font-size: 12px;
+  min-height: 14px;
+}
+
+#fov-row {
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#filters-heading {
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #aab;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Überschreibt die generische #search-panel-button-Größe - soll neben der
+   kleinen Bildfilter-Überschrift nicht wie der volle "Suchen"-Button
+   wirken. */
+#filters-reset-button {
+  padding: 3px 8px;
+  font-size: 11px;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 400;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.setting-row label {
+  flex-shrink: 0;
+}
+
+.setting-row input[type='range'] {
+  flex: 1;
+}
+
+.setting-row span {
+  min-width: 34px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Toggle-Switch (z.B. Minimap-Beschriftungen) - eigenes Element statt
+   nackter Checkbox, damit es optisch zu den Slidern im selben Menü passt. */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+ 
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+ 
+.switch-slider {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+ 
+.switch-slider::before {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  left: 2px;
+  top: 2px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.15s ease;
+}
+ 
+.switch input:checked + .switch-slider {
+  background: #2a6df4;
+}
+ 
+.switch input:checked + .switch-slider::before {
+  transform: translateX(16px);
+}
+
+/* --- Künstlicher Horizont (unten links) -------------------------------- */
+/* bottom: 40px statt 12px, damit das Google-Maps-/Daten-Attributionslogo
+   von Cesium (unten links im Viewport, siehe cesium-viewer-bottom) nicht
+   verdeckt wird. */
+#horizon-wrapper {
+  position: absolute;
+  bottom: 40px;
+  left: 12px;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.4);
+  z-index: 10;
+  background: #000;
+  pointer-events: none;
+}
+
+/* Deutlich größer als das Fenster, damit bei Pitch-Verschiebung/Roll-
+   Rotation nirgends der schwarze Hintergrund durchscheint (Diagonale des
+   Fensters ist ca. 198px, 420px Kantenlänge gibt reichlich Reserve). */
+#horizon-ball {
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  left: 50%;
+  top: 50%;
+  margin: -210px 0 0 -210px;
+  /* Reihenfolge wichtig: erst wird die Kugel für den Pitch verschoben
+     (in ihrem eigenen, noch unrotierten Koordinatensystem), danach wird
+     das Ganze für den Roll um die Fenstermitte gedreht - genau wie bei
+     einem echten Fluginstrument. Werte werden in main.js gesetzt. */
+  transform: rotate(0deg) translateY(0px);
+}
+
+#horizon-sky {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: linear-gradient(to bottom, #2a6df4, #7fb2ff);
+}
+
+#horizon-ground {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: linear-gradient(to top, #5a3a1a, #8a5a2a);
+}
+
+#horizon-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  margin-top: -1px;
+  background: #fff;
+}
+
+/* Feststehendes Flugzeug-Symbol, immer waagerecht in der Fenstermitte -
+   dreht/verschiebt sich NICHT mit, das macht ja gerade den Kontrast zur
+   Fluglage aus. */
+#horizon-marker {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  margin: -50% 0 0 -50%;
+  z-index: 2;
+}
+
+#horizon-marker-wing-left,
+#horizon-marker-wing-right {
+  position: absolute;
+  top: 50%;
+  width: 34px;
+  height: 3px;
+  margin-top: -1.5px;
+  background: #ffbf00;
+  filter: drop-shadow(0 0 1px #000);
+}
+
+#horizon-marker-wing-left {
+  left: calc(50% - 40px);
+}
+
+#horizon-marker-wing-right {
+  right: calc(50% - 40px);
+}
+
+#horizon-marker-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: #ffbf00;
+  filter: drop-shadow(0 0 1px #000);
+}
+
+/* Kleiner Zeiger oben am Rand, der sich mit dem Roll-Winkel um die
+   Fenstermitte dreht und so die Schräglage zusätzlich anzeigt. */
+#horizon-roll-pointer {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  width: 0;
+  height: 0;
+  margin-left: -5px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 7px solid #fff;
+  transform-origin: 50% 66px; /* Fenstermitte: 70px minus Zeiger-Offset */
+  z-index: 3;
+}
+
+/* --- Kollisionswarnung (roter Blitz) ------------------------------------ */
+/* Reines Vignette-Overlay - liegt über der ganzen Szene, blockiert aber
+   keine Klicks. Die Animation wird in main.js pro Kollisionsbeginn neu
+   getriggert (Klasse entfernen/erzwungener Reflow/wieder hinzufügen),
+   siehe triggerCollisionFlash(). */
+#collision-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  pointer-events: none;
+  opacity: 0;
+  box-shadow: inset 0 0 120px 30px rgba(255, 0, 0, 0.8);
+}
+
+#collision-flash.flash {
+  animation: collision-flash-anim 0.4s ease-out;
+}
+
+@keyframes collision-flash-anim {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FlyMaps</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="cesiumContainer"></div>
+    <div id="loading-overlay">
+      <span id="loading-overlay-text">Landschaft wird geladen…</span>
+    </div>
+    <div id="hud">
+      <span id="status">Lade Weltdaten…</span>
+    </div>
+    <div id="collision-flash"></div>
+    <div id="minimap-wrapper">
+      <div id="minimap"></div>
+      <div id="minimap-marker">
+        <div id="minimap-marker-fuselage"></div>
+        <div id="minimap-marker-wings"></div>
+        <div id="minimap-marker-tail"></div>
+      </div>
+    </div>
+    <div id="horizon-wrapper">
+      <div id="horizon-ball">
+        <div id="horizon-sky"></div>
+        <div id="horizon-ground"></div>
+        <div id="horizon-line"></div>
+      </div>
+      <div id="horizon-marker">
+        <div id="horizon-marker-wing-left"></div>
+        <div id="horizon-marker-wing-right"></div>
+        <div id="horizon-marker-dot"></div>
+      </div>
+      <div id="horizon-roll-pointer"></div>
+    </div>
+    <div id="flight-data">
+      <span id="speed">0 km/h</span>
+      <span id="altitude">0 m</span>
+    </div>
+    <div id="search-panel">
+      <div id="current-location">Aktueller Ort wird ermittelt…</div>
+      <div id="search-tabs">
+        <button id="tab-search-btn" class="search-tab active" type="button">🔍 Suche</button>
+        <button id="tab-spots-btn" class="search-tab" type="button">🗎 Liste</button>
+        <button id="tab-favorites-btn" class="search-tab" type="button">☆ Favoriten</button>
+      </div>
+
+      <div id="tab-search">
+        <input id="search-input" type="text" placeholder="Ort eingeben (z. B. Eiffelturm, Paris)" autocomplete="off" />
+        <button id="search-button">Suchen</button>
+        <button id="random-spot-button" type="button" hidden>🎲 Zufällig</button>
+        <span id="search-status"></span>
+      </div>
+
+      <div id="tab-spots" hidden>
+        <select id="spot-country-select">
+          <option value="">Alle Länder</option>
+        </select>
+        <input id="spot-filter-input" type="text" placeholder="Filtern nach…" autocomplete="off" />
+        <ul id="spot-list"></ul>
+        <span id="spot-status"></span>
+      </div>
+
+      <div id="tab-favorites" hidden>
+        <div id="favorite-save-row">
+          <input id="favorite-name-input" type="text" placeholder="Name für diesen Favoriten" autocomplete="off" />
+          <button id="favorite-save-button">Speichern</button>
+        </div>
+        <ul id="favorite-list"></ul>
+        <span id="favorite-status"></span>
+      </div>
+
+      <div id="fov-row" class="setting-row">
+        <label for="fov-slider">Sichtfeld (FOV)</label>
+        <input id="fov-slider" type="range" min="30" max="100" step="1" />
+        <span id="fov-value"></span>
+      </div>
+      <div id="camera-tilt-row" class="setting-row">
+        <label for="camera-tilt-slider">Kamera-Blickwinkel</label>
+        <input id="camera-tilt-slider" type="range" min="-60" max="30" step="1" />
+        <span id="camera-tilt-value"></span>
+      </div>
+      <div id="minimap-labels-row" class="setting-row">
+        <label for="minimap-labels-toggle">Kartenbeschriftungen</label>
+        <label class="switch">
+          <input id="minimap-labels-toggle" type="checkbox" checked />
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+
+      <div id="filters-heading">
+        <span>Bildfilter</span>
+        <button id="filters-reset-button" type="button">Zurücksetzen</button>
+      </div>
+      <div id="contrast-row" class="setting-row">
+        <label for="contrast-slider">Kontrast</label>
+        <input id="contrast-slider" type="range" min="80" max="130" step="1" />
+        <span id="contrast-value"></span>
+      </div>
+      <div id="saturation-row" class="setting-row">
+        <label for="saturation-slider">Sättigung</label>
+        <input id="saturation-slider" type="range" min="70" max="140" step="1" />
+        <span id="saturation-value"></span>
+      </div>
+      <div id="brightness-row" class="setting-row">
+        <label for="brightness-slider">Helligkeit</label>
+        <input id="brightness-slider" type="range" min="60" max="120" step="1" />
+        <span id="brightness-value"></span>
+      </div>
+      <div id="sepia-row" class="setting-row">
+        <label for="sepia-slider">Sepia</label>
+        <input id="sepia-slider" type="range" min="0" max="100" step="1" />
+        <span id="sepia-value"></span>
+      </div>
+      <div id="vignette-row" class="setting-row">
+        <label for="vignette-slider">Vignette</label>
+        <input id="vignette-slider" type="range" min="0" max="60" step="1" />
+        <span id="vignette-value"></span>
+      </div>
+      <div id="grain-row" class="setting-row">
+        <label for="grain-slider">Filmkorn</label>
+        <input id="grain-slider" type="range" min="0" max="100" step="1" />
+        <span id="grain-value"></span>
+      </div>
+      <div id="blur-row" class="setting-row">
+        <label for="blur-slider">Blur</label>
+        <input id="blur-slider" type="range" min="0" max="100" step="1" />
+        <span id="blur-value"></span>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
