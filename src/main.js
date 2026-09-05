@@ -464,6 +464,7 @@ async function loadGoogleTiles() {
       pitchRaw = usableSavedState.pitch;
       roll = usableSavedState.roll;
       rollRaw = usableSavedState.roll;
+      rollLevelBlend = 0;
       if (typeof usableSavedState.fovDegrees === "number")
         applyFov(usableSavedState.fovDegrees);
       if (typeof usableSavedState.cameraTiltDegrees === "number")
@@ -1231,6 +1232,7 @@ async function geocodeAndFlyTo(query) {
     pitchRaw = 0;
     roll = 0;
     rollRaw = 0;
+    rollLevelBlend = 0;
     pitchRate = 0;
     rollRate = 0;
     yawRate = 0;
@@ -1626,6 +1628,7 @@ async function flyToFavorite(favorite) {
     pitchRaw = favorite.pitch;
     roll = favorite.roll;
     rollRaw = favorite.roll;
+    rollLevelBlend = 0;
     pitchRate = Number.isFinite(favorite.pitchRate) ? favorite.pitchRate : 0;
     rollRate = Number.isFinite(favorite.rollRate) ? favorite.rollRate : 0;
     yawRate = Number.isFinite(favorite.yawRate) ? favorite.yawRate : 0;
@@ -1767,15 +1770,16 @@ const THROTTLE_ACCEL = 40; // m/s^2 beim Gasgeben/Bremsen
 
 const PITCH_RATE = Cesium.Math.toRadians(50); // rad/s, maximale Pitch-Änderungsrate
 const PITCH_MAX = Cesium.Math.toRadians(45);
-const PITCH_SMOOTH_TIME = 2; // Sekunden, bis die volle Rate erreicht ist (Einschwingen, bei gehaltener Taste)
-const PITCH_RETURN_SMOOTH_TIME = 4; // Sekunden - schnelleres Ausschwingen der Rate nach Loslassen, damit man zügiger aus Pitch rauskommt
+const PITCH_SMOOTH_TIME = 2.5; // Sekunden, bis die volle Rate erreicht ist (Einschwingen, bei gehaltener Taste)
+const PITCH_RETURN_SMOOTH_TIME = 2; // Sekunden - schnelleres Ausschwingen/Reversieren der Rate beim Loslassen ODER Gegenlenken, damit man zügiger aus Pitch rauskommt (siehe pitchReturning)
 const PITCH_LIMIT_EASE_DEG = 15; // Breite der Sättigungszone vor PITCH_MAX (siehe softLimitAngle)
 
 const ROLL_RATE = Cesium.Math.toRadians(70);
 const ROLL_MAX = Cesium.Math.toRadians(30);
-const ROLL_SMOOTH_TIME = 2; // Sekunden, bis die volle Rate erreicht ist (Einschwingen, bei gehaltener Taste)
-const ROLL_RETURN_SMOOTH_TIME = 2; // Sekunden - schnelleres Ausschwingen der Rate nach Loslassen, damit man zügiger aus der Schräglage rauskommt
-const ROLL_AUTO_LEVEL_TIME = 1; // Sekunden - sehr langsamer, sanfter Drift zurück zu 0°, wenn keine Taste gedrückt ist
+const ROLL_SMOOTH_TIME = 2.5; // Sekunden, bis die volle Rate erreicht ist (Einschwingen, bei gehaltener Taste)
+const ROLL_RETURN_SMOOTH_TIME = 1.25; // Sekunden - schnelleres Ausschwingen der Rate nach Loslassen, damit man zügiger aus der Schräglage rauskommt
+const ROLL_AUTO_LEVEL_TIME = 1.5; // Sekunden - sehr langsamer, sanfter Drift zurück zu 0°, wenn keine Taste gedrückt ist
+const ROLL_LEVEL_BLEND_TIME = 0.2; // Sekunden - Einblendzeit für den Auto-Level-Zug (verhindert einen harten Sprung in der Geschwindigkeit genau beim Einsetzen)
 const ROLL_LIMIT_EASE_DEG = 15; // Breite der Sättigungszone vor ROLL_MAX (siehe softLimitAngle unten)
 
 const RUDDER_YAW_RATE = Cesium.Math.toRadians(35); // A/D, maximale Yaw-Rate
@@ -1799,6 +1803,24 @@ function softLimitAngle(rawValue, max, softZoneRad) {
     Math.sign(rawValue) *
     (linear + softZoneRad * (1 - Math.exp(-excess / softZoneRad)))
   );
+}
+
+// Kehrfunktion zu softLimitAngle: liefert zu einem bereits komprimierten
+// (angezeigten) Winkel den passenden unkomprimierten Rohwert zurück. Wird
+// gebraucht, um rollRaw/pitchRaw nach einer ungebremsten "Schrumpf"-Bewegung
+// (siehe unten) wieder korrekt zu synchronisieren, damit ein danach erneut
+// einsetzendes Weiter-Wachsen wieder an der richtigen Stelle zu komprimieren
+// beginnt statt einen Sprung zu verursachen.
+function inverseSoftLimitAngle(value, max, softZoneRad) {
+  const linear = max - softZoneRad;
+  const abs = Math.abs(value);
+  if (abs <= linear) return value;
+  // abs nähert sich asymptotisch (linear + softZoneRad) an, nie ganz - der
+  // Clamp knapp darunter verhindert eine Singularität im log() bei Werten,
+  // die praktisch am Limit kleben.
+  const excessDisplay = Math.min(abs - linear, softZoneRad * 0.999999);
+  const excessRaw = -softZoneRad * Math.log(1 - excessDisplay / softZoneRad);
+  return Math.sign(value) * (linear + excessRaw);
 }
 
 // --- Kollision mit Gebäuden/Terrain (3D Tiles) --------------------------
@@ -1838,6 +1860,7 @@ let pitch = 0; // angezeigter/tatsächlich geflogener Wert, immer = softLimitAng
 let pitchRaw = 0; // ungekappter interner Akkumulator, siehe softLimitAngle oben
 let roll = 0; // angezeigter/tatsächlich geflogener Wert, immer = softLimitAngle(rollRaw, ...)
 let rollRaw = 0; // ungekappter interner Akkumulator, siehe softLimitAngle oben
+let rollLevelBlend = 0; // 0..1, sanftes Ein-/Ausblenden des Auto-Level-Zugs (siehe ROLL_LEVEL_BLEND_TIME)
 let pitchRate = 0; // aktuelle (geglättete) Pitch-Änderungsrate
 let rollRate = 0; // aktuelle (geglättete) Roll-Änderungsrate
 let yawRate = 0; // aktuelle (geglättete) Seitenruder-Rate
@@ -1923,14 +1946,19 @@ viewer.clock.onTick.addEventListener(() => {
   // kurze Tasten-Lücken beim Richtungswechsel (siehe createAxisTargetTracker
   // oben).
   const pitchTarget = getPitchTarget(now);
-  // Die schnellere PITCH_RETURN_SMOOTH_TIME gilt bewusst NUR noch beim
-  // echten Loslassen (kein Pfeil mehr gedrückt, pitchTarget === 0) - nicht
-  // mehr bei einem Richtungswechsel bei weiterhin gehaltener Taste. Sonst
-  // fühlt sich ein direkter Wechsel (z.B. von voller Nase-hoch sofort auf
-  // Nase-runter) spürbar hektischer/schneller an als ein Aufbau aus der
-  // Nulllage, weil dafür die schnelle statt der normalen Zeitkonstante
-  // greift (gleiches Prinzip wie bei rollReturning, siehe Kommentar dort).
-  const pitchReturning = pitchTarget === 0;
+  // Die schnellere PITCH_RETURN_SMOOTH_TIME gilt beim echten Loslassen
+  // (pitchTarget === 0) UND beim aktiven Gegenlenken (Ziel entgegengesetzt
+  // zum aktuellen Winkel, pitchOpposesAngle) - sonst hängt die Ratenrampe
+  // bei 100% Pitch bis zu PITCH_SMOOTH_TIME lang fest, bevor die Rate
+  // überhaupt durch 0 durchquert und sich am Winkel etwas zu ändern beginnt.
+  // Wichtig: Vergleich gegen den WINKEL (pitch), nicht gegen die Rate -
+  // sonst würde die Rate beim Reversieren schon nach kurzer Zeit die 0
+  // kreuzen und fälschlich zu früh auf die langsame Zeit zurückschalten,
+  // während der Flieger real noch in der alten Neigung hängt (siehe
+  // identisches Problem/Fix beim Roll weiter unten).
+  const pitchOpposesAngle =
+    pitch !== 0 && Math.sign(pitchTarget) !== Math.sign(pitch);
+  const pitchReturning = pitchTarget === 0 || pitchOpposesAngle;
   // Lineare Rampe (konstante Winkelbeschleunigung) statt e-Funktions-
   // Glättung: ändert pitchRate immer mit exakt derselben Beschleunigung,
   // egal wie groß die aktuelle Neigung oder das verbleibende Delta ist -
@@ -1945,16 +1973,28 @@ viewer.clock.onTick.addEventListener(() => {
   );
   pitchRate += pitchRateStep;
 
-  // pitchRaw läuft frei/ungekappt mit - pitch (sichtbar/geflogen) wird
-  // jeden Frame frisch daraus abgeleitet (siehe softLimitAngle oben),
-  // gleiches Vorgehen wie beim Roll-Limit weiter unten.
-  pitchRaw += pitchRate * dt;
-  pitchRaw = Cesium.Math.clamp(pitchRaw, -PITCH_MAX * 1.5, PITCH_MAX * 1.5);
-  pitch = softLimitAngle(
-    pitchRaw,
-    PITCH_MAX,
-    Cesium.Math.toRadians(PITCH_LIMIT_EASE_DEG),
-  );
+  // Gleiches Prinzip wie beim Roll weiter unten: die Sättigungsbremse
+  // (softLimitAngle) soll nur beim Wachsen (Richtung Limit) greifen, nicht
+  // beim Schrumpfen (Richtung Mitte/Gegenlenken).
+  const pitchSoftZoneRad = Cesium.Math.toRadians(PITCH_LIMIT_EASE_DEG);
+  const pitchDelta = pitchRate * dt;
+  const pitchGrowing =
+    pitch !== 0 && Math.sign(pitchDelta) === Math.sign(pitch);
+
+  if (pitchGrowing) {
+    pitchRaw += pitchDelta;
+    // Gleicher Grund wie beim rollRaw-Auslauf weiter unten.
+    pitchRaw = Cesium.Math.clamp(
+      pitchRaw,
+      -(PITCH_MAX + pitchSoftZoneRad * 3),
+      PITCH_MAX + pitchSoftZoneRad * 3,
+    );
+    pitch = softLimitAngle(pitchRaw, PITCH_MAX, pitchSoftZoneRad);
+  } else {
+    pitch = Cesium.Math.clamp(pitch + pitchDelta, -PITCH_MAX, PITCH_MAX);
+    pitchRaw = inverseSoftLimitAngle(pitch, PITCH_MAX, pitchSoftZoneRad);
+  }
+
 
   // Roll: Pfeil links/rechts - Ansprechverhalten genau wie Pitch/Yaw (Taps
   // addieren sich smooth auf, kein sofortiges Zurückschnappen). Die kurze
@@ -1992,34 +2032,71 @@ viewer.clock.onTick.addEventListener(() => {
   );
   rollRate += rollRateStep;
 
-  // rollRaw läuft frei/ungekappt mit - roll (sichtbar/geflogen) wird jeden
-  // Frame frisch daraus abgeleitet (siehe softLimitAngle oben). dt-Cap oben
-  // (max. 0.1s) hält auch den Schritt pro Frame hier in vernünftigem Rahmen.
-  rollRaw += rollRate * dt;
+  // Die Sättigungsbremse (softLimitAngle) soll nur greifen, wenn der Winkel
+  // WÄCHST (Richtung Limit), nicht wenn er SCHRUMPFT (Richtung Mitte) - sonst
+  // bremst dieselbe Kompression auch das Gegenlenken künstlich aus, obwohl
+  // sie nur das harte Ankommen am Limit abfedern soll. Deshalb zwei Zweige:
+  // wachsend weiter über rollRaw + softLimitAngle (komprimiert), schrumpfend
+  // direkt auf roll (1:1, ungebremst) - rollRaw wird danach über die
+  // Kehrfunktion nachgeführt, damit ein erneutes Weiter-Wachsen wieder an der
+  // richtigen Stelle zu komprimieren beginnt statt zu springen.
+  const rollSoftZoneRad = Cesium.Math.toRadians(ROLL_LIMIT_EASE_DEG);
+  const rollDelta = rollRate * dt;
+  const rollGrowing = roll !== 0 && Math.sign(rollDelta) === Math.sign(roll);
+
+  if (rollGrowing) {
+    rollRaw += rollDelta;
+    // Auslauf für rollRaw über ROLL_MAX hinaus: schadet dem Gegenlenken
+    // nicht mehr (das läuft über den Schrumpf-Zweig direkt auf roll, siehe
+    // unten), erlaubt der Kompressionskurve aber, tief genug in ihre
+    // Sättigung reinzulaufen, damit sie sich spürbar näher an ROLL_MAX
+    // heranarbeitet, statt abrupt an einem zu engen Clamp anzuschlagen.
+    rollRaw = Cesium.Math.clamp(
+      rollRaw,
+      -(ROLL_MAX + rollSoftZoneRad * 3),
+      ROLL_MAX + rollSoftZoneRad * 3,
+    );
+    roll = softLimitAngle(rollRaw, ROLL_MAX, rollSoftZoneRad);
+  } else {
+    roll = Cesium.Math.clamp(roll + rollDelta, -ROLL_MAX, ROLL_MAX);
+    rollRaw = inverseSoftLimitAngle(roll, ROLL_MAX, rollSoftZoneRad);
+  }
 
   // Der Auto-Level-Zug Richtung 0° soll nicht nur beim kompletten Loslassen
   // greifen, sondern auch, solange man aktiv GEGENlenkt (Ziel entgegengesetzt
   // zum aktuellen Winkel) - sonst hängt man beim Gegenlenken einseitig nur
   // an der langsamen Rate-Rampe, die erst durch 0 durchqueren muss, während
   // Loslassen zusätzlich diesen direkten Zug bekommt und dadurch spürbar
-  // schneller wieder gerade auf Kurs kommt als aktives Gegensteuern - fühlt
-  // sich dann an, als würde die alte Rollbewegung "einrasten" und unkontrolliert
-  // weiterlaufen. Sobald der Winkel auf die neue (Ziel-)Seite gewechselt hat,
-  // baut man aktiv in die neue Richtung auf - dann greift der Zug nicht mehr,
-  // damit er der Eingabe nicht entgegenwirkt.
+  // schneller wieder gerade auf Kurs kommt als aktives Gegensteuern. Der Zug
+  // ist ebenfalls eine "schrumpfende" Bewegung Richtung Mitte und läuft
+  // deshalb direkt auf roll, ungebremst durch die Sättigungszone. Sobald der
+  // Winkel auf die neue (Ziel-)Seite gewechselt hat, baut man aktiv in die
+  // neue Richtung auf - dann greift der Zug nicht mehr, damit er der
+  // Eingabe nicht entgegenwirkt.
   const rollOpposesTarget =
     roll !== 0 && Math.sign(rollTarget) !== Math.sign(roll);
-  if (!rollHeld || rollOpposesTarget) {
-    const levelFactor = 1 - Math.exp(-dt / ROLL_AUTO_LEVEL_TIME);
-    rollRaw -= rollRaw * levelFactor;
+  const rollLevelShouldBeActive = !rollHeld || rollOpposesTarget;
+  // Statt eines harten Ja/Nein-Schalters wird die Zugstärke über
+  // ROLL_LEVEL_BLEND_TIME sanft ein-/ausgeblendet - sonst springt die
+  // sichtbare Geschwindigkeit genau beim Einsetzen (z.B. direkt nach dem
+  // Loslassen bei voller Schräglage, wo roll durch die Sättigung zuvor
+  // fast eingefroren war) von "quasi still" auf "voller Zug", was sich wie
+  // ein kleiner Sprung anfühlt. Das Ein-/Ausblenden selbst ändert nichts
+  // an Timing oder Tempo der eigentlichen Rückkehr (ROLL_AUTO_LEVEL_TIME),
+  // nur an diesem einen Übergangsmoment.
+  rollLevelBlend = Cesium.Math.clamp(
+    rollLevelBlend +
+      (rollLevelShouldBeActive ? 1 : -1) * (dt / ROLL_LEVEL_BLEND_TIME),
+    0,
+    1,
+  );
+  if (rollLevelBlend > 0) {
+    const levelFactor =
+      (1 - Math.exp(-dt / ROLL_AUTO_LEVEL_TIME)) * rollLevelBlend;
+    roll -= roll * levelFactor;
+    rollRaw = inverseSoftLimitAngle(roll, ROLL_MAX, rollSoftZoneRad);
   }
 
-  // Verhindert, dass rollRaw bei lang gehaltenem Anschlag beliebig
-  // wegläuft - sonst würde ein Richtungswechsel danach erst träge auf den
-  // "unsichtbaren" Überschuss reagieren, bevor roll wieder abnimmt.
-  rollRaw = Cesium.Math.clamp(rollRaw, -ROLL_MAX * 1.5, ROLL_MAX * 1.5);
-
-  roll = softLimitAngle(rollRaw, ROLL_MAX, Cesium.Math.toRadians(ROLL_LIMIT_EASE_DEG));
 
   // Gieren (Heading): Seitenruder A/D (sanft geglättet wie Pitch) +
   // koordinierte Kurve durch Rollen (bleibt direkt an den Roll-Winkel gekoppelt).
