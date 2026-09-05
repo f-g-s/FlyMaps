@@ -676,6 +676,7 @@ function updateHorizon() {
 // dafür muss die "Geocoding API" für den Key zusätzlich im Google Cloud
 // Console freigeschaltet sein (separates API-Flag).
 const searchPanel = document.getElementById("search-panel");
+const searchPanelCloseBtn = document.getElementById("search-panel-close");
 const searchInput = document.getElementById("search-input");
 const searchButton = document.getElementById("search-button");
 const searchStatusEl = document.getElementById("search-status");
@@ -1290,7 +1291,7 @@ Object.keys(spotsByCountry)
     spotCountrySelect.appendChild(option);
   });
 
-function switchSearchTab(tab) {
+function switchSearchTab(tab, focusInput = true) {
   const showSpots = tab === "spots";
   const showFavorites = tab === "favorites";
   tabSearchBtn.classList.toggle("active", !showSpots && !showFavorites);
@@ -1303,7 +1304,7 @@ function switchSearchTab(tab) {
     renderSpotList();
   } else if (showFavorites) {
     renderFavoriteList();
-  } else {
+  } else if (focusInput) {
     searchInput.focus();
   }
 }
@@ -1311,6 +1312,9 @@ function switchSearchTab(tab) {
 tabSearchBtn.addEventListener("click", () => switchSearchTab("search"));
 tabSpotsBtn.addEventListener("click", () => switchSearchTab("spots"));
 tabFavoritesBtn.addEventListener("click", () => switchSearchTab("favorites"));
+searchPanelCloseBtn.addEventListener("click", () => {
+  if (isPaused) togglePause();
+});
 
 function renderSpotList() {
   const country = spotCountrySelect.value;
@@ -1713,7 +1717,8 @@ function togglePause() {
     updateCurrentLocation();
     searchStatusEl.textContent = "";
     searchInput.value = "";
-    switchSearchTab("search");
+    switchSearchTab("search", false);
+    searchPanelCloseBtn.focus();
   } else {
     statusEl.textContent = baseStatusText;
     hudEl.style.display = isStatusVisible ? "" : "none";
@@ -1723,8 +1728,23 @@ function togglePause() {
   }
 }
 
+// Leertaste löst normalerweise Pause/Fortsetzen aus - aber nicht, wenn
+// gerade in einem Eingabefeld getippt wird (z.B. Ortssuche, Favoriten-
+// Name, Spot-Filter): sonst würde ein Leerzeichen im Text versehentlich
+// das Pausenmenü schließen/öffnen, statt einfach im Feld zu landen.
+function isTypingInFormField(target) {
+  return (
+    target instanceof HTMLElement &&
+    (target.tagName === "INPUT" ||
+      target.tagName === "TEXTAREA" ||
+      target.tagName === "SELECT" ||
+      target.isContentEditable)
+  );
+}
+
 window.addEventListener("keydown", (e) => {
   if (e.code !== "Space" || e.repeat) return;
+  if (isTypingInFormField(e.target)) return;
   e.preventDefault();
   togglePause();
 });
@@ -1765,7 +1785,7 @@ cameraController.enableRotate = false;
 cameraController.enableTilt = false;
 cameraController.enableLook = false;
 
-const MAX_SPEED = 120; // m/s, entspricht ca. 430 km/h
+const MAX_SPEED = 1200; // m/s, entspricht ca. 430 km/h
 const THROTTLE_ACCEL = 40; // m/s^2 beim Gasgeben/Bremsen
 
 const PITCH_RATE = Cesium.Math.toRadians(50); // rad/s, maximale Pitch-Änderungsrate

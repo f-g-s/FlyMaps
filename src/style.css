@@ -1,10 +1,10 @@
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #000;
   font-family: system-ui, sans-serif;
 }
 
@@ -64,15 +64,13 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   display: block !important;
 }
 
-#cesiumContainer .cesium-viewer-fullscreenContainer button{
+#cesiumContainer .cesium-viewer-fullscreenContainer button {
   background-color: #30333633;
 }
 
 #loading-overlay {
-  position: absolute;
-  inset: 0;
   z-index: 30;
-  background: #000;
+  background: #2b2b2b;
   color: #fff;
   display: flex;
   align-items: center;
@@ -86,7 +84,7 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   pointer-events: none;
 }
 
-#loading-overlay:not(.hidden) ~ #search-panel #random-spot-button {
+#loading-overlay:not(.hidden)~#search-panel #random-spot-button {
   display: none;
 }
 
@@ -107,7 +105,8 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
 
 #flight-data {
   position: absolute;
-  bottom: 192px; /* über #horizon-wrapper (40px + 140px Höhe + 12px Abstand) */
+  bottom: 192px;
+  /* über #horizon-wrapper (40px + 140px Höhe + 12px Abstand) */
   left: 12px;
   z-index: 10;
   color: #fff;
@@ -211,51 +210,114 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
 }
 
 #search-panel {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   z-index: 20;
   display: none;
-  flex-direction: column;
-  gap: 8px;
-  width: min(420px, calc(100vw - 40px));
-  background: rgba(0, 0, 0, 0.75);
-  padding: 18px 22px;
-  border-radius: 8px;
-  color: #fff;
+  background: #16181d;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  color: #e6e8ec;
+  font-family: system-ui, sans-serif;
+  width: 1000px;
 }
 
 #search-panel.visible {
+  display: block;
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#search-panel-close {
+  position: absolute;
+  top: 28px;
+  right: 28px;
+  width: 32px;
+  height: 32px;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #9aa0aa;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+#search-panel-close svg {
+  width: 18px;
+  height: 18px;
+}
+
+#search-panel-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+#search-panel-close:focus-visible {
+  outline: 2px solid #2a6df4;
+  outline-offset: 2px;
+}
+
+/* Jeder der drei Blöcke (Suche/Ansicht/Filter) ist eine eigene Card mit
+   dezentem Border/Hintergrund statt direkt auf dem Panel-Hintergrund zu
+   liegen - sorgt für klare visuelle Trennung der Bereiche. */
+#search-panel .container {
+  flex: 1 1 280px;
+  background: #1f222a;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+#search-panel-content .container:not(:last-child) {
+  margin-bottom: 4px;
+}
+
+/* Erste Card (Suche/Liste/Favoriten-Tabs) nimmt immer die volle Breite ein,
+   damit die Tab-Inhalte (Suchfeld, Listen) genug Platz haben, statt sich
+   die Zeile mit Ansicht/Filter zu teilen. */
+#search-panel-content .container:first-child {
+  flex-basis: 100%;
+}
+
+#search-panel h2 {
+  margin: 0 0 14px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9aa0aa;
+}
+
+/* Wrapper um den kompletten "normalen" Inhalt (Tabs/Eingaben/Settings) -
+   übernimmt dieselben Flex-Eigenschaften, die vorher direkt auf
+   #search-panel lagen, damit sich am sichtbaren Abstand zwischen den
+   Zeilen nichts ändert. Wird komplett ausgeblendet, siehe .searching-Regel
+   weiter unten. */
+#search-panel-content {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  overflow: auto;
 }
 
 
 /* Während geocodeAndFlyTo() läuft (Suche/Anflug/Kacheln laden): nur noch
-   #search-status zeigen, alle Eingabefelder/Tabs/Settings ausblenden -
-   sonst wirkt es so, als könnte man mitten im Anflug noch etwas
-   umstellen, obwohl das gerade gar nicht sinnvoll ist. #search-status
-   bleibt bewusst INNERHALB von #tab-search verschachtelt (siehe HTML) und
-   wird hier gezielt wieder eingeblendet. */
-#search-panel.searching #current-location,
-#search-panel.searching #search-tabs,
-#search-panel.searching #search-input,
-#search-panel.searching #search-button,
-#search-panel.searching #random-spot-button,
-#search-panel.searching #tab-spots,
-#search-panel.searching #tab-favorites,
-#search-panel.searching #fov-row,
-#search-panel.searching #camera-tilt-row,
-#search-panel.searching #minimap-labels-row,
-#search-panel.searching #plane-visible-row,
-#search-panel.searching #filters-heading,
-#search-panel.searching #contrast-row,
-#search-panel.searching #saturation-row,
-#search-panel.searching #brightness-row,
-#search-panel.searching #sepia-row,
-#search-panel.searching #vignette-row,
-#search-panel.searching #grain-row,
-#search-panel.searching #blur-row {
+   #search-status zeigen, der komplette restliche Inhalt (Tabs, Eingaben,
+   alle Settings) steckt gebündelt in #search-panel-content und wird hier
+   mit EINER Regel ausgeblendet - sonst wirkt es so, als könnte man mitten
+   im Anflug noch etwas umstellen, obwohl das gerade gar nicht sinnvoll ist.
+   Neue Setting-Zeilen brauchen dafür keinen eigenen Eintrag mehr, solange
+   sie innerhalb von #search-panel-content liegen. #search-status liegt
+   bewusst als eigenständiges Geschwister-Element DANEBEN (nicht mehr
+   verschachtelt in #tab-search wie früher) - sonst würde ein display:none
+   auf #search-panel-content es automatisch mit verstecken, egal was man
+   selbst dafür einstellt. */
+#search-panel.searching #search-panel-content {
   display: none;
 }
 
@@ -267,23 +329,6 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   font-size: 15px;
   text-align: center;
   padding: 10px 0;
-}
-
-/* #search-status ist immer nur sichtbar, wenn sein Elternelement
-   #tab-search es auch ist - ein display:none auf dem Elternelement
-   gewinnt immer, unabhängig vom eigenen display-Wert. War beim Start von
-   geocodeAndFlyTo() aus dem 3D-Spots- oder Favoriten-Tab heraus (siehe
-   renderSpotList()/flyToFavorite() in main.js) gerade der Suche-Tab NICHT
-   aktiv, trägt #tab-search noch das hidden-Attribut aus switchSearchTab()
-   - dadurch blieben Lade-/Status-Infos dort unsichtbar, obwohl der Text
-   korrekt gesetzt wurde. Deshalb hier zusätzlich erzwingen. flex-direction:
-   column ebenfalls erzwingen (wie bei #tab-search:not([hidden]) weiter
-   unten) - sonst ist die Cross-Achse horizontal, #search-status nimmt nur
-   seine eigene Inhaltsbreite statt der vollen Panel-Breite ein, und
-   text-align: center darauf zentriert dann nicht mehr übers ganze Panel. */
-#search-panel.searching #tab-search[hidden] {
-  display: flex;
-  flex-direction: column;
 }
 
 /* Reiner CSS-Spinner (kein zusätzliches HTML-Element nötig) - erscheint
@@ -306,59 +351,86 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
 }
 
 #current-location {
-  font-size: 13px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  color: #dde;
+  font-size: 14px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: #9aa0aa;
 }
 
 #search-tabs {
   display: flex;
-  gap: 4px;
+  gap: 24px;
+  margin: 0 0 14px;
+  padding: 0;
 }
 
 .search-tab {
-  flex: 1;
-  padding: 6px 10px;
-  border-radius: 4px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  padding: 0 0 10px;
   border: none;
-  background: rgba(255, 255, 255, 0.12);
-  color: #dde;
-  font-size: 13px;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #9aa0aa;
+  font-size: 16px;
+  font-weight: 500;
   cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.tab-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.search-tab:hover {
+  color: #e6e8ec;
 }
 
 .search-tab.active {
-  background: #2a6df4;
   color: #fff;
+  font-weight: 600;
+  border-bottom-color: #2a6df4;
 }
 
-/* :not([hidden]) statt einem pauschalen "display: flex" auf #tab-search /
-   #tab-spots - sonst gewinnt diese ID-Regel gegen das hidden-Attribut aus
-   dem HTML (das per UA-Stylesheet nur "display: none" setzt) und beide
-   Tab-Inhalte werden dauerhaft gleichzeitig angezeigt, unabhängig vom
-   aktiven Tab. War der eigentliche Grund, warum sich die Tabs "kaputt"
-   angefühlt haben. */
-#tab-search:not([hidden]),
-#tab-spots:not([hidden]),
-#tab-favorites:not([hidden]) {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+/* Stern-Icon des Favoriten-Tabs ist beim aktiven Tab gefüllt statt nur
+   Outline, damit der Favoriten-Bezug klarer wird. */
+#tab-favorites-btn.active .tab-icon {
+  fill: currentColor;
 }
 
 #search-panel input,
 #search-panel select {
-  padding: 8px 10px;
-  border-radius: 4px;
-  border: none;
+  box-sizing: border-box;
+  padding: 9px 11px;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #0f1114;
+  color: #e6e8ec;
   font-size: 14px;
+  font-family: inherit;
+}
+
+#search-panel input::placeholder {
+  color: #656b76;
+}
+
+#search-panel input:focus,
+#search-panel select:focus {
+  outline: none;
+  border-color: #2a6df4;
+  box-shadow: 0 0 0 3px rgba(42, 109, 244, 0.25);
 }
 
 #spot-status {
   font-size: 12px;
   min-height: 14px;
-  color: #dde;
+  color: #9aa0aa;
 }
 
 #spot-list {
@@ -367,15 +439,16 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   padding: 0;
   max-height: 220px;
   overflow-y: auto;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.06);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .spot-item {
-  padding: 7px 10px;
-  font-size: 13px;
+  padding: 8px 11px;
+  font-size: 16px;
   cursor: pointer;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .spot-item:last-child {
@@ -395,10 +468,35 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   flex: 1;
 }
 
+#tab-search:not([hidden]) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#tab-search input {
+  flex: 1 1 100%;
+}
+
+#tab-search button {
+  flex: 1;
+}
+
+#tab-spots:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#tab-spots select,
+#tab-spots input {
+  width: 100%;
+}
+
 #favorite-status {
   font-size: 12px;
   min-height: 14px;
-  color: #dde;
+  color: #9aa0aa;
 }
 
 #favorite-list {
@@ -407,8 +505,9 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   padding: 0;
   max-height: 220px;
   overflow-y: auto;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.06);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .favorite-item {
@@ -416,9 +515,9 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 7px 10px;
-  font-size: 13px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 8px 11px;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .favorite-item:last-child {
@@ -442,8 +541,8 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
 
 .favorite-item-location {
   display: block;
-  font-size: 11px;
-  color: #bcd;
+  font-size: 14px;
+  color: #9aa0aa;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -451,76 +550,86 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
 
 .favorite-item-delete {
   flex-shrink: 0;
-  background: transparent;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: none;
-  color: #dde;
+  border-radius: 50%;
+  background: transparent;
+  color: #9aa0aa;
   font-size: 16px;
   line-height: 1;
   cursor: pointer;
-  padding: 2px 8px;
-  border-radius: 4px;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .favorite-item-delete:hover {
-  background: rgba(220, 50, 50, 0.6);
+  background: rgba(255, 255, 255, 0.08);
   color: #fff;
 }
 
-#search-panel button {
-  padding: 8px 10px;
-  border-radius: 4px;
+.favorite-item-delete:focus-visible {
+  outline: 2px solid #2a6df4;
+  outline-offset: 2px;
+}
+
+#search-panel button:not(.search-tab):not(#search-panel-close):not(.favorite-item-delete) {
+  padding: 9px 12px;
+  border-radius: 7px;
   border: none;
   background: #2a6df4;
   color: #fff;
   font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
+  transition: background 0.15s ease;
 }
 
-#search-panel button:hover {
+#search-panel button:not(.search-tab):not(#search-panel-close):not(.favorite-item-delete):hover {
   background: #1d55c4;
-}
-
-#search-status {
-  font-size: 12px;
-  min-height: 14px;
 }
 
 #fov-row {
   margin-top: 4px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 #filters-heading {
-  margin-top: 4px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: #aab;
+  margin: 0 0 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-/* Überschreibt die generische #search-panel-button-Größe - soll neben der
-   kleinen Bildfilter-Überschrift nicht wie der volle "Suchen"-Button
-   wirken. */
+#filters-heading h2 {
+  margin: 0;
+}
+
+/* Sekundär/Outline-Button statt Vollfarbe, damit "Zurücksetzen" nicht mit
+   dem primären "Suchen"-Button konkurriert. */
 #filters-reset-button {
-  padding: 3px 8px;
-  font-size: 11px;
+  padding: 4px 10px;
+  font-size: 14px;
+  font-weight: 500;
   text-transform: none;
   letter-spacing: normal;
-  font-weight: 400;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #9aa0aa;
+}
+
+#filters-reset-button:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e6e8ec;
 }
 
 .setting-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
+  gap: 10px;
+  font-size: 16px;
+  padding: 7px 0;
 }
 
 .setting-row[hidden] {
@@ -529,16 +638,55 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
 
 .setting-row label {
   flex-shrink: 0;
-}
-
-.setting-row input[type='range'] {
-  flex: 1;
+  color: #c4c8ce;
 }
 
 .setting-row span {
   min-width: 34px;
   text-align: right;
   flex-shrink: 0;
+  color: #9aa0aa;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom Range-Slider statt OS-Standard-Slider - dünne Spur, runder Thumb
+   in Akzentfarbe. Muss für WebKit/Firefox getrennt deklariert werden,
+   Browser ignorieren Regeln mit unbekannten Pseudo-Elementen im selben
+   Selektor sonst komplett. */
+.setting-row input[type='range'] {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+}
+
+.setting-row input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #2a6df4;
+  border: 2px solid #e6e8ec;
+  cursor: pointer;
+}
+
+.setting-row input[type='range']::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #2a6df4;
+  border: 2px solid #e6e8ec;
+  cursor: pointer;
+}
+
+.setting-row input[type='range']::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.12);
 }
 
 /* Toggle-Switch (z.B. Minimap-Beschriftungen) - eigenes Element statt
@@ -551,22 +699,22 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   margin-left: auto;
   flex-shrink: 0;
 }
- 
+
 .switch input {
   opacity: 0;
   width: 0;
   height: 0;
 }
- 
+
 .switch-slider {
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 20px;
   cursor: pointer;
   transition: background 0.15s ease;
 }
- 
+
 .switch-slider::before {
   content: '';
   position: absolute;
@@ -574,16 +722,17 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   height: 16px;
   left: 2px;
   top: 2px;
-  background: #fff;
+  background: #e6e8ec;
   border-radius: 50%;
   transition: transform 0.15s ease;
 }
- 
-.switch input:checked + .switch-slider {
+
+.switch input:checked+.switch-slider {
   background: #2a6df4;
 }
- 
-.switch input:checked + .switch-slider::before {
+
+.switch input:checked+.switch-slider::before {
+  background: #fff;
   transform: translateX(16px);
 }
 
@@ -707,7 +856,8 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
   border-top: 7px solid #fff;
-  transform-origin: 50% 66px; /* Fenstermitte: 70px minus Zeiger-Offset */
+  transform-origin: 50% 66px;
+  /* Fenstermitte: 70px minus Zeiger-Offset */
   z-index: 3;
 }
 
@@ -733,6 +883,7 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   0% {
     opacity: 1;
   }
+
   100% {
     opacity: 0;
   }

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
@@ -41,108 +41,178 @@
       <span id="altitude">0 m</span>
     </div>
     <div id="search-panel">
-      <div id="current-location">Aktueller Ort wird ermittelt…</div>
-      <div id="search-tabs">
-        <button id="tab-search-btn" class="search-tab active" type="button">🔍 Suche</button>
-        <button id="tab-spots-btn" class="search-tab" type="button">🗎 Liste</button>
-        <button id="tab-favorites-btn" class="search-tab" type="button">☆ Favoriten</button>
-      </div>
+      <button id="search-panel-close" type="button" aria-label="Menü schließen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      <div id="search-status"></div>
+      <div id="search-panel-content">
+        <div class="container">
+          <div id="current-location">Aktueller Ort wird ermittelt…</div>
+          <div id="search-tabs">
+            <button id="tab-search-btn" class="search-tab" type="button">
+              <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              Suche
+            </button>
+            <button id="tab-spots-btn" class="search-tab" type="button">
+              <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+              Liste
+            </button>
+            <button id="tab-favorites-btn" class="search-tab active" type="button">
+              <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              Favoriten
+            </button>
+          </div>
 
-      <div id="tab-search">
-        <input id="search-input" type="text" placeholder="Ort eingeben (z. B. Eiffelturm, Paris)" autocomplete="off" />
-        <button id="search-button">Suchen</button>
-        <button id="random-spot-button" type="button" hidden>🎲 Zufällig</button>
-        <span id="search-status"></span>
-      </div>
+          <div id="tab-search">
+            <input
+              id="search-input"
+              type="text"
+              placeholder="Ort eingeben (z. B. Eiffelturm, Paris)"
+              autocomplete="off"
+            />
+            <button id="search-button">Suchen</button>
+            <button id="random-spot-button" type="button">
+              🎲 Zufällig
+            </button>
+          </div>
 
-      <div id="tab-spots" hidden>
-        <select id="spot-country-select">
-          <option value="">Alle Länder</option>
-        </select>
-        <input id="spot-filter-input" type="text" placeholder="Filtern nach…" autocomplete="off" />
-        <ul id="spot-list"></ul>
-        <span id="spot-status"></span>
-      </div>
+          <div id="tab-spots">
+            <select id="spot-country-select">
+              <option value="">Alle Länder</option>
+            </select>
+            <input
+              id="spot-filter-input"
+              type="text"
+              placeholder="Filtern nach…"
+              autocomplete="off"
+            />
+            <ul id="spot-list"></ul>
+            <span id="spot-status"></span>
+          </div>
 
-      <div id="tab-favorites" hidden>
-        <div id="favorite-save-row">
-          <input id="favorite-name-input" type="text" placeholder="Name für diesen Favoriten" autocomplete="off" />
-          <button id="favorite-save-button">Speichern</button>
+          <div id="tab-favorites">
+            <div id="favorite-save-row">
+              <input
+                id="favorite-name-input"
+                type="text"
+                placeholder="Name für diesen Favoriten"
+                autocomplete="off"
+              />
+              <button id="favorite-save-button">Speichern</button>
+            </div>
+            <ul id="favorite-list"></ul>
+            <span id="favorite-status"></span>
+          </div>
         </div>
-        <ul id="favorite-list"></ul>
-        <span id="favorite-status"></span>
-      </div>
-
-      <div id="fov-row" class="setting-row">
-        <label for="fov-slider">Sichtfeld (FOV)</label>
-        <input id="fov-slider" type="range" min="30" max="100" step="1" />
-        <span id="fov-value"></span>
-      </div>
-      <div id="camera-tilt-row" class="setting-row">
-        <label for="camera-tilt-slider">Kamera-Blickwinkel</label>
-        <input id="camera-tilt-slider" type="range" min="-60" max="30" step="1" />
-        <span id="camera-tilt-value"></span>
-      </div>
-      <div id="minimap-labels-row" class="setting-row">
-        <label for="minimap-labels-toggle">Kartenbeschriftungen</label>
-        <label class="switch">
-          <input id="minimap-labels-toggle" type="checkbox" checked />
-          <span class="switch-slider"></span>
-        </label>
-      </div>
-      <div id="plane-visible-row" class="setting-row">
-        <label for="plane-visible-toggle">Flugzeug anzeigen</label>
-        <label class="switch">
-          <input id="plane-visible-toggle" type="checkbox" checked />
-          <span class="switch-slider"></span>
-        </label>
-      </div>
-      <div id="hide-hud-row" class="setting-row">
-        <label for="hide-hud-toggle">Nur Landschaft (alle Anzeigen ausblenden)</label>
-        <label class="switch">
-          <input id="hide-hud-toggle" type="checkbox" />
-          <span class="switch-slider"></span>
-        </label>
-      </div>
-
-      <div id="filters-heading">
-        <span>Bildfilter</span>
-        <button id="filters-reset-button" type="button">Zurücksetzen</button>
-      </div>
-      <div id="contrast-row" class="setting-row">
-        <label for="contrast-slider">Kontrast</label>
-        <input id="contrast-slider" type="range" min="80" max="130" step="1" />
-        <span id="contrast-value"></span>
-      </div>
-      <div id="saturation-row" class="setting-row">
-        <label for="saturation-slider">Sättigung</label>
-        <input id="saturation-slider" type="range" min="70" max="140" step="1" />
-        <span id="saturation-value"></span>
-      </div>
-      <div id="brightness-row" class="setting-row">
-        <label for="brightness-slider">Helligkeit</label>
-        <input id="brightness-slider" type="range" min="60" max="120" step="1" />
-        <span id="brightness-value"></span>
-      </div>
-      <div id="sepia-row" class="setting-row">
-        <label for="sepia-slider">Sepia</label>
-        <input id="sepia-slider" type="range" min="0" max="100" step="1" />
-        <span id="sepia-value"></span>
-      </div>
-      <div id="vignette-row" class="setting-row">
-        <label for="vignette-slider">Vignette</label>
-        <input id="vignette-slider" type="range" min="0" max="60" step="1" />
-        <span id="vignette-value"></span>
-      </div>
-      <div id="grain-row" class="setting-row">
-        <label for="grain-slider">Filmkorn</label>
-        <input id="grain-slider" type="range" min="0" max="100" step="1" />
-        <span id="grain-value"></span>
-      </div>
-      <div id="blur-row" class="setting-row">
-        <label for="blur-slider">Blur</label>
-        <input id="blur-slider" type="range" min="0" max="100" step="1" />
-        <span id="blur-value"></span>
+        <div class="container">
+          <h2>Ansicht</h2>
+          <div id="fov-row" class="setting-row">
+            <label for="fov-slider">Sichtfeld (FOV)</label>
+            <input id="fov-slider" type="range" min="30" max="100" step="1" />
+            <span id="fov-value"></span>
+          </div>
+          <div id="camera-tilt-row" class="setting-row">
+            <label for="camera-tilt-slider">Kamera-Blickwinkel</label>
+            <input
+              id="camera-tilt-slider"
+              type="range"
+              min="-60"
+              max="30"
+              step="1"
+            />
+            <span id="camera-tilt-value"></span>
+          </div>
+          <div id="minimap-labels-row" class="setting-row">
+            <label for="minimap-labels-toggle">Kartenbeschriftungen</label>
+            <label class="switch">
+              <input id="minimap-labels-toggle" type="checkbox" checked />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          <div id="plane-visible-row" class="setting-row">
+            <label for="plane-visible-toggle">Flugzeug anzeigen</label>
+            <label class="switch">
+              <input id="plane-visible-toggle" type="checkbox" checked />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          <div id="hide-hud-row" class="setting-row">
+            <label for="hide-hud-toggle"
+              >Anzeigen ausblenden</label
+            >
+            <label class="switch">
+              <input id="hide-hud-toggle" type="checkbox" />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+        </div>
+        <div class="container">
+          <div id="filters-heading">
+            <h2>Filter</h2>
+            <button id="filters-reset-button" type="button">
+              Zurücksetzen
+            </button>
+          </div>
+          <div id="contrast-row" class="setting-row">
+            <label for="contrast-slider">Kontrast</label>
+            <input
+              id="contrast-slider"
+              type="range"
+              min="80"
+              max="130"
+              step="1"
+            />
+            <span id="contrast-value"></span>
+          </div>
+          <div id="saturation-row" class="setting-row">
+            <label for="saturation-slider">Sättigung</label>
+            <input
+              id="saturation-slider"
+              type="range"
+              min="70"
+              max="140"
+              step="1"
+            />
+            <span id="saturation-value"></span>
+          </div>
+          <div id="brightness-row" class="setting-row">
+            <label for="brightness-slider">Helligkeit</label>
+            <input
+              id="brightness-slider"
+              type="range"
+              min="60"
+              max="120"
+              step="1"
+            />
+            <span id="brightness-value"></span>
+          </div>
+          <div id="sepia-row" class="setting-row">
+            <label for="sepia-slider">Sepia</label>
+            <input id="sepia-slider" type="range" min="0" max="100" step="1" />
+            <span id="sepia-value"></span>
+          </div>
+          <div id="vignette-row" class="setting-row">
+            <label for="vignette-slider">Vignette</label>
+            <input
+              id="vignette-slider"
+              type="range"
+              min="0"
+              max="60"
+              step="1"
+            />
+            <span id="vignette-value"></span>
+          </div>
+          <div id="grain-row" class="setting-row">
+            <label for="grain-slider">Filmkorn</label>
+            <input id="grain-slider" type="range" min="0" max="100" step="1" />
+            <span id="grain-value"></span>
+          </div>
+          <div id="blur-row" class="setting-row">
+            <label for="blur-slider">Blur</label>
+            <input id="blur-slider" type="range" min="0" max="100" step="1" />
+            <span id="blur-value"></span>
+          </div>
+        </div>
       </div>
     </div>
     <script type="module" src="/src/main.js"></script>
