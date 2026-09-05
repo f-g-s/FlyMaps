@@ -38,6 +38,21 @@ body.cursor-hidden {
   display: none !important;
 }
 
+/* Wird per "Nur Landschaft"-Schalter im Pausenmenü gesetzt (hide-hud-toggle
+   in main.js) - blendet zusätzlich zur obigen Logo-Regel auch Googles
+   Pflicht-Attributionstext, HUD, Geschwindigkeit/Höhe, Minimap und
+   künstlichen Horizont aus. Ist ausschließlich für die eigene Ansicht
+   gedacht; bei öffentlich geteilten Aufnahmen sollte die Attribution
+   wieder eingeblendet werden. Der collision-flash bleibt bewusst
+   sichtbar, da er Sicherheits-Feedback ist, keine Dateneinblendung. */
+body.hide-hud #hud,
+body.hide-hud #flight-data,
+body.hide-hud #minimap-wrapper,
+body.hide-hud #horizon-wrapper,
+body.hide-hud .cesium-widget-credits {
+  display: none !important;
+}
+
 #cesiumContainer .cesium-viewer-fullscreenContainer {
   display: none !important;
   top: 5px;
@@ -232,6 +247,7 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
 #search-panel.searching #fov-row,
 #search-panel.searching #camera-tilt-row,
 #search-panel.searching #minimap-labels-row,
+#search-panel.searching #plane-visible-row,
 #search-panel.searching #filters-heading,
 #search-panel.searching #contrast-row,
 #search-panel.searching #saturation-row,
@@ -505,6 +521,10 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   align-items: center;
   gap: 8px;
   font-size: 13px;
+}
+
+.setting-row[hidden] {
+  display: none;
 }
 
 .setting-row label {

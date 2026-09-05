@@ -119,6 +119,8 @@ function saveCameraState() {
         fovDegrees: Cesium.Math.toDegrees(viewer.camera.frustum.fov),
         cameraTiltDegrees: Cesium.Math.toDegrees(cameraTiltOffset),
         minimapLabelsVisible,
+        planeVisible,
+        hudHidden,
         contrastPct: colorGradeSettings.contrastAmount * 100,
         saturationPct: colorGradeSettings.saturationAmount * 100,
         brightnessPct: colorGradeSettings.brightnessAmount * 100,
@@ -459,13 +461,19 @@ async function loadGoogleTiles() {
         roll: usableSavedState.roll,
       };
       pitch = usableSavedState.pitch;
+      pitchRaw = usableSavedState.pitch;
       roll = usableSavedState.roll;
+      rollRaw = usableSavedState.roll;
       if (typeof usableSavedState.fovDegrees === "number")
         applyFov(usableSavedState.fovDegrees);
       if (typeof usableSavedState.cameraTiltDegrees === "number")
         applyCameraTilt(usableSavedState.cameraTiltDegrees);
       if (typeof usableSavedState.minimapLabelsVisible === "boolean")
         applyMinimapLabelsVisible(usableSavedState.minimapLabelsVisible);
+      if (typeof usableSavedState.planeVisible === "boolean")
+        applyPlaneVisible(usableSavedState.planeVisible);
+      if (typeof usableSavedState.hudHidden === "boolean")
+        applyHudHidden(usableSavedState.hudHidden);
       if (Number.isFinite(usableSavedState.contrastPct))
         applyContrast(usableSavedState.contrastPct);
       if (Number.isFinite(usableSavedState.saturationPct))
@@ -733,7 +741,6 @@ function applyCameraTilt(deg) {
   cameraTiltSlider.value = clamped;
   cameraTiltValueEl.textContent = `${Math.round(clamped)}°`;
 }
-
 cameraTiltSlider.min = CAMERA_TILT_MIN_DEG;
 cameraTiltSlider.max = CAMERA_TILT_MAX_DEG;
 applyCameraTilt(CAMERA_TILT_DEFAULT_DEG);
@@ -750,7 +757,191 @@ cameraTiltSlider.addEventListener("input", () => {
       roll,
     },
   });
+  updatePlaneModelMatrix();
 });
+
+// --- Flugzeug-Overlay (kein eigenständiges Objekt, nur eingeblendet) ----
+// Kein echtes Weltobjekt mit eigener Position/Physik, sondern eine reine
+// Sicht-Deko: das Modell wird jeden Frame relativ zur aktuellen Kamera neu
+// platziert (etwas davor und darunter) und mit der Kamera-Ausrichtung
+// mitgedreht - dadurch "klebt" es fix an der gleichen Stelle im Bild, so
+// als würde man von einem Cockpit/einer Drohnen-Nase aus schauen.
+const PLANE_MODEL_URL = "/models/cockpit.glb";
+const PLANE_FORWARD_OFFSET = 43; // Meter vor der Kamera
+const PLANE_DOWN_OFFSET = 42; // Meter unterhalb der Kamera
+const PLANE_RIGHT_OFFSET = 23; // Meter seitlich (0 = mittig)
+const PLANE_SCALE = 0.60; // ggf. anpassen, falls das Modell zu groß/klein ist
+// Abdunkelung: 0 = Originalfarben, 1 = komplett schwarz. Wird per
+// colorBlendMode MULTIPLY mit den Modellfarben verrechnet.
+const PLANE_DARKEN_AMOUNT = 0.5;
+// Falls das Modell nicht in Blickrichtung "nach vorne" zeigt (glTF-Konvention:
+// Front = lokale -Z-Achse), kann hier ein zusätzlicher Dreh-Offset in Grad
+// ergänzt werden (Gieren/Neigen/Rollen relativ zur Kamera).
+const PLANE_YAW_OFFSET_DEG = 0;
+const PLANE_PITCH_OFFSET_DEG = -90;
+const PLANE_ROLL_OFFSET_DEG = -90;
+
+let planeModel = null;
+let planeVisible = true;
+
+const planeVisibleToggle = document.getElementById("plane-visible-toggle");
+
+const planeScratchPosition = new Cesium.Cartesian3();
+const planeScratchOffset = new Cesium.Cartesian3();
+const planeScratchRotation = new Cesium.Matrix3();
+const planeScratchOffsetRotation = new Cesium.Matrix3();
+const planeExtraRotation = Cesium.Matrix3.fromHeadingPitchRoll(
+  new Cesium.HeadingPitchRoll(
+    Cesium.Math.toRadians(PLANE_YAW_OFFSET_DEG),
+    Cesium.Math.toRadians(PLANE_PITCH_OFFSET_DEG),
+    Cesium.Math.toRadians(PLANE_ROLL_OFFSET_DEG),
+  ),
+  new Cesium.Matrix3(),
+);
+
+function updatePlaneModelMatrix() {
+  if (!planeModel) return;
+
+  const camera = viewer.camera;
+
+  // Position: Kamera-Position + Versatz entlang der Kamera-eigenen Achsen
+  // (davor / darunter / seitlich).
+  Cesium.Cartesian3.clone(camera.positionWC, planeScratchPosition);
+  Cesium.Cartesian3.multiplyByScalar(
+    camera.direction,
+    PLANE_FORWARD_OFFSET,
+    planeScratchOffset,
+  );
+  Cesium.Cartesian3.add(
+    planeScratchPosition,
+    planeScratchOffset,
+    planeScratchPosition,
+  );
+  Cesium.Cartesian3.multiplyByScalar(
+    camera.up,
+    -PLANE_DOWN_OFFSET,
+    planeScratchOffset,
+  );
+  Cesium.Cartesian3.add(
+    planeScratchPosition,
+    planeScratchOffset,
+    planeScratchPosition,
+  );
+  if (PLANE_RIGHT_OFFSET !== 0) {
+    Cesium.Cartesian3.multiplyByScalar(
+      camera.right,
+      PLANE_RIGHT_OFFSET,
+      planeScratchOffset,
+    );
+    Cesium.Cartesian3.add(
+      planeScratchPosition,
+      planeScratchOffset,
+      planeScratchPosition,
+    );
+  }
+
+  // Ausrichtung: lokale Achsen des Modells (glTF: X=rechts, Y=oben,
+  // Z=-Blickrichtung) auf die Kamera-Achsen abbilden, damit das Modell immer
+  // "vorwärts" zur Kamera zeigt, egal wie geflogen wird.
+  Cesium.Matrix3.setColumn(
+    planeScratchRotation,
+    0,
+    camera.right,
+    planeScratchRotation,
+  );
+  Cesium.Matrix3.setColumn(
+    planeScratchRotation,
+    1,
+    camera.up,
+    planeScratchRotation,
+  );
+  const negDirection = Cesium.Cartesian3.negate(
+    camera.direction,
+    new Cesium.Cartesian3(),
+  );
+  Cesium.Matrix3.setColumn(
+    planeScratchRotation,
+    2,
+    negDirection,
+    planeScratchRotation,
+  );
+  Cesium.Matrix3.multiply(
+    planeScratchRotation,
+    planeExtraRotation,
+    planeScratchOffsetRotation,
+  );
+
+  const modelMatrix = Cesium.Matrix4.fromRotationTranslation(
+    planeScratchOffsetRotation,
+    planeScratchPosition,
+    new Cesium.Matrix4(),
+  );
+  if (PLANE_SCALE !== 1) {
+    Cesium.Matrix4.multiplyByUniformScale(
+      modelMatrix,
+      PLANE_SCALE,
+      modelMatrix,
+    );
+  }
+  planeModel.modelMatrix = modelMatrix;
+}
+
+// Wenn das Flugzeug-Overlay sichtbar ist, ist der Blickwinkel fest auf
+// diesen Wert gesetzt (passend zur Cockpit-Perspektive) und der Tilt-Regler
+// wird ausgeblendet, da er in dem Zustand ohnehin wirkungslos wäre.
+const PLANE_FIXED_TILT_DEG = -3;
+const cameraTiltRow = document.getElementById("camera-tilt-row");
+
+function applyPlaneVisible(visible) {
+  planeVisible = visible;
+  planeVisibleToggle.checked = visible;
+  if (planeModel) planeModel.show = visible;
+  cameraTiltRow.hidden = visible;
+  if (visible) applyCameraTilt(PLANE_FIXED_TILT_DEG);
+}
+
+planeVisibleToggle.addEventListener("change", () => {
+  applyPlaneVisible(planeVisibleToggle.checked);
+  saveCameraState();
+});
+applyPlaneVisible(planeVisible); // Initialzustand (Regler-Sichtbarkeit + Tilt)
+
+// "Nur Landschaft"-Schalter - blendet HUD, Speed/Höhe, Minimap, Horizont
+// und die Google-Attribution aus (siehe body.hide-hud-Regel in style.css).
+let hudHidden = false;
+const hideHudToggle = document.getElementById("hide-hud-toggle");
+
+function applyHudHidden(hidden) {
+  hudHidden = hidden;
+  hideHudToggle.checked = hidden;
+  document.body.classList.toggle("hide-hud", hidden);
+}
+
+hideHudToggle.addEventListener("change", () => {
+  applyHudHidden(hideHudToggle.checked);
+  saveCameraState();
+});
+applyHudHidden(hudHidden);
+
+async function loadPlaneModel() {
+  try {
+    planeModel = await Cesium.Model.fromGltfAsync({
+      url: PLANE_MODEL_URL,
+      // Kein Höhen-Clamping/Terrain-Bezug - die Position wird jeden Frame
+      // selbst gesetzt (siehe updatePlaneModelMatrix), daher hier keine
+      // scene-Referenzierung für Höhen-Interpretation nötig.
+    });
+    planeModel.show = planeVisible;
+    const shade = 1 - PLANE_DARKEN_AMOUNT;
+    planeModel.color = new Cesium.Color(shade, shade, shade, 1);
+    planeModel.colorBlendMode = Cesium.ColorBlendMode.HIGHLIGHT;
+    viewer.scene.primitives.add(planeModel);
+    updatePlaneModelMatrix();
+  } catch (err) {
+    console.error("Flugzeug-Modell konnte nicht geladen werden:", err);
+  }
+}
+loadPlaneModel();
 
 // --- Bildfilter (nur im Pausenmodus einstellbar) ------------------------
 // Vier Regler auf dieselbe cinematicColorGrade-Post-Process-Stage (siehe
@@ -1037,7 +1228,9 @@ async function geocodeAndFlyTo(query) {
     // fortgesetzt wird - unabhängig davon, dass flyTo selbst schon
     // horizontal ausgerichtet ist.
     pitch = 0;
+    pitchRaw = 0;
     roll = 0;
+    rollRaw = 0;
     pitchRate = 0;
     rollRate = 0;
     yawRate = 0;
@@ -1371,6 +1564,7 @@ async function saveFavorite() {
     fovDegrees: Cesium.Math.toDegrees(viewer.camera.frustum.fov),
     cameraTiltDegrees: Cesium.Math.toDegrees(cameraTiltOffset),
     minimapLabelsVisible,
+    planeVisible,
     contrastPct: colorGradeSettings.contrastAmount * 100,
     saturationPct: colorGradeSettings.saturationAmount * 100,
     brightnessPct: colorGradeSettings.brightnessAmount * 100,
@@ -1429,7 +1623,9 @@ async function flyToFavorite(favorite) {
     // Tick-Handler nach dem Fortsetzen wieder den ALTEN pitch/roll-Wert
     // von vor dem Sprung (siehe gleiches Vorgehen in geocodeAndFlyTo).
     pitch = favorite.pitch;
+    pitchRaw = favorite.pitch;
     roll = favorite.roll;
+    rollRaw = favorite.roll;
     pitchRate = Number.isFinite(favorite.pitchRate) ? favorite.pitchRate : 0;
     rollRate = Number.isFinite(favorite.rollRate) ? favorite.rollRate : 0;
     yawRate = Number.isFinite(favorite.yawRate) ? favorite.yawRate : 0;
@@ -1438,6 +1634,8 @@ async function flyToFavorite(favorite) {
       applyCameraTilt(favorite.cameraTiltDegrees);
     if (typeof favorite.minimapLabelsVisible === "boolean")
       applyMinimapLabelsVisible(favorite.minimapLabelsVisible);
+    if (typeof favorite.planeVisible === "boolean")
+      applyPlaneVisible(favorite.planeVisible);
     if (Number.isFinite(favorite.contrastPct))
       applyContrast(favorite.contrastPct);
     if (Number.isFinite(favorite.saturationPct))
@@ -1569,16 +1767,39 @@ const THROTTLE_ACCEL = 40; // m/s^2 beim Gasgeben/Bremsen
 
 const PITCH_RATE = Cesium.Math.toRadians(50); // rad/s, maximale Pitch-Änderungsrate
 const PITCH_MAX = Cesium.Math.toRadians(45);
-const PITCH_SMOOTH_TIME = 1; // Sekunden, bis die volle Rate erreicht ist
+const PITCH_SMOOTH_TIME = 2; // Sekunden, bis die volle Rate erreicht ist (Einschwingen, bei gehaltener Taste)
+const PITCH_RETURN_SMOOTH_TIME = 4; // Sekunden - schnelleres Ausschwingen der Rate nach Loslassen, damit man zügiger aus Pitch rauskommt
+const PITCH_LIMIT_EASE_DEG = 15; // Breite der Sättigungszone vor PITCH_MAX (siehe softLimitAngle)
 
 const ROLL_RATE = Cesium.Math.toRadians(70);
 const ROLL_MAX = Cesium.Math.toRadians(30);
-const ROLL_SMOOTH_TIME = 2; // Sekunden, bis die volle Rate erreicht ist (gleicher Wert für Ein- und Ausschwingen)
+const ROLL_SMOOTH_TIME = 2; // Sekunden, bis die volle Rate erreicht ist (Einschwingen, bei gehaltener Taste)
+const ROLL_RETURN_SMOOTH_TIME = 2; // Sekunden - schnelleres Ausschwingen der Rate nach Loslassen, damit man zügiger aus der Schräglage rauskommt
 const ROLL_AUTO_LEVEL_TIME = 1; // Sekunden - sehr langsamer, sanfter Drift zurück zu 0°, wenn keine Taste gedrückt ist
+const ROLL_LIMIT_EASE_DEG = 15; // Breite der Sättigungszone vor ROLL_MAX (siehe softLimitAngle unten)
 
 const RUDDER_YAW_RATE = Cesium.Math.toRadians(35); // A/D, maximale Yaw-Rate
-const YAW_SMOOTH_TIME = 1; // Sekunden, bis die volle Rate erreicht ist
+const YAW_SMOOTH_TIME = 2; // Sekunden, bis die volle Rate erreicht ist
 const ROLL_TURN_COEFF = 1.1; // wie stark Rollen zusätzlich Gieren erzeugt
+
+// Sanfte Sättigungskurve statt hartem Clamp: innerhalb von
+// (max - softZoneRad) verhält sich der Wert normal/linear, danach nähert
+// er sich max exponentiell an, ohne ihn je zu überschreiten. Wird pro
+// Frame frisch aus einem ungekappten Rohwert (rollRaw/pitchRaw) berechnet,
+// statt iterativ auf dem bereits gesättigten Wert aufzubauen - sonst würde
+// der komprimierte Wertebereich fälschlich als "linearer" Eingang für den
+// nächsten Frame missverstanden, was zu einem spürbaren Zucken/
+// Zurückspringen kurz vor der Grenze führte.
+function softLimitAngle(rawValue, max, softZoneRad) {
+  const linear = max - softZoneRad;
+  const abs = Math.abs(rawValue);
+  if (abs <= linear) return rawValue;
+  const excess = abs - linear;
+  return (
+    Math.sign(rawValue) *
+    (linear + softZoneRad * (1 - Math.exp(-excess / softZoneRad)))
+  );
+}
 
 // --- Kollision mit Gebäuden/Terrain (3D Tiles) --------------------------
 // Statt einer Höhen-Abfrage (wie bei getGroundHeight) wird hier pro Frame
@@ -1613,8 +1834,10 @@ function triggerCollisionFlash() {
 }
 
 let speed = 0;
-let pitch = 0; // Startwert passend zum flyTo oben (waagerecht)
-let roll = 0;
+let pitch = 0; // angezeigter/tatsächlich geflogener Wert, immer = softLimitAngle(pitchRaw, ...)
+let pitchRaw = 0; // ungekappter interner Akkumulator, siehe softLimitAngle oben
+let roll = 0; // angezeigter/tatsächlich geflogener Wert, immer = softLimitAngle(rollRaw, ...)
+let rollRaw = 0; // ungekappter interner Akkumulator, siehe softLimitAngle oben
 let pitchRate = 0; // aktuelle (geglättete) Pitch-Änderungsrate
 let rollRate = 0; // aktuelle (geglättete) Roll-Änderungsrate
 let yawRate = 0; // aktuelle (geglättete) Seitenruder-Rate
@@ -1630,6 +1853,50 @@ window.addEventListener("blur", () => pressedKeys.clear());
 let lastTime = performance.now();
 let lastSaveTime = 0;
 const SAVE_INTERVAL_MS = 500; // wie oft die Position für den Reload-Fall gesichert wird
+
+// Beim schnellen Wechsel zwischen zwei entgegengesetzten Pfeiltasten (z.B.
+// Rechts -> Links für Roll) lässt man die eine Taste in der Praxis kurz los,
+// bevor die andere gedrückt wird. In dieser Lücke sind beide Tasten
+// losgelassen, das Ziel würde kurz auf 0 fallen und die Rate Richtung 0
+// abgebaut - spürbar als kurzes Innehalten, bevor die neue Richtung
+// eigentlich schon "gemeint" war. KEY_SWITCH_GRACE_MS toleriert solche
+// kurzen Lücken: die zuletzt gedrückte Richtung bleibt als Ziel aktiv, bis
+// entweder die Gegenrichtung gedrückt wird oder die Toleranzzeit abläuft
+// (dann erst gilt es als echtes Loslassen).
+const KEY_SWITCH_GRACE_MS = 120;
+
+function createAxisTargetTracker(negativeKeyCode, positiveKeyCode, rate) {
+  let gapStartTime = null;
+  let lastDirection = 0; // -1, 0 oder 1 - zuletzt tatsächlich gedrückte Richtung
+  return function getTarget(now) {
+    const negativeHeld = pressedKeys.has(negativeKeyCode);
+    const positiveHeld = pressedKeys.has(positiveKeyCode);
+    if (negativeHeld || positiveHeld) {
+      gapStartTime = null;
+      lastDirection = negativeHeld ? -1 : 1;
+      return lastDirection * rate;
+    }
+    if (gapStartTime === null) gapStartTime = now;
+    if (now - gapStartTime < KEY_SWITCH_GRACE_MS && lastDirection !== 0) {
+      return lastDirection * rate; // innerhalb der Toleranzzeit: altes Ziel beibehalten
+    }
+    lastDirection = 0;
+    return 0; // Toleranzzeit abgelaufen: jetzt wirklich losgelassen
+  };
+}
+
+// Pitch-Mapping TESTWEISE INVERTIERT (ArrowUp = -RATE), siehe Kommentar
+// beim ursprünglichen pitchTarget weiter unten.
+const getPitchTarget = createAxisTargetTracker(
+  "ArrowUp",
+  "ArrowDown",
+  PITCH_RATE,
+);
+const getRollTarget = createAxisTargetTracker(
+  "ArrowLeft",
+  "ArrowRight",
+  ROLL_RATE,
+);
 
 viewer.clock.onTick.addEventListener(() => {
   const now = performance.now();
@@ -1651,37 +1918,108 @@ viewer.clock.onTick.addEventListener(() => {
   }
 
   // Pitch: TESTWEISE INVERTIERT - Pfeil hoch = Nase runter, Pfeil runter =
-  // Nase hoch. Die Rate wird weiterhin sanft an-/abgebremst (Glättung), der
-  // Winkel bleibt stehen, wenn keine Taste gedrückt ist.
-  const pitchTarget = pressedKeys.has("ArrowUp")
-    ? -PITCH_RATE
-    : pressedKeys.has("ArrowDown")
-      ? PITCH_RATE
-      : 0;
-  const pitchSmoothing = 1 - Math.exp(-dt / PITCH_SMOOTH_TIME);
-  pitchRate += (pitchTarget - pitchRate) * pitchSmoothing;
-  pitch = Cesium.Math.clamp(pitch + pitchRate * dt, -PITCH_MAX, PITCH_MAX);
+  // Nase hoch. Die Rate wird weiterhin sanft an-/abgebremst, der Winkel
+  // bleibt stehen, wenn keine Taste gedrückt ist. getPitchTarget toleriert
+  // kurze Tasten-Lücken beim Richtungswechsel (siehe createAxisTargetTracker
+  // oben).
+  const pitchTarget = getPitchTarget(now);
+  // Die schnellere PITCH_RETURN_SMOOTH_TIME gilt bewusst NUR noch beim
+  // echten Loslassen (kein Pfeil mehr gedrückt, pitchTarget === 0) - nicht
+  // mehr bei einem Richtungswechsel bei weiterhin gehaltener Taste. Sonst
+  // fühlt sich ein direkter Wechsel (z.B. von voller Nase-hoch sofort auf
+  // Nase-runter) spürbar hektischer/schneller an als ein Aufbau aus der
+  // Nulllage, weil dafür die schnelle statt der normalen Zeitkonstante
+  // greift (gleiches Prinzip wie bei rollReturning, siehe Kommentar dort).
+  const pitchReturning = pitchTarget === 0;
+  // Lineare Rampe (konstante Winkelbeschleunigung) statt e-Funktions-
+  // Glättung: ändert pitchRate immer mit exakt derselben Beschleunigung,
+  // egal wie groß die aktuelle Neigung oder das verbleibende Delta ist -
+  // dadurch wirkt jede Kehrtwende/jeder Aufbau gleich smooth (gleiches
+  // Prinzip wie bei rollRate weiter unten).
+  const pitchAccel =
+    PITCH_RATE / (pitchReturning ? PITCH_RETURN_SMOOTH_TIME : PITCH_SMOOTH_TIME);
+  const pitchRateStep = Cesium.Math.clamp(
+    pitchTarget - pitchRate,
+    -pitchAccel * dt,
+    pitchAccel * dt,
+  );
+  pitchRate += pitchRateStep;
+
+  // pitchRaw läuft frei/ungekappt mit - pitch (sichtbar/geflogen) wird
+  // jeden Frame frisch daraus abgeleitet (siehe softLimitAngle oben),
+  // gleiches Vorgehen wie beim Roll-Limit weiter unten.
+  pitchRaw += pitchRate * dt;
+  pitchRaw = Cesium.Math.clamp(pitchRaw, -PITCH_MAX * 1.5, PITCH_MAX * 1.5);
+  pitch = softLimitAngle(
+    pitchRaw,
+    PITCH_MAX,
+    Cesium.Math.toRadians(PITCH_LIMIT_EASE_DEG),
+  );
 
   // Roll: Pfeil links/rechts - Ansprechverhalten genau wie Pitch/Yaw (Taps
-  // addieren sich smooth auf, kein sofortiges Zurückschnappen). Zusätzlich
-  // driftet der Winkel ohne Tastendruck sehr langsam zu 0° zurück
-  // (ROLL_AUTO_LEVEL_TIME), damit man nicht dauerhaft in Schräglage hängt,
-  // ohne dass es sich beim aktiven Steuern spürbar "gegen die Hand" anfühlt.
+  // addieren sich smooth auf, kein sofortiges Zurückschnappen). Die kurze
+  // ROLL_RETURN_SMOOTH_TIME gilt nicht nur beim Loslassen, sondern auch bei
+  // einem Richtungswechsel bei gehaltener Taste (Ziel hat entgegengesetztes
+  // Vorzeichen zur aktuellen Rate) - sonst würde rollRate beim Reversieren
+  // erst langsam über ROLL_SMOOTH_TIME abgebaut, während rollRaw in der
+  // Zeit spürbar noch in die alte Richtung weiterläuft (kleiner Ruckler).
+  // Zusätzlich driftet der Winkel ohne Tastendruck sehr langsam zu 0°
+  // zurück (ROLL_AUTO_LEVEL_TIME), damit man nicht dauerhaft in Schräglage
+  // hängt, ohne dass es sich beim aktiven Steuern spürbar "gegen die Hand"
+  // anfühlt.
   const rollHeld =
     pressedKeys.has("ArrowLeft") || pressedKeys.has("ArrowRight");
-  const rollTarget = pressedKeys.has("ArrowLeft")
-    ? -ROLL_RATE
-    : pressedKeys.has("ArrowRight")
-      ? ROLL_RATE
-      : 0;
-  const rollSmoothing = 1 - Math.exp(-dt / ROLL_SMOOTH_TIME);
-  rollRate += (rollTarget - rollRate) * rollSmoothing;
-  roll = Cesium.Math.clamp(roll + rollRate * dt, -ROLL_MAX, ROLL_MAX);
+  const rollTarget = getRollTarget(now);
+  // Die schnellere ROLL_RETURN_SMOOTH_TIME gilt bewusst NUR noch beim
+  // echten Loslassen (kein Pfeil mehr gedrückt, rollTarget === 0) - nicht
+  // mehr bei einem Richtungswechsel bei weiterhin gehaltener Taste. Sonst
+  // fühlt sich ein direkter Wechsel (z.B. von voller Linkslage sofort auf
+  // Rechts) spürbar hektischer/schneller an als ein Aufbau aus dem
+  // Geradeausflug, weil dafür die schnelle statt der normalen Zeitkonstante
+  // greift. Ein gehaltener Richtungswechsel läuft jetzt genau mit derselben
+  // Beschleunigung wie jeder andere Aufbau - dadurch immer gleich ruhig,
+  // unabhängig vom Ausgangswinkel.
+  const rollReturning = rollTarget === 0;
+  // Lineare Rampe (konstante Winkelbeschleunigung) statt e-Funktions-
+  // Glättung: ändert rollRate immer mit exakt derselben Beschleunigung,
+  // egal wie groß die aktuelle Schräglage oder das verbleibende Delta ist.
+  const rollAccel =
+    ROLL_RATE / (rollReturning ? ROLL_RETURN_SMOOTH_TIME : ROLL_SMOOTH_TIME);
+  const rollRateStep = Cesium.Math.clamp(
+    rollTarget - rollRate,
+    -rollAccel * dt,
+    rollAccel * dt,
+  );
+  rollRate += rollRateStep;
 
-  if (!rollHeld) {
+  // rollRaw läuft frei/ungekappt mit - roll (sichtbar/geflogen) wird jeden
+  // Frame frisch daraus abgeleitet (siehe softLimitAngle oben). dt-Cap oben
+  // (max. 0.1s) hält auch den Schritt pro Frame hier in vernünftigem Rahmen.
+  rollRaw += rollRate * dt;
+
+  // Der Auto-Level-Zug Richtung 0° soll nicht nur beim kompletten Loslassen
+  // greifen, sondern auch, solange man aktiv GEGENlenkt (Ziel entgegengesetzt
+  // zum aktuellen Winkel) - sonst hängt man beim Gegenlenken einseitig nur
+  // an der langsamen Rate-Rampe, die erst durch 0 durchqueren muss, während
+  // Loslassen zusätzlich diesen direkten Zug bekommt und dadurch spürbar
+  // schneller wieder gerade auf Kurs kommt als aktives Gegensteuern - fühlt
+  // sich dann an, als würde die alte Rollbewegung "einrasten" und unkontrolliert
+  // weiterlaufen. Sobald der Winkel auf die neue (Ziel-)Seite gewechselt hat,
+  // baut man aktiv in die neue Richtung auf - dann greift der Zug nicht mehr,
+  // damit er der Eingabe nicht entgegenwirkt.
+  const rollOpposesTarget =
+    roll !== 0 && Math.sign(rollTarget) !== Math.sign(roll);
+  if (!rollHeld || rollOpposesTarget) {
     const levelFactor = 1 - Math.exp(-dt / ROLL_AUTO_LEVEL_TIME);
-    roll -= roll * levelFactor;
+    rollRaw -= rollRaw * levelFactor;
   }
+
+  // Verhindert, dass rollRaw bei lang gehaltenem Anschlag beliebig
+  // wegläuft - sonst würde ein Richtungswechsel danach erst träge auf den
+  // "unsichtbaren" Überschuss reagieren, bevor roll wieder abnimmt.
+  rollRaw = Cesium.Math.clamp(rollRaw, -ROLL_MAX * 1.5, ROLL_MAX * 1.5);
+
+  roll = softLimitAngle(rollRaw, ROLL_MAX, Cesium.Math.toRadians(ROLL_LIMIT_EASE_DEG));
 
   // Gieren (Heading): Seitenruder A/D (sanft geglättet wie Pitch) +
   // koordinierte Kurve durch Rollen (bleibt direkt an den Roll-Winkel gekoppelt).
@@ -1768,6 +2106,7 @@ viewer.clock.onTick.addEventListener(() => {
 
   updateMinimap();
   updateHorizon();
+  updatePlaneModelMatrix();
 
   // Position/Lage regelmäßig für den Reload-Fall sichern (siehe oben)
   if (now - lastSaveTime > SAVE_INTERVAL_MS) {
