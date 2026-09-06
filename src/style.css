@@ -83,14 +83,6 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   pointer-events: none;
 }
 
-#loading-overlay:not(.hidden)~#search-panel #random-spot-button {
-  display: none;
-}
-
-#loading-overlay:not(.hidden)~#search-panel #search-panel-close {
-  display: none;
-}
-
 #hud {
   position: absolute;
   top: 12px;
@@ -338,11 +330,9 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
    verschachtelt in #tab-search wie früher) - sonst würde ein display:none
    auf #search-panel-content es automatisch mit verstecken, egal was man
    selbst dafür einstellt. */
-#search-panel.searching #search-panel-content {
-  display: none;
-}
-
-#search-panel.searching #search-panel-close {
+#search-panel.searching #search-panel-content,
+#search-panel.searching #search-panel-close,
+#search-panel.searching #controls-help-button {
   display: none;
 }
 
