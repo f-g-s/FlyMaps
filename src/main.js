@@ -53,7 +53,43 @@ const viewer = new Cesium.Viewer("cesiumContainer", {
   // eine fotorealistische Mesh-Oberfläche mit.
   baseLayer: false,
   terrain: undefined,
+  // Cesiums eigenes "Rendering has stopped"-Overlay unterdrücken - wir
+  // fangen fatale Render-/Context-Fehler stattdessen selbst ab (siehe
+  // recoverFromFatalRenderError) und laden neu, statt den Nutzer mit
+  // einer eingefrorenen Szene und Fehlerdialog sitzen zu lassen.
+  showRenderLoopErrors: false,
 });
+
+// Nach längeren Sessions (Erfahrungswert: ca. alle 20 Minuten) kann der
+// GPU-Treiber/Browser den WebGL-Context verlieren (z.B. durch Speicherdruck
+// von den vielen gestreamten 3D-Tiles) - Cesiums Framebuffer-Code wirft dann
+// einen fatalen "Expected width to be greater than 0"-Fehler und stoppt
+// komplett (bekannter, bislang ungelöster Cesium-Bug, siehe
+// https://github.com/CesiumGS/cesium/issues/11533). Statt dessen fangen wir
+// echten Context-Verlust sowie Cesiums renderError-Event ab und laden die
+// Seite automatisch neu - die zuletzt gespeicherte Kameraposition (siehe
+// saveCameraState/sessionStorage) sorgt dafür, dass der Flug nahtlos an
+// (fast) derselben Stelle weitergeht.
+function recoverFromFatalRenderError(source, error) {
+  console.error(
+    `Fataler Render-/WebGL-Context-Fehler (${source}) - lade Seite neu, um den Flug fortzusetzen.`,
+    error,
+  );
+  saveCameraState();
+  window.location.reload();
+}
+
+function attachRenderErrorRecovery(cesiumInstance, source) {
+  cesiumInstance.scene.renderError.addEventListener((scene, error) =>
+    recoverFromFatalRenderError(source, error),
+  );
+  cesiumInstance.canvas?.addEventListener("webglcontextlost", (event) => {
+    event.preventDefault();
+    recoverFromFatalRenderError(source, event);
+  });
+}
+
+attachRenderErrorRecovery(viewer, "viewer");
 
 function loseWebglContext(canvas) {
   const context = canvas?.getContext("webgl2") ?? canvas?.getContext("webgl");
@@ -540,6 +576,7 @@ async function loadGoogleTiles() {
 
     setStatus(readyStatusText);
     setStatusVisible(false);
+    maybeShowControlsHelpOnce();
   } catch (err) {
     setStatus("Fehler beim Laden der 3D Tiles - API-Key prüfen");
     loadingOverlayEl.classList.add("hidden");
@@ -566,7 +603,9 @@ minimapWidget = new Cesium.CesiumWidget("minimap", {
   terrain: undefined,
   animation: false,
   timeline: false,
+  showRenderLoopErrors: false,
 });
+attachRenderErrorRecovery(minimapWidget, "minimap");
 // Zwei austauschbare Kachelquellen: Standard-OSM (mit Beschriftungen, wie
 // bisher) und CartoDB Voyager ohne Beschriftungen (visuell am nächsten an
 // OSM, aber ohne eingebrannten Text) - umschaltbar über den Menü-Switch.
@@ -643,6 +682,52 @@ window.addEventListener("pagehide", destroyCesiumInstances, { once: true });
 if (import.meta.hot) {
   import.meta.hot.dispose(destroyCesiumInstances);
 }
+
+// --- Steuerungs-Hilfe-Panel -----------------------------------------------
+// Gleiche Optik wie das Pausenmenü, zeigt aber nur einmalig beim allerersten
+// Start eine kurze Legende der Tastenbelegung. "Gesehen"-Status landet in
+// localStorage (wie FAVORITES_KEY), überlebt also auch neue Sessions.
+const CONTROLS_HELP_SEEN_KEY = "globexplore_controls_help_seen";
+const controlsPanel = document.getElementById("controls-panel");
+const controlsPanelCloseBtn = document.getElementById("controls-panel-close");
+const controlsPanelStartBtn = document.getElementById(
+  "controls-panel-start-button",
+);
+
+function hasSeenControlsHelp() {
+  try {
+    return localStorage.getItem(CONTROLS_HELP_SEEN_KEY) === "1";
+  } catch {
+    // localStorage kann z.B. im privaten Modus fehlschlagen - dann eben
+    // bei jedem Start einmal anzeigen statt abzustürzen.
+    return false;
+  }
+}
+
+function closeControlsHelp() {
+  controlsPanel.classList.remove("visible");
+  try {
+    localStorage.setItem(CONTROLS_HELP_SEEN_KEY, "1");
+  } catch {
+    // s.o. - Persistenz ist hier nur ein Nice-to-have.
+  }
+}
+
+function maybeShowControlsHelpOnce() {
+  if (hasSeenControlsHelp()) return;
+  controlsPanel.classList.add("visible");
+  controlsPanelCloseBtn.focus();
+}
+
+controlsPanelCloseBtn.addEventListener("click", closeControlsHelp);
+controlsPanelStartBtn.addEventListener("click", closeControlsHelp);
+
+const controlsHelpButton = document.getElementById("controls-help-button");
+controlsHelpButton.addEventListener("click", () => {
+  if (isPaused) togglePause();
+  controlsPanel.classList.add("visible");
+  controlsPanelCloseBtn.focus();
+});
 
 // --- Künstlicher Horizont ------------------------------------------------
 // Zeigt die tatsächliche Fluglage (pitch/roll der Steuerung), bewusst OHNE
@@ -784,7 +869,7 @@ const PLANE_PITCH_OFFSET_DEG = -90;
 const PLANE_ROLL_OFFSET_DEG = -90;
 
 let planeModel = null;
-let planeVisible = true;
+let planeVisible = false;
 
 const planeVisibleToggle = document.getElementById("plane-visible-toggle");
 
@@ -979,7 +1064,7 @@ const VIGNETTE_DEFAULT_PCT = 15;
 // applyGrain unten) - höher wirkt schnell wie Bildrauschen statt Filmkorn.
 const GRAIN_MIN_PCT = 0;
 const GRAIN_MAX_PCT = 100;
-const GRAIN_DEFAULT_PCT = 20;
+const GRAIN_DEFAULT_PCT = 8;
 const GRAIN_MAX_INTENSITY = 0.15;
 
 const BLUR_MIN_PCT = 0;
@@ -1339,6 +1424,8 @@ function renderSpotList() {
     return;
   }
 
+  matches = [...matches].sort((a, b) => a.name.localeCompare(b.name));
+
   const truncated = matches.length > SPOT_RESULT_LIMIT;
   const shown = truncated ? matches.slice(0, SPOT_RESULT_LIMIT) : matches;
 
@@ -1668,12 +1755,23 @@ async function flyToFavorite(favorite) {
 // Nutzt denselben /api/geocode-Proxy wie die Ortssuche, hier mit dem
 // latlng-Parameter statt q (siehe functions/api/geocode.js).
 const currentLocationEl = document.getElementById("current-location");
+const currentLocationMapsLinkEl = document.getElementById(
+  "current-location-maps-link",
+);
 let currentLocationRequestId = 0;
 
 async function updateCurrentLocation() {
   const carto = Cesium.Cartographic.fromCartesian(viewer.camera.positionWC);
   const lat = Cesium.Math.toDegrees(carto.latitude);
   const lon = Cesium.Math.toDegrees(carto.longitude);
+
+  // Koordinaten liegen sofort vor (unabhängig vom Reverse-Geocoding-Ergebnis
+  // weiter unten) - Google-Maps-Link kann daher direkt gesetzt werden.
+  // Zoom-Level 6 zeigt neben dem eigenen Standort auch angrenzende Länder;
+  // niedriger = weiter rausgezoomt.
+  const mapsZoomLevel = 6;
+  currentLocationMapsLinkEl.href = `https://www.google.com/maps?q=${lat},${lon}&z=${mapsZoomLevel}`;
+  currentLocationMapsLinkEl.hidden = false;
 
   // Falls währenddessen erneut pausiert/fortgesetzt wird, soll nur die
   // jeweils letzte Anfrage das Ergebnis noch anzeigen dürfen.
@@ -1746,6 +1844,10 @@ window.addEventListener("keydown", (e) => {
   if (e.code !== "Space" || e.repeat) return;
   if (isTypingInFormField(e.target)) return;
   e.preventDefault();
+  if (controlsPanel.classList.contains("visible")) {
+    closeControlsHelp();
+    return;
+  }
   togglePause();
 });
 
@@ -1785,7 +1887,7 @@ cameraController.enableRotate = false;
 cameraController.enableTilt = false;
 cameraController.enableLook = false;
 
-const MAX_SPEED = 1200; // m/s, entspricht ca. 430 km/h
+const MAX_SPEED = 120; // m/s, entspricht ca. 430 km/h
 const THROTTLE_ACCEL = 40; // m/s^2 beim Gasgeben/Bremsen
 
 const PITCH_RATE = Cesium.Math.toRadians(50); // rad/s, maximale Pitch-Änderungsrate

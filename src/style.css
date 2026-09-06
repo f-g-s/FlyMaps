@@ -48,8 +48,7 @@ body.cursor-hidden {
 body.hide-hud #hud,
 body.hide-hud #flight-data,
 body.hide-hud #minimap-wrapper,
-body.hide-hud #horizon-wrapper,
-body.hide-hud .cesium-widget-credits {
+body.hide-hud #horizon-wrapper {
   display: none !important;
 }
 
@@ -70,8 +69,8 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
 
 #loading-overlay {
   z-index: 30;
-  background: #2b2b2b;
-  color: #fff;
+  background: #16181d;
+  color: #e6e8ec;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -88,15 +87,21 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   display: none;
 }
 
+#loading-overlay:not(.hidden)~#search-panel #search-panel-close {
+  display: none;
+}
+
 #hud {
   position: absolute;
   top: 12px;
   left: 12px;
   z-index: 10;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.5);
+  color: #e6e8ec;
+  background: rgba(22, 24, 29, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   padding: 6px 10px;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 13px;
   pointer-events: none;
   display: flex;
@@ -109,10 +114,12 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   /* über #horizon-wrapper (40px + 140px Höhe + 12px Abstand) */
   left: 12px;
   z-index: 10;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.5);
+  color: #e6e8ec;
+  background: rgba(22, 24, 29, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   padding: 6px 10px;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 13px;
   pointer-events: none;
   display: flex;
@@ -127,7 +134,8 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   height: 220px;
   border-radius: 8px;
   overflow: hidden;
-  border: 2px solid rgba(255, 255, 255, 0.6);
+  border: 3px solid #16181d;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 24px rgba(0, 0, 0, 0.35);
   z-index: 10;
   background: #000;
 }
@@ -230,7 +238,9 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   transform: translateX(-50%);
 }
 
-#search-panel-close {
+#search-panel-close,
+#controls-panel-close,
+#controls-help-button {
   position: absolute;
   top: 28px;
   right: 28px;
@@ -247,17 +257,28 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-#search-panel-close svg {
+#controls-help-button {
+  right: 68px;
+  /* links neben dem Schließen-Button (32px Breite + 8px Abstand) */
+}
+
+#search-panel-close svg,
+#controls-panel-close svg,
+#controls-help-button svg {
   width: 18px;
   height: 18px;
 }
 
-#search-panel-close:hover {
+#search-panel-close:hover,
+#controls-panel-close:hover,
+#controls-help-button:hover {
   background: rgba(255, 255, 255, 0.08);
   color: #fff;
 }
 
-#search-panel-close:focus-visible {
+#search-panel-close:focus-visible,
+#controls-panel-close:focus-visible,
+#controls-help-button:focus-visible {
   outline: 2px solid #2a6df4;
   outline-offset: 2px;
 }
@@ -321,6 +342,10 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   display: none;
 }
 
+#search-panel.searching #search-panel-close {
+  display: none;
+}
+
 #search-panel.searching #search-status {
   display: flex;
   flex-direction: column;
@@ -350,12 +375,45 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   }
 }
 
-#current-location {
-  font-size: 14px;
+#current-location-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
   padding-bottom: 10px;
   margin-bottom: 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+#current-location {
+  font-size: 14px;
   color: #9aa0aa;
+}
+
+#current-location-maps-link {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #9aa0aa;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+#current-location-maps-link svg {
+  width: 16px;
+  height: 16px;
+}
+
+#current-location-maps-link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+#current-location-maps-link[hidden] {
+  display: none;
 }
 
 #search-tabs {
@@ -437,7 +495,7 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   list-style: none;
   margin: 0;
   padding: 0;
-  max-height: 220px;
+  max-height: 50vh;
   overflow-y: auto;
   border-radius: 7px;
   background: rgba(255, 255, 255, 0.03);
@@ -575,7 +633,7 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   outline-offset: 2px;
 }
 
-#search-panel button:not(.search-tab):not(#search-panel-close):not(.favorite-item-delete) {
+#search-panel button:not(.search-tab):not(#search-panel-close):not(#controls-help-button):not(.favorite-item-delete) {
   padding: 9px 12px;
   border-radius: 7px;
   border: none;
@@ -587,7 +645,7 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   transition: background 0.15s ease;
 }
 
-#search-panel button:not(.search-tab):not(#search-panel-close):not(.favorite-item-delete):hover {
+#search-panel button:not(.search-tab):not(#search-panel-close):not(#controls-help-button):not(.favorite-item-delete):hover {
   background: #1d55c4;
 }
 
@@ -608,19 +666,19 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
 
 /* Sekundär/Outline-Button statt Vollfarbe, damit "Zurücksetzen" nicht mit
    dem primären "Suchen"-Button konkurriert. */
-#filters-reset-button {
+#filters-reset-button, #random-spot-button {
   padding: 4px 10px;
   font-size: 14px;
   font-weight: 500;
   text-transform: none;
   letter-spacing: normal;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #9aa0aa;
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #9aa0aa !important;
 }
 
-#filters-reset-button:hover {
-  background: rgba(255, 255, 255, 0.06);
+#filters-reset-button:hover, #random-spot-button:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
   color: #e6e8ec;
 }
 
@@ -748,8 +806,8 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   height: 140px;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.4);
+  border: 3px solid #16181d;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 24px rgba(0, 0, 0, 0.35);
   z-index: 10;
   background: #000;
   pointer-events: none;
@@ -778,7 +836,7 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   left: 0;
   width: 100%;
   height: 50%;
-  background: linear-gradient(to bottom, #2a6df4, #7fb2ff);
+  background: linear-gradient(to bottom, #16294f, #2a6df4);
 }
 
 #horizon-ground {
@@ -787,7 +845,7 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   left: 0;
   width: 100%;
   height: 50%;
-  background: linear-gradient(to top, #5a3a1a, #8a5a2a);
+  background: linear-gradient(to top, #16181d, #1f222a);
 }
 
 #horizon-line {
@@ -797,7 +855,7 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   width: 100%;
   height: 2px;
   margin-top: -1px;
-  background: #fff;
+  background: #e6e8ec;
 }
 
 /* Feststehendes Flugzeug-Symbol, immer waagerecht in der Fenstermitte -
@@ -820,7 +878,7 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   width: 34px;
   height: 3px;
   margin-top: -1.5px;
-  background: #ffbf00;
+  background: #eeeff1;
   filter: drop-shadow(0 0 1px #000);
 }
 
@@ -840,7 +898,7 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   height: 6px;
   margin: -3px 0 0 -3px;
   border-radius: 50%;
-  background: #ffbf00;
+  background: #eeeff1;
   filter: drop-shadow(0 0 1px #000);
 }
 
@@ -855,7 +913,7 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   margin-left: -5px;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-top: 7px solid #fff;
+  border-top: 7px solid #e6e8ec;
   transform-origin: 50% 66px;
   /* Fenstermitte: 70px minus Zeiger-Offset */
   z-index: 3;
@@ -887,4 +945,107 @@ body.pause-mode #cesiumContainer .cesium-viewer-fullscreenContainer {
   100% {
     opacity: 0;
   }
+}
+/* --- Steuerungs-Hilfe-Panel ---------------------------------------------
+   Gleiche Optik wie #search-panel (dunkles Panel, zentriert, Close-Button
+   oben rechts), aber eigenständig und deutlich schmaler, da der Inhalt nur
+   eine kurze Liste ist. */
+#controls-panel {
+  z-index: 20;
+  display: none;
+  background: #16181d;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  color: #e6e8ec;
+  font-family: system-ui, sans-serif;
+  width: 380px;
+}
+
+#controls-panel.visible {
+  display: block;
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#controls-panel .container {
+  background: #1f222a;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+#controls-panel h2 {
+  margin: 0 0 14px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #9aa0aa;
+}
+
+#controls-list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#controls-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.key-badge {
+  flex-shrink: 0;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: #2a2e38;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom-width: 2px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #e6e8ec;
+}
+
+.key-badge-arrow {
+  font-size: 15px;
+}
+
+.key-badge-wide {
+  min-width: 88px;
+  padding: 0 10px;
+}
+
+.control-desc {
+  font-size: 14px;
+  color: #c3c6cc;
+}
+
+#controls-panel-start-button {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 7px;
+  border: none;
+  background: #2a6df4;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+#controls-panel-start-button:hover {
+  background: #1d55c4;
 }
