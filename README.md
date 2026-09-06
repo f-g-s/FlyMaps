@@ -1,5 +1,11 @@
 # FlyMaps
 
+An interactive immersive 3D map / geographic exploration application with flight-style navigation.
+
+* Erkundung von Gebieten
+* geografische Visualisierung
+* Navigation und räumliches Verständnis
+
 Vite + CesiumJS-Setup, das Googles Photorealistic 3D Tiles lädt und eine
 Flugsteuerung mit HUD, Minimap, Ortssuche und 3D-Spots bereitstellt.
 

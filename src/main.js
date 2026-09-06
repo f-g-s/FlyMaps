@@ -58,6 +58,10 @@ const viewer = new Cesium.Viewer("cesiumContainer", {
   // recoverFromFatalRenderError) und laden neu, statt den Nutzer mit
   // einer eingefrorenen Szene und Fehlerdialog sitzen zu lassen.
   showRenderLoopErrors: false,
+  // Cesiums eigener Fullscreen-Button passt optisch nicht zum Darkmode-
+  // Design (helles Icon-Sprite, eckiger Rahmen) - wird deaktiviert und durch
+  // #fullscreen-toggle-button (eigenes Markup/Styling, siehe unten) ersetzt.
+  fullscreenButton: false,
 });
 
 // Nach längeren Sessions (Erfahrungswert: ca. alle 20 Minuten) kann der
@@ -571,8 +575,10 @@ async function loadGoogleTiles() {
     // Wie nach der Ortssuche (geocodeAndFlyTo) auch beim initialen
     // Spielstart direkt mit 125 km/h starten, statt stehend (speed = 0)
     // zu beginnen - sowohl bei wiederhergestellter Position als auch beim
-    // zufälligen Startort.
-    speed = 125 / 3.6; // 125 km/h in m/s
+    // zufälligen Startort. Gasstellung auf HOVER_THROTTLE (siehe
+    // setCruiseVelocity), damit man in Level-Fluglage weder steigt noch
+    // fällt, bis man selbst gast.
+    setCruiseVelocity(125 / 3.6); // 125 km/h in m/s
 
     setStatus(readyStatusText);
     setStatusVisible(false);
@@ -729,6 +735,47 @@ controlsHelpButton.addEventListener("click", () => {
   controlsPanelCloseBtn.focus();
 });
 
+// --- Vollbild-Button (Ersatz für Cesiums Standard-Fullscreen-Button) -----
+// Gleiche runde Icon-Button-Optik wie #controls-help-button/#search-panel-
+// close, nur oben rechts über dem gesamten Viewport fest positioniert (siehe
+// CSS) und - wie zuvor Cesiums eigener Button - ausschließlich im Pausen-
+// modus sichtbar.
+const fullscreenToggleButton = document.getElementById(
+  "fullscreen-toggle-button",
+);
+const fullscreenExpandIcon = document.getElementById("fullscreen-icon-expand");
+const fullscreenCompressIcon = document.getElementById(
+  "fullscreen-icon-compress",
+);
+
+if (Cesium.Fullscreen.enabled) {
+  fullscreenToggleButton.addEventListener("click", () => {
+    if (Cesium.Fullscreen.fullscreen) {
+      Cesium.Fullscreen.exitFullscreen();
+    } else {
+      Cesium.Fullscreen.requestFullscreen(document.body);
+    }
+  });
+
+  document.addEventListener(Cesium.Fullscreen.changeEventName, () => {
+    const isFullscreen = Cesium.Fullscreen.fullscreen;
+    fullscreenExpandIcon.classList.toggle("fullscreen-icon-hidden", isFullscreen);
+    fullscreenCompressIcon.classList.toggle(
+      "fullscreen-icon-hidden",
+      !isFullscreen,
+    );
+    fullscreenToggleButton.setAttribute(
+      "aria-label",
+      isFullscreen ? "Vollbild beenden" : "Vollbild aktivieren",
+    );
+  });
+} else {
+  // Browser unterstützt keine Fullscreen-API (z.B. manche mobilen Browser) -
+  // dann lieber den Button ganz ausblenden statt einen funktionslosen
+  // Button anzuzeigen.
+  fullscreenToggleButton.hidden = true;
+}
+
 // --- Künstlicher Horizont ------------------------------------------------
 // Zeigt die tatsächliche Fluglage (pitch/roll der Steuerung), bewusst OHNE
 // den Kamera-Blickwinkel-Offset (siehe cameraTiltOffset weiter unten) - das
@@ -801,7 +848,7 @@ fovSlider.addEventListener("input", () => {
 // die Drohne fliegt also weiter entlang ihres normalen Flugpfads, nur die
 // "Kamera" schaut zusätzlich hoch/runter.
 const CAMERA_TILT_MIN_DEG = -60; // maximal nach unten
-const CAMERA_TILT_MAX_DEG = 30; // maximal nach oben
+const CAMERA_TILT_MAX_DEG = 60; // maximal nach oben
 const CAMERA_TILT_DEFAULT_DEG = -8;
 // Flug-Pitch (bis PITCH_MAX) + Kamera-Tilt-Offset addiert sich - hart
 // gedeckelt knapp unter +-90°, damit die Kamera nie "durchschlägt"/kippt.
@@ -988,8 +1035,28 @@ function applyPlaneVisible(visible) {
 }
 
 planeVisibleToggle.addEventListener("change", () => {
-  applyPlaneVisible(planeVisibleToggle.checked);
+  const visible = planeVisibleToggle.checked;
+  applyPlaneVisible(visible);
+  // Nur bei diesem manuellen Deaktivieren zusätzlich auf den Standard-
+  // Blickwinkel zurücksetzen, statt beim zuvor fest eingestellten Cockpit-
+  // Winkel (PLANE_FIXED_TILT_DEG) hängen zu bleiben. Beim Laden von
+  // gespeicherten Orten/Favoriten (applyPlaneVisible-Aufrufe weiter oben)
+  // bleibt der dort jeweils gespeicherte Kamera-Winkel dagegen unangetastet,
+  // damit applyCameraTilt(usableSavedState.cameraTiltDegrees) nicht
+  // überschrieben wird.
+  if (!visible) applyCameraTilt(CAMERA_TILT_DEFAULT_DEG);
   saveCameraState();
+  // Direkt sichtbar auch während der Pause (Tick-Handler läuft dann nicht,
+  // siehe gleiches Muster beim cameraTiltSlider-input-Handler weiter oben):
+  viewer.camera.setView({
+    destination: viewer.camera.position,
+    orientation: {
+      heading: viewer.camera.heading,
+      pitch: clampedRenderPitch(cameraTiltOffset),
+      roll,
+    },
+  });
+  updatePlaneModelMatrix();
 });
 applyPlaneVisible(planeVisible); // Initialzustand (Regler-Sichtbarkeit + Tilt)
 
@@ -1308,7 +1375,7 @@ async function geocodeAndFlyTo(query) {
     await waitForTilesReady(tileset);
     searchStatusEl.textContent = `Gefunden: ${data.formatted_address}`;
 
-    speed = 125 / 3.6; // 125 km/h in m/s, damit man nach der Suche direkt weiterfliegt
+    setCruiseVelocity(125 / 3.6); // 125 km/h in m/s, damit man nach der Suche direkt weiterfliegt
     // Interne Steuerungs-Zustände zurücksetzen: sonst übernimmt der
     // Tick-Handler nach dem Pausieren wieder den ALTEN pitch/roll-Wert von
     // vor dem Sprung und kippt die Kamera Richtung Boden, sobald es
@@ -1653,7 +1720,7 @@ async function saveFavorite() {
     pitchRate,
     rollRate,
     yawRate,
-    speed,
+    speed: Cesium.Cartesian3.magnitude(velocity),
     fovDegrees: Cesium.Math.toDegrees(viewer.camera.frustum.fov),
     cameraTiltDegrees: Cesium.Math.toDegrees(cameraTiltOffset),
     minimapLabelsVisible,
@@ -1711,7 +1778,7 @@ async function flyToFavorite(favorite) {
     await waitForTilesReady(tileset);
     searchStatusEl.textContent = `Angekommen: ${favorite.name}`;
 
-    speed = favorite.speed;
+    setCruiseVelocity(favorite.speed);
     // Interne Steuerungs-Zustände zurücksetzen - sonst übernimmt der
     // Tick-Handler nach dem Fortsetzen wieder den ALTEN pitch/roll-Wert
     // von vor dem Sprung (siehe gleiches Vorgehen in geocodeAndFlyTo).
@@ -1887,8 +1954,56 @@ cameraController.enableRotate = false;
 cameraController.enableTilt = false;
 cameraController.enableLook = false;
 
-const MAX_SPEED = 120; // m/s, entspricht ca. 430 km/h
-const THROTTLE_ACCEL = 40; // m/s^2 beim Gasgeben/Bremsen
+const MAX_SPEED = 120; // m/s, Sicherheits-Cap für den Geschwindigkeits-Betrag, entspricht ca. 430 km/h
+
+// --- Schwerkraft/Schub-Modell --------------------------------------------
+// Ersetzt das bisherige "Geschwindigkeit folgt exakt der Blickrichtung"-
+// Modell durch echten Vektor-Flug: der Schub wirkt entlang der Drohnen-
+// "Oben"-Achse (bodyUp, siehe Tick-Handler unten), die Schwerkraft immer
+// lokal nach unten (Ellipsoid-Normale an der Kameraposition - nicht Welt-Z,
+// sonst stimmt die Richtung nur am Äquator). Kippt die Nase nach vorne
+// (Pitch), kippt bodyUp mit nach vorne und ein Teil des Schubs wird
+// horizontal - genau der "Pitch + Throttle erzeugt Vorwärtsschub"-Effekt
+// einer echten Acro-Drohne. Ohne Gas bleibt nur die Schwerkraft übrig, die
+// Drohne sinkt gerade nach unten (durch Luftwiderstand gebremst, aber ohne
+// Rückwärtsschub - siehe Gas-Logik im Tick-Handler).
+const GRAVITY_ACCEL = 12; // m/s^2
+const THRUST_TO_WEIGHT = 12; // Schub bei Vollgas relativ zur Schwerkraft-Beschleunigung - sportliches Acro-Setup
+// (Ursprünglich 1.5 gewählt, war aber zu knapp: die "Rückhol-Kraft" aus
+// einem Sturzflug hängt vom ABSTAND zwischen aktueller Geschwindigkeit und
+// der neuen Vollgas-Gleichgewichtsgeschwindigkeit ab - bei 1.5 lagen beide
+// zu nah beieinander, der Übergang dauerte dadurch mehrere Sekunden statt
+// unter einer Sekunde wie bei einer echten Drohne.)
+const THRUST_MAX_ACCEL = THRUST_TO_WEIGHT * GRAVITY_ACCEL; // m/s^2 bei Vollgas
+const HOVER_THROTTLE = 1 / THRUST_TO_WEIGHT; // Gasstellung, bei der Schub = Schwerkraft (Schweben in Level-Fluglage)
+const THROTTLE_RAMP_TIME = 0.1; // Sekunden, um bei gehaltenem W/S von 0 auf 1 (bzw. zurück) zu gasen
+// (Weiter verkürzt - soll sich wie ein knackiger Stick-Ausschlag anfühlen,
+// nicht wie eine spürbare Rampe.)
+const TERMINAL_FALL_SPEED = 39.24; // m/s (≈ 141 km/h) - Sink-Endgeschwindigkeit im freien Fall, wie zuvor mit dem linearen Modell
+// Quadratischer statt linearer Luftwiderstand (wie echter aerodynamischer
+// Widerstand: proportional zu v², nicht zu v). Der Unterschied ist bei
+// niedrigem Tempo entscheidend: dort ist die Bremswirkung fast null, der
+// volle Schub/Schwerkraft-Unterschied wirkt fast ungebremst - genau der
+// Moment, in dem man einen Sturzflug abfängt (Nulldurchgang der
+// Geschwindigkeit). Das lineare Modell bremste dort genauso stark wie bei
+// hohem Tempo, was sich "driftig"/träge anfühlte. Erst nahe der
+// Grenzgeschwindigkeit wird der Widerstand spürbar und begrenzt Sink-/
+// Höchstgeschwindigkeit - dafür aus TERMINAL_FALL_SPEED zurückgerechnet.
+const DRAG_COEFF_QUAD =
+  GRAVITY_ACCEL / (TERMINAL_FALL_SPEED * TERMINAL_FALL_SPEED);
+
+// Setzt eine reine Vorwärts-Geschwindigkeit entlang der aktuellen
+// Blickrichtung (z.B. nach einem Orts-Sprung, damit man nicht stehend
+// startet) und die Gasstellung auf HOVER_THROTTLE, damit die Drohne in
+// Level-Fluglage weder steigt noch fällt, bis der Spieler selbst gast.
+function setCruiseVelocity(speedMps) {
+  velocity = Cesium.Cartesian3.multiplyByScalar(
+    viewer.camera.direction,
+    speedMps,
+    new Cesium.Cartesian3(),
+  );
+  throttle = HOVER_THROTTLE;
+}
 
 const PITCH_RATE = Cesium.Math.toRadians(50); // rad/s, maximale Pitch-Änderungsrate
 const PITCH_MAX = Cesium.Math.toRadians(45);
@@ -1945,6 +2060,16 @@ function inverseSoftLimitAngle(value, max, softZoneRad) {
   return Math.sign(value) * (linear + excessRaw);
 }
 
+// Normiert einen Winkel (rad) auf (-PI, PI] - wird für die Controller-
+// Achsen gebraucht, deren Winkel beim Fliegen von Loopings/Rolls beliebig
+// weit über die Vollkreis-Grenze hinauswachsen. sin()/cos() (u.a. in
+// Cesiums camera.setView) sind ohnehin periodisch, daher ändert das
+// Wrapping nichts am tatsächlichen Flugverhalten - es verhindert nur, dass
+// die Zahl über eine lange Flugsession unbegrenzt weiterwächst.
+function wrapAngle(angle) {
+  return angle - Math.PI * 2 * Math.floor((angle + Math.PI) / (Math.PI * 2));
+}
+
 // --- Kollision mit Gebäuden/Terrain (3D Tiles) --------------------------
 // Statt einer Höhen-Abfrage (wie bei getGroundHeight) wird hier pro Frame
 // ein echter Strahl entlang der Flugrichtung gegen die geladene 3D-Tiles-
@@ -1955,7 +2080,7 @@ function inverseSoftLimitAngle(value, max, softZoneRad) {
 // (Performance) noch zu spät (Tunneling durch dünne Geometrie) geprüft wird.
 const COLLISION_SAFETY_MARGIN = 4; // Meter Abstand, der zum Hindernis stehen bleibt
 const COLLISION_LOOKAHEAD_MIN = 8; // Meter Mindest-Prüfreichweite (auch bei niedriger Geschwindigkeit)
-const COLLISION_BRAKE_DECEL = 200; // m/s^2 - deutlich stärker als THROTTLE_ACCEL, aber kein harter Ruck
+const COLLISION_BRAKE_DECEL = 200; // m/s^2 - deutlich stärker als THRUST_MAX_ACCEL, aber kein harter Ruck
 
 function checkCollisionAhead(origin, direction, maxDistance) {
   if (maxDistance <= 0) return null;
@@ -1977,11 +2102,21 @@ function triggerCollisionFlash() {
   collisionFlashEl.classList.add("flash");
 }
 
-let speed = 0;
+let velocity = new Cesium.Cartesian3(0, 0, 0); // aktuelle Geschwindigkeit, Weltkoordinaten (m/s) - siehe Schwerkraft/Schub-Modell oben
+let throttle = 0; // 0..1, aktuelle Gasstellung (kein Rückwärtsschub - siehe Tick-Handler)
 let pitch = 0; // angezeigter/tatsächlich geflogener Wert, immer = softLimitAngle(pitchRaw, ...)
 let pitchRaw = 0; // ungekappter interner Akkumulator, siehe softLimitAngle oben
 let roll = 0; // angezeigter/tatsächlich geflogener Wert, immer = softLimitAngle(rollRaw, ...)
 let rollRaw = 0; // ungekappter interner Akkumulator, siehe softLimitAngle oben
+// Merkt sich pro Achse, welche Eingabequelle zuletzt aktiv war ("keyboard"
+// oder "controller") - wird gebraucht, damit z.B. nach dem Loslassen einer
+// Taste die Tastatur-Rückkehr-Zeitkonstante weiterläuft (statt sofort auf
+// die Controller-Glättung umzuspringen), obwohl der Zielwert in dem Moment
+// bei beiden Quellen 0 ist. Startwert "keyboard", damit sich ohne
+// angeschlossenen Controller exakt das bisherige Verhalten ergibt.
+let pitchControlSource = "keyboard";
+let rollControlSource = "keyboard";
+let yawControlSource = "keyboard";
 let rollLevelBlend = 0; // 0..1, sanftes Ein-/Ausblenden des Auto-Level-Zugs (siehe ROLL_LEVEL_BLEND_TIME)
 let pitchRate = 0; // aktuelle (geglättete) Pitch-Änderungsrate
 let rollRate = 0; // aktuelle (geglättete) Roll-Änderungsrate
@@ -1994,6 +2129,87 @@ window.addEventListener("keydown", (e) => {
 });
 window.addEventListener("keyup", (e) => pressedKeys.delete(e.code));
 window.addEventListener("blur", () => pressedKeys.clear());
+
+// --- Gamepad/Controller-Steuerung (z.B. TBS Tango 2 im USB-Joystick/HID-
+// Modus) ------------------------------------------------------------------
+// Ergänzt die Tastatursteuerung um eine alternative Eingabe per physischem
+// FPV-Controller, ohne den bestehenden Tastatur-Code oben anzufassen: Die
+// Tastatur-Ziele (pressedKeys, getPitchTarget/getRollTarget) bleiben exakt
+// wie zuvor und haben unten in der Update-Schleife immer Vorrang - der
+// Controller wird pro Achse nur dann genutzt, wenn die Tastatur für diese
+// Achse gerade kein Ziel liefert. So kann man jederzeit zwischen beiden
+// Eingabemethoden wechseln, ohne etwas umschalten zu müssen.
+const CONTROLLER_DEADZONE = 0.08; // Achsen-Ausschlag unterhalb dieses Betrags gilt als "Mitte"/kein Eingang
+
+// Achsen-Zuordnung für den TBS Tango 2 im HID-Modus, per Debug-Overlay
+// ermittelt (weicht von der ursprünglichen Mode-2-Annahme ab):
+// Achse 0 = Gas, Achse 1 = Rollen, Achse 2 = Pitch, Achse 3 = Gieren.
+const CONTROLLER_AXIS = {
+  throttle: { index: 0, invert: false },
+  roll: { index: 1, invert: false },
+  pitch: { index: 2, invert: true }, // konsistent zur Tastatur-Invertierung oben (ArrowUp = Nase runter)
+  yaw: { index: 3, invert: false },
+};
+
+// Eigenständige Controller-Tuning-Werte, komplett getrennt von den
+// Tastatur-Konstanten oben (PITCH_RATE, ROLL_RATE, RUDDER_YAW_RATE, alle
+// SMOOTH_TIME-Werte, softLimitAngle/PITCH_LIMIT_EASE_DEG etc.). Der
+// Controller läuft NICHT durch die Tastatur-Pipeline (Rate-Rampe +
+// Soft-Limit-Kompression + Attitude-Winkel-Limit), sondern als echtes
+// Acro-/Rate-Modell wie bei einer FPV-Drohne: Stick-Ausschlag = direkte
+// Rotationsrate ohne jede Glättung/Verzögerung, Winkel sind unbegrenzt
+// (Loopings/Rolls möglich) statt auf ein Attitude-Maximum begrenzt. Das
+// hält beide Steuerungsarten unabhängig voneinander einstellbar:
+// Tastatur-Feintuning wirkt sich nie auf den Controller aus und umgekehrt.
+const CONTROLLER_PITCH_RATE = Cesium.Math.toRadians(200); // rad/s bei Vollausschlag
+const CONTROLLER_ROLL_RATE = Cesium.Math.toRadians(250); // rad/s bei Vollausschlag
+const CONTROLLER_YAW_RATE = Cesium.Math.toRadians(200); // rad/s bei Vollausschlag
+
+let connectedGamepadIndex = null;
+const controllerDebugEl = document.getElementById("controller-debug");
+
+window.addEventListener("gamepadconnected", (e) => {
+  connectedGamepadIndex = e.gamepad.index;
+  if (controllerDebugEl) controllerDebugEl.hidden = false;
+});
+window.addEventListener("gamepaddisconnected", (e) => {
+  if (connectedGamepadIndex === e.gamepad.index) {
+    connectedGamepadIndex = null;
+    if (controllerDebugEl) controllerDebugEl.hidden = true;
+  }
+});
+
+// Skaliert den Ausschlag jenseits der Deadzone wieder auf den vollen
+// -1..1-Bereich, statt die Deadzone einfach nur abzuschneiden - sonst
+// bliebe direkt nach der Deadzone-Grenze ein toter Bereich ohne volle
+// Auflösung bis zum Anschlag.
+function applyDeadzone(value) {
+  if (Math.abs(value) < CONTROLLER_DEADZONE) return 0;
+  const sign = Math.sign(value);
+  return (
+    sign *
+    ((Math.abs(value) - CONTROLLER_DEADZONE) / (1 - CONTROLLER_DEADZONE))
+  );
+}
+
+function getControllerAxis(axisConfig) {
+  if (connectedGamepadIndex === null) return 0;
+  const gamepads = navigator.getGamepads();
+  const gp = gamepads[connectedGamepadIndex];
+  if (!gp || !gp.axes || gp.axes.length <= axisConfig.index) return 0;
+  const raw = gp.axes[axisConfig.index];
+  return applyDeadzone(axisConfig.invert ? -raw : raw);
+}
+
+function updateControllerDebugOverlay() {
+  if (!controllerDebugEl || connectedGamepadIndex === null) return;
+  const gp = navigator.getGamepads()[connectedGamepadIndex];
+  if (!gp) return;
+  const axesText = gp.axes
+    .map((v, i) => `  Achse ${i}: ${v.toFixed(2)}`)
+    .join("\n");
+  controllerDebugEl.textContent = `Controller: ${gp.id}\n${axesText}`;
+}
 
 let lastTime = performance.now();
 let lastSaveTime = 0;
@@ -2054,12 +2270,23 @@ viewer.clock.onTick.addEventListener(() => {
 
   const camera = viewer.camera;
 
-  // Schub: W erhöht, S verringert die Geschwindigkeit - ohne Tastendruck
-  // bleibt der aktuelle Wert einfach erhalten (kein Abbremsen von selbst).
+  // Gas: W erhöht, S verringert die Gasstellung (0..1) - ohne Tastendruck
+  // bleibt der aktuelle Wert einfach erhalten (kein Federrückstellung, wie
+  // bei einem echten Acro-Gasstick). Kein Rückwärtsschub: S kann die
+  // Gasstellung nur bis 0 zurücknehmen - danach übernimmt allein die
+  // Schwerkraft (siehe unten), Bremsen/Sinken passiert dann rein
+  // physikalisch statt über Reverse-Thrust.
   if (pressedKeys.has("KeyW")) {
-    speed = Math.min(speed + THROTTLE_ACCEL * dt, MAX_SPEED);
+    throttle = Math.min(throttle + dt / THROTTLE_RAMP_TIME, 1);
   } else if (pressedKeys.has("KeyS")) {
-    speed = Math.max(speed - THROTTLE_ACCEL * dt, -MAX_SPEED * 0.3);
+    throttle = Math.max(throttle - dt / THROTTLE_RAMP_TIME, 0);
+  } else if (connectedGamepadIndex !== null) {
+    // Controller-Gas wirkt absolut (Stick-Position = Ziel-Gasstellung),
+    // nicht wie W/S über eine Rampe - das entspricht dem Gas-Stick eines
+    // echten FPV-Senders ohne Federrückstellung. Negativer Ausschlag wird
+    // auf 0 gekappt (kein Rückwärtsschub, siehe Kommentar oben).
+    const throttleAxis = getControllerAxis(CONTROLLER_AXIS.throttle);
+    throttle = Cesium.Math.clamp(throttleAxis, 0, 1);
   }
 
   // Pitch: TESTWEISE INVERTIERT - Pfeil hoch = Nase runter, Pfeil runter =
@@ -2067,54 +2294,84 @@ viewer.clock.onTick.addEventListener(() => {
   // bleibt stehen, wenn keine Taste gedrückt ist. getPitchTarget toleriert
   // kurze Tasten-Lücken beim Richtungswechsel (siehe createAxisTargetTracker
   // oben).
-  const pitchTarget = getPitchTarget(now);
-  // Die schnellere PITCH_RETURN_SMOOTH_TIME gilt beim echten Loslassen
-  // (pitchTarget === 0) UND beim aktiven Gegenlenken (Ziel entgegengesetzt
-  // zum aktuellen Winkel, pitchOpposesAngle) - sonst hängt die Ratenrampe
-  // bei 100% Pitch bis zu PITCH_SMOOTH_TIME lang fest, bevor die Rate
-  // überhaupt durch 0 durchquert und sich am Winkel etwas zu ändern beginnt.
-  // Wichtig: Vergleich gegen den WINKEL (pitch), nicht gegen die Rate -
-  // sonst würde die Rate beim Reversieren schon nach kurzer Zeit die 0
-  // kreuzen und fälschlich zu früh auf die langsame Zeit zurückschalten,
-  // während der Flieger real noch in der alten Neigung hängt (siehe
-  // identisches Problem/Fix beim Roll weiter unten).
-  const pitchOpposesAngle =
-    pitch !== 0 && Math.sign(pitchTarget) !== Math.sign(pitch);
-  const pitchReturning = pitchTarget === 0 || pitchOpposesAngle;
-  // Lineare Rampe (konstante Winkelbeschleunigung) statt e-Funktions-
-  // Glättung: ändert pitchRate immer mit exakt derselben Beschleunigung,
-  // egal wie groß die aktuelle Neigung oder das verbleibende Delta ist -
-  // dadurch wirkt jede Kehrtwende/jeder Aufbau gleich smooth (gleiches
-  // Prinzip wie bei rollRate weiter unten).
-  const pitchAccel =
-    PITCH_RATE / (pitchReturning ? PITCH_RETURN_SMOOTH_TIME : PITCH_SMOOTH_TIME);
-  const pitchRateStep = Cesium.Math.clamp(
-    pitchTarget - pitchRate,
-    -pitchAccel * dt,
-    pitchAccel * dt,
-  );
-  pitchRate += pitchRateStep;
+  const pitchTargetKeyboard = getPitchTarget(now);
+  const pitchTargetGamepad = getControllerAxis(CONTROLLER_AXIS.pitch);
+  if (pitchTargetKeyboard !== 0) {
+    pitchControlSource = "keyboard";
+  } else if (pitchTargetGamepad !== 0) {
+    pitchControlSource = "controller";
+  }
 
-  // Gleiches Prinzip wie beim Roll weiter unten: die Sättigungsbremse
-  // (softLimitAngle) soll nur beim Wachsen (Richtung Limit) greifen, nicht
-  // beim Schrumpfen (Richtung Mitte/Gegenlenken).
-  const pitchSoftZoneRad = Cesium.Math.toRadians(PITCH_LIMIT_EASE_DEG);
-  const pitchDelta = pitchRate * dt;
-  const pitchGrowing =
-    pitch !== 0 && Math.sign(pitchDelta) === Math.sign(pitch);
-
-  if (pitchGrowing) {
-    pitchRaw += pitchDelta;
-    // Gleicher Grund wie beim rollRaw-Auslauf weiter unten.
-    pitchRaw = Cesium.Math.clamp(
-      pitchRaw,
-      -(PITCH_MAX + pitchSoftZoneRad * 3),
-      PITCH_MAX + pitchSoftZoneRad * 3,
+  if (pitchControlSource === "controller") {
+    // CONTROLLER-PFAD: reines Acro-/Rate-Modell wie bei einer FPV-Drohne -
+    // Stick-Ausschlag = Rotationsrate, 1:1 ohne Glättung/Verzögerung, Winkel
+    // wächst unbegrenzt (Loopings möglich) statt auf PITCH_MAX gedeckelt zu
+    // werden. Komplett unabhängig von der Tastatur-Pipeline unten.
+    const pitchRateGamepad = pitchTargetGamepad * CONTROLLER_PITCH_RATE;
+    pitch = wrapAngle(pitch + pitchRateGamepad * dt);
+    pitchRate = 0;
+    // pitchRaw synchron halten, damit bei Rückwechsel auf Tastatur kein
+    // Sprung entsteht (softLimitAngle deckelt das automatisch wieder auf
+    // den Tastatur-Bereich, falls der Winkel gerade z.B. mitten in einem
+    // Looping steht).
+    pitchRaw = inverseSoftLimitAngle(
+      pitch,
+      PITCH_MAX,
+      Cesium.Math.toRadians(PITCH_LIMIT_EASE_DEG),
     );
-    pitch = softLimitAngle(pitchRaw, PITCH_MAX, pitchSoftZoneRad);
   } else {
-    pitch = Cesium.Math.clamp(pitch + pitchDelta, -PITCH_MAX, PITCH_MAX);
-    pitchRaw = inverseSoftLimitAngle(pitch, PITCH_MAX, pitchSoftZoneRad);
+    // TASTATUR-PFAD (unverändert) - nur PITCH_RATE/PITCH_SMOOTH_TIME/
+    // PITCH_RETURN_SMOOTH_TIME/PITCH_LIMIT_EASE_DEG gelten hier, niemals
+    // Controller-Werte.
+    const pitchTarget = pitchTargetKeyboard;
+    // Die schnellere PITCH_RETURN_SMOOTH_TIME gilt beim echten Loslassen
+    // (pitchTarget === 0) UND beim aktiven Gegenlenken (Ziel entgegengesetzt
+    // zum aktuellen Winkel, pitchOpposesAngle) - sonst hängt die Ratenrampe
+    // bei 100% Pitch bis zu PITCH_SMOOTH_TIME lang fest, bevor die Rate
+    // überhaupt durch 0 durchquert und sich am Winkel etwas zu ändern beginnt.
+    // Wichtig: Vergleich gegen den WINKEL (pitch), nicht gegen die Rate -
+    // sonst würde die Rate beim Reversieren schon nach kurzer Zeit die 0
+    // kreuzen und fälschlich zu früh auf die langsame Zeit zurückschalten,
+    // während der Flieger real noch in der alten Neigung hängt (siehe
+    // identisches Problem/Fix beim Roll weiter unten).
+    const pitchOpposesAngle =
+      pitch !== 0 && Math.sign(pitchTarget) !== Math.sign(pitch);
+    const pitchReturning = pitchTarget === 0 || pitchOpposesAngle;
+    // Lineare Rampe (konstante Winkelbeschleunigung) statt e-Funktions-
+    // Glättung: ändert pitchRate immer mit exakt derselben Beschleunigung,
+    // egal wie groß die aktuelle Neigung oder das verbleibende Delta ist -
+    // dadurch wirkt jede Kehrtwende/jeder Aufbau gleich smooth (gleiches
+    // Prinzip wie bei rollRate weiter unten).
+    const pitchAccel =
+      PITCH_RATE / (pitchReturning ? PITCH_RETURN_SMOOTH_TIME : PITCH_SMOOTH_TIME);
+    const pitchRateStep = Cesium.Math.clamp(
+      pitchTarget - pitchRate,
+      -pitchAccel * dt,
+      pitchAccel * dt,
+    );
+    pitchRate += pitchRateStep;
+
+    // Gleiches Prinzip wie beim Roll weiter unten: die Sättigungsbremse
+    // (softLimitAngle) soll nur beim Wachsen (Richtung Limit) greifen, nicht
+    // beim Schrumpfen (Richtung Mitte/Gegenlenken).
+    const pitchSoftZoneRad = Cesium.Math.toRadians(PITCH_LIMIT_EASE_DEG);
+    const pitchDelta = pitchRate * dt;
+    const pitchGrowing =
+      pitch !== 0 && Math.sign(pitchDelta) === Math.sign(pitch);
+
+    if (pitchGrowing) {
+      pitchRaw += pitchDelta;
+      // Gleicher Grund wie beim rollRaw-Auslauf weiter unten.
+      pitchRaw = Cesium.Math.clamp(
+        pitchRaw,
+        -(PITCH_MAX + pitchSoftZoneRad * 3),
+        PITCH_MAX + pitchSoftZoneRad * 3,
+      );
+      pitch = softLimitAngle(pitchRaw, PITCH_MAX, pitchSoftZoneRad);
+    } else {
+      pitch = Cesium.Math.clamp(pitch + pitchDelta, -PITCH_MAX, PITCH_MAX);
+      pitchRaw = inverseSoftLimitAngle(pitch, PITCH_MAX, pitchSoftZoneRad);
+    }
   }
 
 
@@ -2129,127 +2386,249 @@ viewer.clock.onTick.addEventListener(() => {
   // zurück (ROLL_AUTO_LEVEL_TIME), damit man nicht dauerhaft in Schräglage
   // hängt, ohne dass es sich beim aktiven Steuern spürbar "gegen die Hand"
   // anfühlt.
-  const rollHeld =
-    pressedKeys.has("ArrowLeft") || pressedKeys.has("ArrowRight");
-  const rollTarget = getRollTarget(now);
-  // Die schnellere ROLL_RETURN_SMOOTH_TIME gilt bewusst NUR noch beim
-  // echten Loslassen (kein Pfeil mehr gedrückt, rollTarget === 0) - nicht
-  // mehr bei einem Richtungswechsel bei weiterhin gehaltener Taste. Sonst
-  // fühlt sich ein direkter Wechsel (z.B. von voller Linkslage sofort auf
-  // Rechts) spürbar hektischer/schneller an als ein Aufbau aus dem
-  // Geradeausflug, weil dafür die schnelle statt der normalen Zeitkonstante
-  // greift. Ein gehaltener Richtungswechsel läuft jetzt genau mit derselben
-  // Beschleunigung wie jeder andere Aufbau - dadurch immer gleich ruhig,
-  // unabhängig vom Ausgangswinkel.
-  const rollReturning = rollTarget === 0;
-  // Lineare Rampe (konstante Winkelbeschleunigung) statt e-Funktions-
-  // Glättung: ändert rollRate immer mit exakt derselben Beschleunigung,
-  // egal wie groß die aktuelle Schräglage oder das verbleibende Delta ist.
-  const rollAccel =
-    ROLL_RATE / (rollReturning ? ROLL_RETURN_SMOOTH_TIME : ROLL_SMOOTH_TIME);
-  const rollRateStep = Cesium.Math.clamp(
-    rollTarget - rollRate,
-    -rollAccel * dt,
-    rollAccel * dt,
-  );
-  rollRate += rollRateStep;
-
-  // Die Sättigungsbremse (softLimitAngle) soll nur greifen, wenn der Winkel
-  // WÄCHST (Richtung Limit), nicht wenn er SCHRUMPFT (Richtung Mitte) - sonst
-  // bremst dieselbe Kompression auch das Gegenlenken künstlich aus, obwohl
-  // sie nur das harte Ankommen am Limit abfedern soll. Deshalb zwei Zweige:
-  // wachsend weiter über rollRaw + softLimitAngle (komprimiert), schrumpfend
-  // direkt auf roll (1:1, ungebremst) - rollRaw wird danach über die
-  // Kehrfunktion nachgeführt, damit ein erneutes Weiter-Wachsen wieder an der
-  // richtigen Stelle zu komprimieren beginnt statt zu springen.
-  const rollSoftZoneRad = Cesium.Math.toRadians(ROLL_LIMIT_EASE_DEG);
-  const rollDelta = rollRate * dt;
-  const rollGrowing = roll !== 0 && Math.sign(rollDelta) === Math.sign(roll);
-
-  if (rollGrowing) {
-    rollRaw += rollDelta;
-    // Auslauf für rollRaw über ROLL_MAX hinaus: schadet dem Gegenlenken
-    // nicht mehr (das läuft über den Schrumpf-Zweig direkt auf roll, siehe
-    // unten), erlaubt der Kompressionskurve aber, tief genug in ihre
-    // Sättigung reinzulaufen, damit sie sich spürbar näher an ROLL_MAX
-    // heranarbeitet, statt abrupt an einem zu engen Clamp anzuschlagen.
-    rollRaw = Cesium.Math.clamp(
-      rollRaw,
-      -(ROLL_MAX + rollSoftZoneRad * 3),
-      ROLL_MAX + rollSoftZoneRad * 3,
-    );
-    roll = softLimitAngle(rollRaw, ROLL_MAX, rollSoftZoneRad);
-  } else {
-    roll = Cesium.Math.clamp(roll + rollDelta, -ROLL_MAX, ROLL_MAX);
-    rollRaw = inverseSoftLimitAngle(roll, ROLL_MAX, rollSoftZoneRad);
+  const rollTargetKeyboard = getRollTarget(now);
+  const rollTargetGamepad = getControllerAxis(CONTROLLER_AXIS.roll);
+  if (rollTargetKeyboard !== 0) {
+    rollControlSource = "keyboard";
+  } else if (rollTargetGamepad !== 0) {
+    rollControlSource = "controller";
   }
 
-  // Der Auto-Level-Zug Richtung 0° soll nicht nur beim kompletten Loslassen
-  // greifen, sondern auch, solange man aktiv GEGENlenkt (Ziel entgegengesetzt
-  // zum aktuellen Winkel) - sonst hängt man beim Gegenlenken einseitig nur
-  // an der langsamen Rate-Rampe, die erst durch 0 durchqueren muss, während
-  // Loslassen zusätzlich diesen direkten Zug bekommt und dadurch spürbar
-  // schneller wieder gerade auf Kurs kommt als aktives Gegensteuern. Der Zug
-  // ist ebenfalls eine "schrumpfende" Bewegung Richtung Mitte und läuft
-  // deshalb direkt auf roll, ungebremst durch die Sättigungszone. Sobald der
-  // Winkel auf die neue (Ziel-)Seite gewechselt hat, baut man aktiv in die
-  // neue Richtung auf - dann greift der Zug nicht mehr, damit er der
-  // Eingabe nicht entgegenwirkt.
-  const rollOpposesTarget =
-    roll !== 0 && Math.sign(rollTarget) !== Math.sign(roll);
-  const rollLevelShouldBeActive = !rollHeld || rollOpposesTarget;
-  // Statt eines harten Ja/Nein-Schalters wird die Zugstärke über
-  // ROLL_LEVEL_BLEND_TIME sanft ein-/ausgeblendet - sonst springt die
-  // sichtbare Geschwindigkeit genau beim Einsetzen (z.B. direkt nach dem
-  // Loslassen bei voller Schräglage, wo roll durch die Sättigung zuvor
-  // fast eingefroren war) von "quasi still" auf "voller Zug", was sich wie
-  // ein kleiner Sprung anfühlt. Das Ein-/Ausblenden selbst ändert nichts
-  // an Timing oder Tempo der eigentlichen Rückkehr (ROLL_AUTO_LEVEL_TIME),
-  // nur an diesem einen Übergangsmoment.
-  rollLevelBlend = Cesium.Math.clamp(
-    rollLevelBlend +
-      (rollLevelShouldBeActive ? 1 : -1) * (dt / ROLL_LEVEL_BLEND_TIME),
-    0,
-    1,
-  );
-  if (rollLevelBlend > 0) {
-    const levelFactor =
-      (1 - Math.exp(-dt / ROLL_AUTO_LEVEL_TIME)) * rollLevelBlend;
-    roll -= roll * levelFactor;
-    rollRaw = inverseSoftLimitAngle(roll, ROLL_MAX, rollSoftZoneRad);
+  if (rollControlSource === "controller") {
+    // CONTROLLER-PFAD: reines Acro-/Rate-Modell wie bei einer FPV-Drohne -
+    // Stick-Ausschlag = Rotationsrate, 1:1 ohne Glättung/Verzögerung, Winkel
+    // wächst unbegrenzt (volle Rolls möglich) statt auf ROLL_MAX gedeckelt
+    // zu werden. Kein Auto-Level nötig/gewünscht - das ist reines
+    // Tastatur-Feintuning für den Attitude-Modus.
+    const rollRateGamepad = rollTargetGamepad * CONTROLLER_ROLL_RATE;
+    roll = wrapAngle(roll + rollRateGamepad * dt);
+    rollRate = 0;
+    rollLevelBlend = 0;
+    // rollRaw synchron halten, damit bei Rückwechsel auf Tastatur kein
+    // Sprung entsteht (softLimitAngle deckelt automatisch wieder auf den
+    // Tastatur-Bereich).
+    rollRaw = inverseSoftLimitAngle(
+      roll,
+      ROLL_MAX,
+      Cesium.Math.toRadians(ROLL_LIMIT_EASE_DEG),
+    );
+  } else {
+    // TASTATUR-PFAD (unverändert) - nur ROLL_RATE/ROLL_SMOOTH_TIME/
+    // ROLL_RETURN_SMOOTH_TIME/ROLL_AUTO_LEVEL_TIME/ROLL_LIMIT_EASE_DEG
+    // gelten hier, niemals Controller-Werte.
+    const rollTarget = rollTargetKeyboard;
+    const rollHeld =
+      pressedKeys.has("ArrowLeft") || pressedKeys.has("ArrowRight");
+    // Die schnellere ROLL_RETURN_SMOOTH_TIME gilt bewusst NUR noch beim
+    // echten Loslassen (kein Pfeil mehr gedrückt, rollTarget === 0) - nicht
+    // mehr bei einem Richtungswechsel bei weiterhin gehaltener Taste. Sonst
+    // fühlt sich ein direkter Wechsel (z.B. von voller Linkslage sofort auf
+    // Rechts) spürbar hektischer/schneller an als ein Aufbau aus dem
+    // Geradeausflug, weil dafür die schnelle statt der normalen Zeitkonstante
+    // greift. Ein gehaltener Richtungswechsel läuft jetzt genau mit derselben
+    // Beschleunigung wie jeder andere Aufbau - dadurch immer gleich ruhig,
+    // unabhängig vom Ausgangswinkel.
+    const rollReturning = rollTarget === 0;
+    // Lineare Rampe (konstante Winkelbeschleunigung) statt e-Funktions-
+    // Glättung: ändert rollRate immer mit exakt derselben Beschleunigung,
+    // egal wie groß die aktuelle Schräglage oder das verbleibende Delta ist.
+    const rollAccel =
+      ROLL_RATE / (rollReturning ? ROLL_RETURN_SMOOTH_TIME : ROLL_SMOOTH_TIME);
+    const rollRateStep = Cesium.Math.clamp(
+      rollTarget - rollRate,
+      -rollAccel * dt,
+      rollAccel * dt,
+    );
+    rollRate += rollRateStep;
+
+    // Die Sättigungsbremse (softLimitAngle) soll nur greifen, wenn der Winkel
+    // WÄCHST (Richtung Limit), nicht wenn er SCHRUMPFT (Richtung Mitte) - sonst
+    // bremst dieselbe Kompression auch das Gegenlenken künstlich aus, obwohl
+    // sie nur das harte Ankommen am Limit abfedern soll. Deshalb zwei Zweige:
+    // wachsend weiter über rollRaw + softLimitAngle (komprimiert), schrumpfend
+    // direkt auf roll (1:1, ungebremst) - rollRaw wird danach über die
+    // Kehrfunktion nachgeführt, damit ein erneutes Weiter-Wachsen wieder an der
+    // richtigen Stelle zu komprimieren beginnt statt zu springen.
+    const rollSoftZoneRad = Cesium.Math.toRadians(ROLL_LIMIT_EASE_DEG);
+    const rollDelta = rollRate * dt;
+    const rollGrowing = roll !== 0 && Math.sign(rollDelta) === Math.sign(roll);
+
+    if (rollGrowing) {
+      rollRaw += rollDelta;
+      // Auslauf für rollRaw über ROLL_MAX hinaus: schadet dem Gegenlenken
+      // nicht mehr (das läuft über den Schrumpf-Zweig direkt auf roll, siehe
+      // unten), erlaubt der Kompressionskurve aber, tief genug in ihre
+      // Sättigung reinzulaufen, damit sie sich spürbar näher an ROLL_MAX
+      // heranarbeitet, statt abrupt an einem zu engen Clamp anzuschlagen.
+      rollRaw = Cesium.Math.clamp(
+        rollRaw,
+        -(ROLL_MAX + rollSoftZoneRad * 3),
+        ROLL_MAX + rollSoftZoneRad * 3,
+      );
+      roll = softLimitAngle(rollRaw, ROLL_MAX, rollSoftZoneRad);
+    } else {
+      roll = Cesium.Math.clamp(roll + rollDelta, -ROLL_MAX, ROLL_MAX);
+      rollRaw = inverseSoftLimitAngle(roll, ROLL_MAX, rollSoftZoneRad);
+    }
+
+    // Der Auto-Level-Zug Richtung 0° soll nicht nur beim kompletten Loslassen
+    // greifen, sondern auch, solange man aktiv GEGENlenkt (Ziel entgegengesetzt
+    // zum aktuellen Winkel) - sonst hängt man beim Gegenlenken einseitig nur
+    // an der langsamen Rate-Rampe, die erst durch 0 durchqueren muss, während
+    // Loslassen zusätzlich diesen direkten Zug bekommt und dadurch spürbar
+    // schneller wieder gerade auf Kurs kommt als aktives Gegensteuern. Der Zug
+    // ist ebenfalls eine "schrumpfende" Bewegung Richtung Mitte und läuft
+    // deshalb direkt auf roll, ungebremst durch die Sättigungszone. Sobald der
+    // Winkel auf die neue (Ziel-)Seite gewechselt hat, baut man aktiv in die
+    // neue Richtung auf - dann greift der Zug nicht mehr, damit er der
+    // Eingabe nicht entgegenwirkt.
+    const rollOpposesTarget =
+      roll !== 0 && Math.sign(rollTarget) !== Math.sign(roll);
+    const rollLevelShouldBeActive = !rollHeld || rollOpposesTarget;
+    // Statt eines harten Ja/Nein-Schalters wird die Zugstärke über
+    // ROLL_LEVEL_BLEND_TIME sanft ein-/ausgeblendet - sonst springt die
+    // sichtbare Geschwindigkeit genau beim Einsetzen (z.B. direkt nach dem
+    // Loslassen bei voller Schräglage, wo roll durch die Sättigung zuvor
+    // fast eingefroren war) von "quasi still" auf "voller Zug", was sich wie
+    // ein kleiner Sprung anfühlt. Das Ein-/Ausblenden selbst ändert nichts
+    // an Timing oder Tempo der eigentlichen Rückkehr (ROLL_AUTO_LEVEL_TIME),
+    // nur an diesem einen Übergangsmoment.
+    rollLevelBlend = Cesium.Math.clamp(
+      rollLevelBlend +
+        (rollLevelShouldBeActive ? 1 : -1) * (dt / ROLL_LEVEL_BLEND_TIME),
+      0,
+      1,
+    );
+    if (rollLevelBlend > 0) {
+      const levelFactor =
+        (1 - Math.exp(-dt / ROLL_AUTO_LEVEL_TIME)) * rollLevelBlend;
+      roll -= roll * levelFactor;
+      rollRaw = inverseSoftLimitAngle(roll, ROLL_MAX, rollSoftZoneRad);
+    }
   }
 
 
   // Gieren (Heading): Seitenruder A/D (sanft geglättet wie Pitch) +
   // koordinierte Kurve durch Rollen (bleibt direkt an den Roll-Winkel gekoppelt).
-  const yawTarget = pressedKeys.has("KeyA")
+  const yawTargetKeyboard = pressedKeys.has("KeyA")
     ? -RUDDER_YAW_RATE
     : pressedKeys.has("KeyD")
       ? RUDDER_YAW_RATE
       : 0;
-  const yawSmoothing = 1 - Math.exp(-dt / YAW_SMOOTH_TIME);
-  yawRate += (yawTarget - yawRate) * yawSmoothing;
+  const yawTargetGamepad = getControllerAxis(CONTROLLER_AXIS.yaw) * CONTROLLER_YAW_RATE;
+  if (yawTargetKeyboard !== 0) {
+    yawControlSource = "keyboard";
+  } else if (yawTargetGamepad !== 0) {
+    yawControlSource = "controller";
+  }
+  // Eigene Quelle pro Achse: Tastatur behält ihre Glättung (YAW_SMOOTH_TIME),
+  // Controller reagiert instant/ohne Verzögerung (siehe CONTROLLER_YAW_RATE).
+  const yawTarget =
+    yawControlSource === "controller" ? yawTargetGamepad : yawTargetKeyboard;
+  if (yawControlSource === "controller") {
+    yawRate = yawTarget;
+  } else {
+    const yawSmoothing = 1 - Math.exp(-dt / YAW_SMOOTH_TIME);
+    yawRate += (yawTarget - yawRate) * yawSmoothing;
+  }
 
   let heading = camera.heading;
   heading += yawRate * dt;
-  heading += roll * ROLL_TURN_COEFF * dt;
+  // Koordinierte Kurve durch Rollen ist ein Tastatur-Attitude-Konzept
+  // (kleine Schräglage erzeugt einen realistischen Kurvenzug) - beim
+  // Controller-Acro-Modell mit unbegrenztem Rollwinkel (z.B. mitten in
+  // einer vollen Rolle) ergäbe dieselbe Formel keinen sinnvollen
+  // Kurvenzug mehr, daher gilt sie nur, solange Roll gerade von der
+  // Tastatur kommt.
+  if (rollControlSource !== "controller") {
+    heading += roll * ROLL_TURN_COEFF * dt;
+  }
 
   camera.setView({
     destination: camera.position,
     orientation: { heading, pitch, roll },
   });
 
-  // Kollisionsprüfung: nur bei Vorwärtsflug, Reichweite = das, was ohnehin
-  // in diesem Frame zurückgelegt würde, plus Sicherheitsabstand (siehe
-  // Kommentar oben bei den Konstanten).
+  // --- Schwerkraft + Schub -------------------------------------------------
+  // bodyUp ist die tatsächliche "Oben"-Achse der Drohne in Weltkoordinaten:
+  // camera.up direkt nach dem obigen setView, also VOR dem weiter unten
+  // angewandten kosmetischen cameraTiltOffset (der nur die Kamera fürs
+  // Rendering verstellt, nicht die echte Fluglage). Kippt bei Pitch nach
+  // vorne mit - siehe Kommentar beim Konstanten-Block oben.
+  const bodyUp = Cesium.Cartesian3.clone(camera.up, new Cesium.Cartesian3());
+
+  // Schwerkraft zeigt lokal nach unten (Ellipsoid-Normale an der aktuellen
+  // Position, nicht Welt-Z - sonst stimmt die Richtung nur am Äquator).
+  const localUp = Cesium.Ellipsoid.WGS84.geodeticSurfaceNormal(
+    camera.positionWC,
+    new Cesium.Cartesian3(),
+  );
+
+  const accel = Cesium.Cartesian3.multiplyByScalar(
+    bodyUp,
+    throttle * THRUST_MAX_ACCEL,
+    new Cesium.Cartesian3(),
+  );
+  Cesium.Cartesian3.subtract(
+    accel,
+    Cesium.Cartesian3.multiplyByScalar(
+      localUp,
+      GRAVITY_ACCEL,
+      new Cesium.Cartesian3(),
+    ),
+    accel,
+  );
+  // Quadratischer statt linearer Luftwiderstand - siehe Kommentar bei
+  // DRAG_COEFF_QUAD oben: bremst bei niedrigem Tempo kaum, erst nahe der
+  // Grenzgeschwindigkeit spürbar.
+  const speedForDrag = Cesium.Cartesian3.magnitude(velocity);
+  Cesium.Cartesian3.subtract(
+    accel,
+    Cesium.Cartesian3.multiplyByScalar(
+      velocity,
+      DRAG_COEFF_QUAD * speedForDrag,
+      new Cesium.Cartesian3(),
+    ),
+    accel,
+  );
+
+  Cesium.Cartesian3.add(
+    velocity,
+    Cesium.Cartesian3.multiplyByScalar(accel, dt, new Cesium.Cartesian3()),
+    velocity,
+  );
+
+  // Sicherheits-Cap, falls die Konstanten (z.B. beim Tunen) mal eine
+  // unrealistisch hohe Geschwindigkeit zulassen würden.
+  const speedRaw = Cesium.Cartesian3.magnitude(velocity);
+  if (speedRaw > MAX_SPEED) {
+    Cesium.Cartesian3.multiplyByScalar(
+      velocity,
+      MAX_SPEED / speedRaw,
+      velocity,
+    );
+  }
+
+  // Kollisionsprüfung: nur bei Bewegung, Reichweite = das, was ohnehin in
+  // diesem Frame zurückgelegt würde, plus Sicherheitsabstand (siehe
+  // Kommentar oben bei den Konstanten). Prüft jetzt entlang der
+  // tatsächlichen Bewegungsrichtung (velocity), nicht mehr entlang der
+  // Blickrichtung - beide können sich jetzt unterscheiden (z.B. im freien
+  // Fall bei Level-Fluglage).
+  let speed = Cesium.Cartesian3.magnitude(velocity);
   if (speed > 0) {
+    const moveDirection = Cesium.Cartesian3.divideByScalar(
+      velocity,
+      speed,
+      new Cesium.Cartesian3(),
+    );
     const lookahead = Math.max(
       speed * dt + COLLISION_SAFETY_MARGIN,
       COLLISION_LOOKAHEAD_MIN,
     );
     const hitDistance = checkCollisionAhead(
       camera.positionWC,
-      camera.direction,
+      moveDirection,
       lookahead,
     );
 
@@ -2267,6 +2646,7 @@ viewer.clock.onTick.addEventListener(() => {
         const brake =
           COLLISION_BRAKE_DECEL * (penetration / COLLISION_SAFETY_MARGIN);
         speed = Math.max(speed - brake * dt, 0);
+        Cesium.Cartesian3.multiplyByScalar(moveDirection, speed, velocity);
       }
     } else {
       wasColliding = false;
@@ -2276,7 +2656,15 @@ viewer.clock.onTick.addEventListener(() => {
   }
 
   if (speed !== 0) {
-    camera.moveForward(speed * dt);
+    const newPosition = Cesium.Cartesian3.add(
+      camera.position,
+      Cesium.Cartesian3.multiplyByScalar(velocity, dt, new Cesium.Cartesian3()),
+      new Cesium.Cartesian3(),
+    );
+    camera.setView({
+      destination: newPosition,
+      orientation: { heading, pitch, roll },
+    });
   }
 
   // Kamera-Blickwinkel (FPV-Drohnen-Gimbal): erst NACHDEM sich die Position
@@ -2306,6 +2694,7 @@ viewer.clock.onTick.addEventListener(() => {
   updateMinimap();
   updateHorizon();
   updatePlaneModelMatrix();
+  updateControllerDebugOverlay();
 
   // Position/Lage regelmäßig für den Reload-Fall sichern (siehe oben)
   if (now - lastSaveTime > SAVE_INTERVAL_MS) {
