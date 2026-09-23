@@ -14,6 +14,10 @@
     <div id="hud">
       <span id="status">Lade Weltdaten…</span>
     </div>
+    <div id="location-banner">
+      <span id="location-banner-place"></span>
+      <span id="location-banner-country"></span>
+    </div>
     <div id="collision-flash"></div>
     <div id="controller-debug" hidden></div>
     <button
@@ -185,6 +189,13 @@
             <label for="plane-visible-toggle">Flugzeug anzeigen</label>
             <label class="switch">
               <input id="plane-visible-toggle" type="checkbox" />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          <div id="location-banner-row" class="setting-row">
+            <label for="location-banner-toggle">Ort beim Überfliegen anzeigen</label>
+            <label class="switch">
+              <input id="location-banner-toggle" type="checkbox" checked />
               <span class="switch-slider"></span>
             </label>
           </div>

@@ -25,6 +25,12 @@ let isStatusVisible = true;
 let isPaused = false;
 let baseStatusText = "Lade Weltdaten…";
 let minimapWidget;
+// Wird schon hier (statt erst weiter unten bei den Gamepad-Event-Listenern)
+// deklariert, weil applyPlaneVisible() (siehe Drohnen-/Flugzeug-Abschnitt)
+// und dessen initialer Aufruf schon vor der eigentlichen Gamepad-Sektion
+// laufen und darauf zugreifen müssen (sonst "Cannot access before
+// initialization" durch die let-Hoisting-Regeln).
+let connectedGamepadIndex = null;
 
 function setStatus(text) {
   baseStatusText = text;
@@ -161,6 +167,7 @@ function saveCameraState() {
         minimapLabelsVisible,
         planeVisible,
         hudHidden,
+        locationBannerEnabled,
         contrastPct: colorGradeSettings.contrastAmount * 100,
         saturationPct: colorGradeSettings.saturationAmount * 100,
         brightnessPct: colorGradeSettings.brightnessAmount * 100,
@@ -515,6 +522,8 @@ async function loadGoogleTiles() {
         applyPlaneVisible(usableSavedState.planeVisible);
       if (typeof usableSavedState.hudHidden === "boolean")
         applyHudHidden(usableSavedState.hudHidden);
+      if (typeof usableSavedState.locationBannerEnabled === "boolean")
+        applyLocationBannerEnabled(usableSavedState.locationBannerEnabled);
       if (Number.isFinite(usableSavedState.contrastPct))
         applyContrast(usableSavedState.contrastPct);
       if (Number.isFinite(usableSavedState.saturationPct))
@@ -819,7 +828,10 @@ const searchStatusEl = document.getElementById("search-status");
 // ist für Nutzer:innen intuitiver.
 const FOV_MIN_DEG = 30;
 const FOV_MAX_DEG = 100;
-const FOV_DEFAULT_DEG = 70;
+// Vorgabewert passend zur Drohnen-/FPV-Ansicht (kein Flugzeug-Modell
+// sichtbar bzw. echter Controller verbunden) - siehe applyDroneViewDefaults()
+// weiter unten, das genau diese Werte (FOV + Kamera-Blickwinkel) setzt.
+const FOV_DEFAULT_DEG = 90;
 
 const fovSlider = document.getElementById("fov-slider");
 const fovValueEl = document.getElementById("fov-value");
@@ -849,7 +861,8 @@ fovSlider.addEventListener("input", () => {
 // "Kamera" schaut zusätzlich hoch/runter.
 const CAMERA_TILT_MIN_DEG = -60; // maximal nach unten
 const CAMERA_TILT_MAX_DEG = 60; // maximal nach oben
-const CAMERA_TILT_DEFAULT_DEG = -8;
+// Siehe FOV_DEFAULT_DEG oben - derselbe Drohnen-/FPV-Hintergrund.
+const CAMERA_TILT_DEFAULT_DEG = 50;
 // Flug-Pitch (bis PITCH_MAX) + Kamera-Tilt-Offset addiert sich - hart
 // gedeckelt knapp unter +-90°, damit die Kamera nie "durchschlägt"/kippt.
 const RENDER_PITCH_LIMIT = Cesium.Math.toRadians(89);
@@ -878,6 +891,32 @@ function applyCameraTilt(deg) {
 cameraTiltSlider.min = CAMERA_TILT_MIN_DEG;
 cameraTiltSlider.max = CAMERA_TILT_MAX_DEG;
 applyCameraTilt(CAMERA_TILT_DEFAULT_DEG);
+
+// Setzt FOV + Kamera-Blickwinkel auf die Drohnen-/FPV-Vorgabewerte zurück
+// (siehe FOV_DEFAULT_DEG/CAMERA_TILT_DEFAULT_DEG oben) - wird beim
+// Verbinden eines Controllers sowie beim manuellen Ausschalten von
+// "Flugzeug anzeigen" aufgerufen (siehe applyPlaneVisible-Abschnitt und
+// gamepadconnected-Listener weiter unten).
+function applyDroneViewDefaults() {
+  applyFov(FOV_DEFAULT_DEG);
+  applyCameraTilt(CAMERA_TILT_DEFAULT_DEG);
+}
+
+// Ein echter Controller ist angeschlossen - dann soll der künstliche
+// Horizont (#horizon-wrapper) ausgeblendet werden, siehe
+// updateHorizonVisibility() unten. Bewusst NICHT an "Flugzeug anzeigen"
+// gekoppelt (anders als noch in einer früheren Fassung) - nur die
+// Controller-Verbindung selbst entscheidet.
+function isDroneView() {
+  return connectedGamepadIndex !== null;
+}
+
+const horizonWrapperEl = document.getElementById("horizon-wrapper");
+
+function updateHorizonVisibility() {
+  if (horizonWrapperEl) horizonWrapperEl.hidden = isDroneView();
+}
+updateHorizonVisibility(); // Initialzustand (kein Controller beim Start verbunden)
 
 cameraTiltSlider.addEventListener("input", () => {
   applyCameraTilt(Number(cameraTiltSlider.value));
@@ -1037,14 +1076,14 @@ function applyPlaneVisible(visible) {
 planeVisibleToggle.addEventListener("change", () => {
   const visible = planeVisibleToggle.checked;
   applyPlaneVisible(visible);
-  // Nur bei diesem manuellen Deaktivieren zusätzlich auf den Standard-
-  // Blickwinkel zurücksetzen, statt beim zuvor fest eingestellten Cockpit-
-  // Winkel (PLANE_FIXED_TILT_DEG) hängen zu bleiben. Beim Laden von
-  // gespeicherten Orten/Favoriten (applyPlaneVisible-Aufrufe weiter oben)
-  // bleibt der dort jeweils gespeicherte Kamera-Winkel dagegen unangetastet,
-  // damit applyCameraTilt(usableSavedState.cameraTiltDegrees) nicht
-  // überschrieben wird.
-  if (!visible) applyCameraTilt(CAMERA_TILT_DEFAULT_DEG);
+  // Nur bei diesem manuellen Deaktivieren zusätzlich auf die Drohnen-
+  // Vorgabewerte (FOV + Blickwinkel) zurücksetzen, statt beim zuvor fest
+  // eingestellten Cockpit-Winkel (PLANE_FIXED_TILT_DEG) hängen zu bleiben.
+  // Beim Laden von gespeicherten Orten/Favoriten (applyPlaneVisible-Aufrufe
+  // weiter oben) bleibt der dort jeweils gespeicherte Kamera-Winkel dagegen
+  // unangetastet, damit applyCameraTilt(usableSavedState.cameraTiltDegrees)
+  // nicht überschrieben wird.
+  if (!visible) applyDroneViewDefaults();
   saveCameraState();
   // Direkt sichtbar auch während der Pause (Tick-Handler läuft dann nicht,
   // siehe gleiches Muster beim cameraTiltSlider-input-Handler weiter oben):
@@ -1076,6 +1115,127 @@ hideHudToggle.addEventListener("change", () => {
   saveCameraState();
 });
 applyHudHidden(hudHidden);
+
+// --- Standort-Banner ("Bauchbinde") -------------------------------------
+// Zeigt beim Überfliegen einer neuen Region kurz Ort + Land ein (siehe
+// updateLocationBanner() im Tick-Handler weiter unten). Nutzt denselben
+// /api/geocode-Proxy wie die Ortssuche und "Aktueller Ort" im Pausenmenü,
+// hier aber mit latlng und den zusätzlichen place/country-Feldern (siehe
+// functions/api/geocode.js). Per Schalter im Menü optional abschaltbar.
+let locationBannerEnabled = true;
+const locationBannerToggle = document.getElementById(
+  "location-banner-toggle",
+);
+const locationBannerEl = document.getElementById("location-banner");
+const locationBannerPlaceEl = document.getElementById(
+  "location-banner-place",
+);
+const locationBannerCountryEl = document.getElementById(
+  "location-banner-country",
+);
+
+function applyLocationBannerEnabled(enabled) {
+  locationBannerEnabled = enabled;
+  locationBannerToggle.checked = enabled;
+  if (!enabled) hideLocationBanner();
+}
+
+locationBannerToggle.addEventListener("change", () => {
+  applyLocationBannerEnabled(locationBannerToggle.checked);
+  saveCameraState();
+});
+applyLocationBannerEnabled(locationBannerEnabled);
+
+// Nur die zuletzt angezeigte Region merken (nicht jede Zwischenanfrage) -
+// so wird die Bauchbinde nur beim tatsächlichen Wechsel neu eingeblendet,
+// nicht bei jedem Poll-Intervall.
+let lastShownLocationKey = null;
+// Entprellung: ein neuer Ort wird erst übernommen, wenn er bei zwei
+// aufeinanderfolgenden Abfragen (mit dem üblichen Zeit-/Distanz-Abstand
+// dazwischen) gleich ist. Verhindert, dass an Verwaltungsgrenzen (z.B. eine
+// winzige italienische Contrada direkt an der Gemeindegrenze) kurz
+// hintereinander mehrere unterschiedliche Namen aufblitzen.
+let pendingLocationKey = null;
+let pendingLocationConfirmCount = 0;
+let locationBannerHideTimeout = null;
+let locationBannerRequestId = 0;
+// Throttling: sowohl Mindestabstand in Zeit als auch in Distanz seit der
+// letzten Anfrage, damit im Reiseflug (kaum Kursänderung über mehrere
+// Sekunden) nicht unnötig oft die kostenpflichtige Geocoding API
+// angefragt wird.
+const LOCATION_BANNER_CHECK_INTERVAL_MS = 5000;
+const LOCATION_BANNER_CHECK_MIN_DISTANCE_M = 800;
+const LOCATION_BANNER_VISIBLE_MS = 9000;
+let lastLocationCheckTime = 0;
+let lastLocationCheckPosition = null;
+
+function showLocationBanner(place, country) {
+  locationBannerPlaceEl.textContent = place;
+  locationBannerCountryEl.textContent = country ?? "";
+  locationBannerEl.classList.add("visible");
+
+  if (locationBannerHideTimeout) clearTimeout(locationBannerHideTimeout);
+  locationBannerHideTimeout = setTimeout(
+    hideLocationBanner,
+    LOCATION_BANNER_VISIBLE_MS,
+  );
+}
+
+function hideLocationBanner() {
+  locationBannerEl.classList.remove("visible");
+  if (locationBannerHideTimeout) {
+    clearTimeout(locationBannerHideTimeout);
+    locationBannerHideTimeout = null;
+  }
+}
+
+async function updateLocationBanner(now) {
+  if (!locationBannerEnabled) return;
+
+  const cameraPosition = viewer.camera.positionWC;
+  if (
+    lastLocationCheckPosition &&
+    now - lastLocationCheckTime < LOCATION_BANNER_CHECK_INTERVAL_MS &&
+    Cesium.Cartesian3.distance(cameraPosition, lastLocationCheckPosition) <
+      LOCATION_BANNER_CHECK_MIN_DISTANCE_M
+  ) {
+    return;
+  }
+  lastLocationCheckTime = now;
+  lastLocationCheckPosition = Cesium.Cartesian3.clone(cameraPosition);
+
+  const carto = Cesium.Cartographic.fromCartesian(cameraPosition);
+  const lat = Cesium.Math.toDegrees(carto.latitude);
+  const lon = Cesium.Math.toDegrees(carto.longitude);
+
+  const requestId = ++locationBannerRequestId;
+  try {
+    const url = `/api/geocode?latlng=${lat},${lon}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    if (requestId !== locationBannerRequestId) return; // veraltete Antwort
+    if (data.status !== "OK" || !data.place) return;
+
+    const key = `${data.place}|${data.country ?? ""}`;
+    if (key === lastShownLocationKey) {
+      pendingLocationKey = null; // wird schon angezeigt, nichts zu bestätigen
+      return;
+    }
+    if (key === pendingLocationKey) {
+      pendingLocationConfirmCount++;
+    } else {
+      pendingLocationKey = key;
+      pendingLocationConfirmCount = 1;
+    }
+    if (pendingLocationConfirmCount < 2) return; // noch nicht bestätigt
+
+    lastShownLocationKey = key;
+    showLocationBanner(data.place, data.country);
+  } catch (err) {
+    if (requestId !== locationBannerRequestId) return;
+    console.error(err);
+  }
+}
 
 async function loadPlaneModel() {
   try {
@@ -2165,17 +2325,20 @@ const CONTROLLER_PITCH_RATE = Cesium.Math.toRadians(200); // rad/s bei Vollaussc
 const CONTROLLER_ROLL_RATE = Cesium.Math.toRadians(250); // rad/s bei Vollausschlag
 const CONTROLLER_YAW_RATE = Cesium.Math.toRadians(200); // rad/s bei Vollausschlag
 
-let connectedGamepadIndex = null;
 const controllerDebugEl = document.getElementById("controller-debug");
 
 window.addEventListener("gamepadconnected", (e) => {
   connectedGamepadIndex = e.gamepad.index;
-  if (controllerDebugEl) controllerDebugEl.hidden = false;
+  // Debug-Overlay (Achsenwerte) bleibt bewusst dauerhaft ausgeblendet -
+  // war nur fürs Controller-Tuning während der Entwicklung gedacht.
+  updateHorizonVisibility();
+  applyDroneViewDefaults();
 });
 window.addEventListener("gamepaddisconnected", (e) => {
   if (connectedGamepadIndex === e.gamepad.index) {
     connectedGamepadIndex = null;
     if (controllerDebugEl) controllerDebugEl.hidden = true;
+    updateHorizonVisibility();
   }
 });
 
@@ -2695,6 +2858,7 @@ viewer.clock.onTick.addEventListener(() => {
   updateHorizon();
   updatePlaneModelMatrix();
   updateControllerDebugOverlay();
+  updateLocationBanner(now);
 
   // Position/Lage regelmäßig für den Reload-Fall sichern (siehe oben)
   if (now - lastSaveTime > SAVE_INTERVAL_MS) {

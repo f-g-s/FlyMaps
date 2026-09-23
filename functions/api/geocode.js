@@ -1,7 +1,8 @@
 // Cloudflare Pages Function - läuft serverseitig, NICHT im Browser-Bundle.
 // Routen:
 //   /api/geocode?q=<Suchbegriff>        - Adresse/Ort -> Koordinaten (Ortssuche)
-//   /api/geocode?latlng=<lat>,<lng>     - Koordinaten -> Adresse (aktueller Ort im Pausenmodus)
+//   /api/geocode?latlng=<lat>,<lng>     - Koordinaten -> Adresse (aktueller Ort im Pausenmodus
+//                                          und Grundlage für das Standort-Banner im Flug)
 // Beide Richtungen laufen über denselben Google-Geocoding-Endpunkt, daher
 // hier in einer Function gebündelt statt dupliziert.
 //
@@ -45,12 +46,65 @@ export async function onRequestGet({ request, env }) {
   // Nur die Felder zurückgeben, die der Client tatsächlich braucht - nicht
   // die komplette Google-Antwort (u.a. keine internen Google-Details/Keys).
   const { lat, lng } = data.results[0].geometry.location;
-  return jsonResponse({
+  const response = {
     status: 'OK',
     lat,
     lng,
     formatted_address: data.results[0].formatted_address,
-  });
+  };
+
+  // Nur beim Reverse-Geocoding (latlng) zusätzlich Land + Region/Ort separat
+  // aufbereiten - fürs Standort-Banner beim Überfliegen (main.js:
+  // updateLocationBanner()). Die Forward-Suche (q=...) braucht nur
+  // formatted_address fürs Anfliegen, daher hier gezielt eingeschränkt.
+  if (latlng) {
+    const place = pickPlaceName(data.results);
+    const country = pickCountryName(data.results);
+    response.place = place;
+    response.country = country;
+  }
+
+  return jsonResponse(response);
+}
+
+// Google liefert beim Reverse-Geocoding mehrere Ergebnisse mit
+// unterschiedlicher Granularität (Hausnummer, Straße, Ortsteil/Contrada,
+// Gemeinde, Provinz/Metropolitanstadt, Bundesland, Land, ...), erkennbar am
+// "types"-Array jedes Eintrags. Für die Bauchbinde wird bewusst zuerst die
+// eigentliche Stadt/Gemeinde ("locality") gesucht statt der kleinstmöglichen
+// Einheit - kleinere Einheiten wie "neighborhood"/"sublocality" (z.B.
+// italienische "Contrada"-Ortsteile) sind oft winzige, dicht an der
+// Gemeindegrenze liegende Polygone und würden sonst kurz vor/nach der
+// eigentlichen Stadt kurz aufflackern. Erst wenn keine "locality" vorliegt
+// (ländliche Gegend ohne eigenen Ortsnamen), wird auf kleinere bzw. größere
+// Einheiten ausgewichen.
+const PLACE_TYPE_PRIORITY = [
+  'locality',
+  'sublocality',
+  'sublocality_level_1',
+  'locality',
+  'administrative_area_level_3',
+  'administrative_area_level_2',
+  'administrative_area_level_1',
+];
+
+function pickPlaceName(results) {
+  for (const type of PLACE_TYPE_PRIORITY) {
+    for (const result of results) {
+      if (!result.types?.includes(type)) continue;
+      const component = result.address_components?.find((c) => c.types?.includes(type));
+      if (component?.long_name) return component.long_name;
+    }
+  }
+  return null;
+}
+
+function pickCountryName(results) {
+  for (const result of results) {
+    const component = result.address_components?.find((c) => c.types?.includes('country'));
+    if (component?.long_name) return component.long_name;
+  }
+  return null;
 }
 
 function jsonResponse(body, status = 200) {
