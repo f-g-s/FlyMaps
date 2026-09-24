@@ -28,8 +28,8 @@ export async function onRequestGet({ request, env }) {
   }
 
   const googleUrl = latlng
-    ? `https://maps.googleapis.com/maps/api/geocode/json?latlng=${encodeURIComponent(latlng)}&key=${env.GEOCODING_API_KEY}`
-    : `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${env.GEOCODING_API_KEY}`;
+    ? `https://maps.googleapis.com/maps/api/geocode/json?latlng=${encodeURIComponent(latlng)}&language=de&key=${env.GEOCODING_API_KEY}`
+    : `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&language=de&key=${env.GEOCODING_API_KEY}`;
 
   let data;
   try {
@@ -61,7 +61,15 @@ export async function onRequestGet({ request, env }) {
     const place = pickPlaceName(data.results);
     const country = pickCountryName(data.results);
     response.place = place;
+    response.district = pickDistrictName(data.results, place);
     response.country = country;
+
+    // Diagnose: /api/geocode?latlng=<lat>,<lng>&debug=1 listet alle
+    // Viertel-artigen Bezeichnungen samt Google-Typ auf - hilfreich, um
+    // DISTRICT_TYPE_PRIORITY unten passend zur Region abzustimmen.
+    if (url.searchParams.get('debug')) {
+      response.debug_areas = listAreaComponents(data.results);
+    }
   }
 
   return jsonResponse(response);
@@ -79,7 +87,7 @@ export async function onRequestGet({ request, env }) {
 // (ländliche Gegend ohne eigenen Ortsnamen), wird auf kleinere bzw. größere
 // Einheiten ausgewichen.
 const PLACE_TYPE_PRIORITY = [
-  'locality',
+  //'locality',
   'sublocality',
   'sublocality_level_1',
   'locality',
@@ -97,6 +105,47 @@ function pickPlaceName(results) {
     }
   }
   return null;
+}
+
+// Viertel/Stadtteil (z.B. "Nördliche Innenstadt", "Paulusviertel") - wird
+// im Banner zusätzlich unter dem Ortsnamen gezeigt. Reihenfolge = welcher
+// Google-Typ bevorzugt wird; welcher Typ in einer Region welche Ebene
+// abbildet, unterscheidet sich je nach Land/Stadt (siehe debug=1 oben).
+// Ergibt sich kein Viertel oder ist es identisch mit dem Ortsnamen, bleibt
+// das Feld null und das Banner zeigt wie bisher nur Ort + Land.
+const DISTRICT_TYPE_PRIORITY = [
+  'locality',
+  'sublocality',
+  'sublocality_level_1',
+  'neighborhood',
+  'sublocality_level_2',
+];
+
+function pickDistrictName(results, place) {
+  for (const type of DISTRICT_TYPE_PRIORITY) {
+    for (const result of results) {
+      const component = result.address_components?.find((c) => c.types?.includes(type));
+      const name = component?.long_name;
+      if (name && name !== place) return name;
+    }
+  }
+  return null;
+}
+
+function listAreaComponents(results) {
+  const seen = new Set();
+  const areas = [];
+  for (const result of results) {
+    for (const component of result.address_components ?? []) {
+      const type = DISTRICT_TYPE_PRIORITY.find((t) => component.types?.includes(t));
+      if (!type) continue;
+      const key = `${type}|${component.long_name}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      areas.push({ type, name: component.long_name });
+    }
+  }
+  return areas;
 }
 
 function pickCountryName(results) {

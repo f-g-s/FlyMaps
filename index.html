@@ -16,6 +16,7 @@
     </div>
     <div id="location-banner">
       <span id="location-banner-place"></span>
+      <span id="location-banner-district"></span>
       <span id="location-banner-country"></span>
     </div>
     <div id="collision-flash"></div>
@@ -166,6 +167,17 @@
             <label for="fov-slider">Sichtfeld (FOV)</label>
             <input id="fov-slider" type="range" min="30" max="100" step="1" />
             <span id="fov-value"></span>
+          </div>
+          <div id="aspect-row" class="setting-row">
+            <label for="aspect-select">Bildformat</label>
+            <select id="aspect-select">
+              <option value="auto">Vollbild</option>
+              <option value="16/9">16:9</option>
+              <option value="3/2">3:2</option>
+              <option value="4/3">4:3</option>
+              <option value="5/4">5:4</option>
+              <option value="1/1">1:1</option>
+            </select>
           </div>
           <div id="camera-tilt-row" class="setting-row">
             <label for="camera-tilt-slider">Kamera-Blickwinkel</label>

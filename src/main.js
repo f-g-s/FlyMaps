@@ -847,6 +847,42 @@ fovSlider.min = FOV_MIN_DEG;
 fovSlider.max = FOV_MAX_DEG;
 applyFov(FOV_DEFAULT_DEG);
 
+// --- Bildformat (Ausschnitt) ---------------------------------------------
+// Schneidet den Viewer auf ein festes Seitenverhältnis zu (Letterbox/
+// Pillarbox), um zu testen, wie sich das Fliegen bei breitem vs. fast
+// quadratischem Ausschnitt anfühlt. Achtung: Cesiums FOV gilt bei
+// Breite > Höhe horizontal - bei gleichem FOV-Wert wird der Ausschnitt
+// also höher, nicht schmaler beschnitten.
+const ASPECT_KEY = "flymaps_view_aspect";
+const aspectSelect = document.getElementById("aspect-select");
+
+function applyViewAspect(value) {
+  const [w, h] = value === "auto" ? [0, 0] : value.split("/").map(Number);
+  const cropped = w > 0 && h > 0;
+  document.body.classList.toggle("view-cropped", cropped);
+  if (cropped) document.body.style.setProperty("--view-aspect", w / h);
+  else document.body.style.removeProperty("--view-aspect");
+  aspectSelect.value = cropped ? value : "auto";
+}
+
+aspectSelect.addEventListener("change", () => {
+  applyViewAspect(aspectSelect.value);
+  try {
+    localStorage.setItem(ASPECT_KEY, aspectSelect.value);
+  } catch {
+    // localStorage kann z.B. im privaten Modus fehlschlagen - dann eben ohne Persistenz
+  }
+  // Selectbox behält sonst den Fokus - Tastatursteuerung (Pfeiltasten)
+  // würde sonst die Auswahl ändern statt zu fliegen.
+  aspectSelect.blur();
+});
+
+try {
+  applyViewAspect(localStorage.getItem(ASPECT_KEY) ?? "auto");
+} catch {
+  applyViewAspect("auto");
+}
+
 fovSlider.addEventListener("input", () => {
   applyFov(Number(fovSlider.value));
   saveCameraState();
@@ -912,9 +948,24 @@ function isDroneView() {
 }
 
 const horizonWrapperEl = document.getElementById("horizon-wrapper");
+const flightDataEl = document.getElementById("flight-data");
+// Deckungsgleich mit den bottom-Werten in style.css: #flight-data sitzt
+// normalerweise über #horizon-wrapper (192px), rutscht aber auf dessen
+// Position (40px) runter, wenn der Horizont bei verbundenem Controller
+// ausgeblendet ist - sonst würde die Box über der leeren Lücke "schweben".
+const FLIGHT_DATA_BOTTOM_WITH_HORIZON_PX = 192;
+const FLIGHT_DATA_BOTTOM_WITHOUT_HORIZON_PX = 40;
 
 function updateHorizonVisibility() {
-  if (horizonWrapperEl) horizonWrapperEl.hidden = isDroneView();
+  const droneView = isDroneView();
+  if (horizonWrapperEl) horizonWrapperEl.hidden = droneView;
+  if (flightDataEl) {
+    flightDataEl.style.bottom = `${
+      droneView
+        ? FLIGHT_DATA_BOTTOM_WITHOUT_HORIZON_PX
+        : FLIGHT_DATA_BOTTOM_WITH_HORIZON_PX
+    }px`;
+  }
 }
 updateHorizonVisibility(); // Initialzustand (kein Controller beim Start verbunden)
 
@@ -1130,6 +1181,9 @@ const locationBannerEl = document.getElementById("location-banner");
 const locationBannerPlaceEl = document.getElementById(
   "location-banner-place",
 );
+const locationBannerDistrictEl = document.getElementById(
+  "location-banner-district",
+);
 const locationBannerCountryEl = document.getElementById(
   "location-banner-country",
 );
@@ -1169,8 +1223,9 @@ const LOCATION_BANNER_VISIBLE_MS = 9000;
 let lastLocationCheckTime = 0;
 let lastLocationCheckPosition = null;
 
-function showLocationBanner(place, country) {
+function showLocationBanner(place, district, country) {
   locationBannerPlaceEl.textContent = place;
+  locationBannerDistrictEl.textContent = district ?? "";
   locationBannerCountryEl.textContent = country ?? "";
   locationBannerEl.classList.add("visible");
 
@@ -1216,7 +1271,10 @@ async function updateLocationBanner(now) {
     if (requestId !== locationBannerRequestId) return; // veraltete Antwort
     if (data.status !== "OK" || !data.place) return;
 
-    const key = `${data.place}|${data.country ?? ""}`;
+    // Viertel gehört zum Schlüssel: auch ein Wechsel innerhalb derselben
+    // Stadt (z.B. Nördliche Innenstadt -> Paulusviertel) blendet die
+    // Bauchbinde neu ein - mit der üblichen Bestätigung über zwei Abfragen.
+    const key = `${data.place}|${data.district ?? ""}|${data.country ?? ""}`;
     if (key === lastShownLocationKey) {
       pendingLocationKey = null; // wird schon angezeigt, nichts zu bestätigen
       return;
@@ -1230,7 +1288,7 @@ async function updateLocationBanner(now) {
     if (pendingLocationConfirmCount < 2) return; // noch nicht bestätigt
 
     lastShownLocationKey = key;
-    showLocationBanner(data.place, data.country);
+    showLocationBanner(data.place, data.district, data.country);
   } catch (err) {
     if (requestId !== locationBannerRequestId) return;
     console.error(err);
