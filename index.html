@@ -287,6 +287,23 @@
             <input id="blur-slider" type="range" min="0" max="100" step="1" />
             <span id="blur-value"></span>
           </div>
+          <div id="dof-row" class="setting-row">
+            <label for="dof-toggle">Miniatur-Effekt</label>
+            <label class="switch">
+              <input id="dof-toggle" type="checkbox" />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          <div id="dof-strength-row" class="setting-row" hidden>
+            <label for="dof-strength-slider">Stärke</label>
+            <input id="dof-strength-slider" type="range" min="0" max="100" step="1" />
+            <span id="dof-strength-value"></span>
+          </div>
+          <div id="dof-focus-row" class="setting-row" hidden>
+            <label for="dof-focus-slider">Fokusdistanz</label>
+            <input id="dof-focus-slider" type="range" min="0" max="100" step="1" />
+            <span id="dof-focus-value"></span>
+          </div>
         </div>
       </div>
     </div>
@@ -320,6 +337,10 @@
           <li>
             <span class="key-badge key-badge-wide">Leertaste</span>
             <span class="control-desc">Menü öffnen / schließen</span>
+          </li>
+          <li>
+            <span class="key-badge">P</span>
+            <span class="control-desc">Pause ohne Menü (Landschaft ansehen)</span>
           </li>
         </ul>
         <button id="controls-panel-start-button" type="button">

@@ -23,6 +23,9 @@ const hudEl = document.getElementById("hud");
 const randomSpotButton = document.getElementById("random-spot-button");
 let isStatusVisible = true;
 let isPaused = false;
+// Ruhe-Pause (Taste P): Flug ist eingefroren, aber ohne Pausenmenü - zum
+// ungestörten Anschauen der Landschaft. Unabhängig von isPaused (Menü).
+let isViewPaused = false;
 let baseStatusText = "Lade Weltdaten…";
 let minimapWidget;
 // Wird schon hier (statt erst weiter unten bei den Gamepad-Event-Listenern)
@@ -175,6 +178,9 @@ function saveCameraState() {
         vignettePct: colorGradeSettings.vignetteAmount * 100,
         grainPct: (colorGradeSettings.grainAmount / GRAIN_MAX_INTENSITY) * 100,
         blurPct: colorGradeSettings.blurAmount * 100,
+        dofEnabled: dofSettings.enabled,
+        dofStrengthPct: dofSettings.strengthPct,
+        dofFocusSlider: dofSettings.focusSlider,
       }),
     );
   } catch {
@@ -224,6 +230,34 @@ let colorGradeSettings = {
   blurAmount: 0,
 };
 
+// Miniatur-Effekt (Schärfentiefe/Tilt-Shift-Look): Cesiums eingebaute
+// Depth-of-Field-Stage, tiefenbasiert - funktioniert daher bei jeder
+// Blickrichtung/Steigung. Standardmäßig aus (kostet Leistung).
+const DOF_FOCUS_MIN_M = 30;
+const DOF_FOCUS_MAX_M = 3000;
+const DOF_STRENGTH_DEFAULT_PCT = 60;
+const DOF_FOCUS_DEFAULT_SLIDER = 50; // 0..100, logarithmisch -> ca. 300 m
+let dofSettings = {
+  enabled: false,
+  strengthPct: DOF_STRENGTH_DEFAULT_PCT,
+  focusSlider: DOF_FOCUS_DEFAULT_SLIDER,
+};
+let depthOfFieldStage = null;
+
+function dofFocusMeters(slider) {
+  return DOF_FOCUS_MIN_M * Math.pow(DOF_FOCUS_MAX_M / DOF_FOCUS_MIN_M, slider / 100);
+}
+
+function syncDepthOfField() {
+  if (!depthOfFieldStage) return;
+  depthOfFieldStage.enabled = dofSettings.enabled;
+  depthOfFieldStage.uniforms.focalDistance = dofFocusMeters(dofSettings.focusSlider);
+  depthOfFieldStage.uniforms.delta = 1.0;
+  depthOfFieldStage.uniforms.sigma = 2.0;
+  // Stärke = Unschärfe-Schrittweite (1 = kaum, 6 = deutlich)
+  depthOfFieldStage.uniforms.stepSize = 1 + (dofSettings.strengthPct / 100) * 5;
+}
+
 // --- Dezente "cinematische" Filter über den 3D Tiles ---------------------
 // Alle Werte bewusst subtil gehalten, damit es nicht künstlich/übertrieben
 // wirkt - eher "etwas mehr Tiefe/Kontrast" als ein auffälliger Filter.
@@ -261,6 +295,11 @@ function setupCinematicFilters() {
   // Kaschiert nebenbei genau das Flimmern an dünner, weit entfernter
   // Geometrie (Schienen, Leitungen etc.), das MSAA allein nicht ganz
   // beseitigt - deutlich günstiger als ein echter tiefenabhängiger Blur.
+  // Schärfentiefe (Miniatur-Effekt) vor Nebel/Farbkorrektur, standardmäßig aus.
+  depthOfFieldStage = Cesium.PostProcessStageLibrary.createDepthOfFieldStage();
+  viewer.scene.postProcessStages.add(depthOfFieldStage);
+  syncDepthOfField();
+
   addDepthFogPostProcess();
 
   // Eigene, kleine Farbkorrektur: Kontrast/Sättigung/Helligkeit/Sepia/
@@ -538,6 +577,12 @@ async function loadGoogleTiles() {
         applyGrain(usableSavedState.grainPct);
       if (Number.isFinite(usableSavedState.blurPct))
         applyBlur(usableSavedState.blurPct);
+      if (Number.isFinite(usableSavedState.dofStrengthPct))
+        applyDofStrength(usableSavedState.dofStrengthPct);
+      if (Number.isFinite(usableSavedState.dofFocusSlider))
+        applyDofFocus(usableSavedState.dofFocusSlider);
+      if (typeof usableSavedState.dofEnabled === "boolean")
+        applyDofEnabled(usableSavedState.dofEnabled);
       readyStatusText = "Weltdaten geladen (letzte Position wiederhergestellt)";
     } else {
       // Kein gespeicherter Stand: statt immer derselben Stadt einen
@@ -832,6 +877,8 @@ const FOV_MAX_DEG = 100;
 // sichtbar bzw. echter Controller verbunden) - siehe applyDroneViewDefaults()
 // weiter unten, das genau diese Werte (FOV + Kamera-Blickwinkel) setzt.
 const FOV_DEFAULT_DEG = 90;
+// Vorgabe im Flug-Modus (ohne Controller)
+const FOV_FLIGHT_DEFAULT_DEG = 80;
 
 const fovSlider = document.getElementById("fov-slider");
 const fovValueEl = document.getElementById("fov-value");
@@ -845,7 +892,7 @@ function applyFov(deg) {
 
 fovSlider.min = FOV_MIN_DEG;
 fovSlider.max = FOV_MAX_DEG;
-applyFov(FOV_DEFAULT_DEG);
+applyFov(FOV_FLIGHT_DEFAULT_DEG);
 
 // --- Bildformat (Ausschnitt) ---------------------------------------------
 // Schneidet den Viewer auf ein festes Seitenverhältnis zu (Letterbox/
@@ -854,6 +901,8 @@ applyFov(FOV_DEFAULT_DEG);
 // Breite > Höhe horizontal - bei gleichem FOV-Wert wird der Ausschnitt
 // also höher, nicht schmaler beschnitten.
 const ASPECT_KEY = "flymaps_view_aspect";
+const ASPECT_DRONE_DEFAULT = "5/4"; // Vorgabe mit Controller
+const ASPECT_FLIGHT_DEFAULT = "auto"; // Vorgabe im Flug-Modus (Vollbild)
 const aspectSelect = document.getElementById("aspect-select");
 
 function applyViewAspect(value) {
@@ -926,7 +975,10 @@ function applyCameraTilt(deg) {
 }
 cameraTiltSlider.min = CAMERA_TILT_MIN_DEG;
 cameraTiltSlider.max = CAMERA_TILT_MAX_DEG;
-applyCameraTilt(CAMERA_TILT_DEFAULT_DEG);
+// Ohne Controller startet die Kamera geradeaus (0°); die 50° FPV-Neigung
+// gilt erst, wenn ein Controller verbunden ist (applyDroneViewDefaults).
+const CAMERA_TILT_FLIGHT_DEFAULT_DEG = -10; // Vorgabe im Flug-Modus (ohne Controller)
+applyCameraTilt(CAMERA_TILT_FLIGHT_DEFAULT_DEG);
 
 // Setzt FOV + Kamera-Blickwinkel auf die Drohnen-/FPV-Vorgabewerte zurück
 // (siehe FOV_DEFAULT_DEG/CAMERA_TILT_DEFAULT_DEG oben) - wird beim
@@ -934,8 +986,10 @@ applyCameraTilt(CAMERA_TILT_DEFAULT_DEG);
 // "Flugzeug anzeigen" aufgerufen (siehe applyPlaneVisible-Abschnitt und
 // gamepadconnected-Listener weiter unten).
 function applyDroneViewDefaults() {
-  applyFov(FOV_DEFAULT_DEG);
-  applyCameraTilt(CAMERA_TILT_DEFAULT_DEG);
+  const drone = isDroneView();
+  applyFov(drone ? FOV_DEFAULT_DEG : FOV_FLIGHT_DEFAULT_DEG);
+  applyCameraTilt(drone ? CAMERA_TILT_DEFAULT_DEG : CAMERA_TILT_FLIGHT_DEFAULT_DEG);
+  applyViewAspect(drone ? ASPECT_DRONE_DEFAULT : ASPECT_FLIGHT_DEFAULT);
 }
 
 // Ein echter Controller ist angeschlossen - dann soll der künstliche
@@ -1479,6 +1533,57 @@ blurSlider.addEventListener("input", () => {
   saveCameraState();
 });
 
+// --- Miniatur-Effekt (Schärfentiefe) ---------------------------------------
+const dofToggle = document.getElementById("dof-toggle");
+const dofStrengthRow = document.getElementById("dof-strength-row");
+const dofStrengthSlider = document.getElementById("dof-strength-slider");
+const dofStrengthValueEl = document.getElementById("dof-strength-value");
+const dofFocusRow = document.getElementById("dof-focus-row");
+const dofFocusSlider = document.getElementById("dof-focus-slider");
+const dofFocusValueEl = document.getElementById("dof-focus-value");
+
+function applyDofEnabled(enabled) {
+  dofSettings.enabled = enabled;
+  dofToggle.checked = enabled;
+  dofStrengthRow.hidden = !enabled;
+  dofFocusRow.hidden = !enabled;
+  syncDepthOfField();
+}
+
+function applyDofStrength(pct) {
+  const clamped = Cesium.Math.clamp(pct, 0, 100);
+  dofSettings.strengthPct = clamped;
+  dofStrengthSlider.value = clamped;
+  dofStrengthValueEl.textContent = `${Math.round(clamped)}%`;
+  syncDepthOfField();
+}
+
+function applyDofFocus(sliderValue) {
+  const clamped = Cesium.Math.clamp(sliderValue, 0, 100);
+  dofSettings.focusSlider = clamped;
+  dofFocusSlider.value = clamped;
+  dofFocusValueEl.textContent = `${Math.round(dofFocusMeters(clamped))} m`;
+  syncDepthOfField();
+}
+
+dofToggle.addEventListener("change", () => {
+  applyDofEnabled(dofToggle.checked);
+  saveCameraState();
+  // Fokus von der Checkbox nehmen, damit die Tastatursteuerung nicht hängt.
+  dofToggle.blur();
+});
+dofStrengthSlider.addEventListener("input", () => {
+  applyDofStrength(Number(dofStrengthSlider.value));
+  saveCameraState();
+});
+dofFocusSlider.addEventListener("input", () => {
+  applyDofFocus(Number(dofFocusSlider.value));
+  saveCameraState();
+});
+applyDofStrength(DOF_STRENGTH_DEFAULT_PCT);
+applyDofFocus(DOF_FOCUS_DEFAULT_SLIDER);
+applyDofEnabled(false);
+
 // "Zurücksetzen"-Button: stellt den ursprünglichen, fest verdrahteten
 // "kinematischen" Look wieder her (Kontrast 108%, Sättigung 112%,
 // Vignette 12% - dieselben Werte wie CONTRAST_DEFAULT_PCT/
@@ -1493,6 +1598,9 @@ filtersResetButton.addEventListener("click", () => {
   applyVignette(VIGNETTE_DEFAULT_PCT);
   applyGrain(GRAIN_DEFAULT_PCT);
   applyBlur(BLUR_DEFAULT_PCT);
+  applyDofStrength(DOF_STRENGTH_DEFAULT_PCT);
+  applyDofFocus(DOF_FOCUS_DEFAULT_SLIDER);
+  applyDofEnabled(false);
   saveCameraState();
 });
 
@@ -1607,6 +1715,9 @@ async function geocodeAndFlyTo(query) {
     pitchRate = 0;
     rollRate = 0;
     yawRate = 0;
+    // Mit Controller (Drohnen-Ansicht) wieder in die nach vorne geneigte
+    // Startlage, sonst zeigt die Kamera nach dem Sprung gen Himmel.
+    if (isDroneView()) applyDroneStartPitch();
     if (isPaused) togglePause();
   } catch (err) {
     console.error(err);
@@ -2087,6 +2198,7 @@ async function updateCurrentLocation() {
 // Fortsetzen wiederhergestellt wird.
 function togglePause() {
   isPaused = !isPaused;
+  isViewPaused = false; // Menü übernimmt, Ruhe-Pause endet
   pressedKeys.clear();
   randomSpotButton.hidden = !isPaused;
   document.body.classList.toggle("pause-mode", isPaused);
@@ -2134,6 +2246,16 @@ window.addEventListener("keydown", (e) => {
     return;
   }
   togglePause();
+});
+
+// P: Ruhe-Pause an/aus - Flug einfrieren ohne Menü (Landschaft ansehen).
+window.addEventListener("keydown", (e) => {
+  if (e.code !== "KeyP" || e.repeat) return;
+  if (isTypingInFormField(e.target)) return;
+  if (isPaused || controlsPanel.classList.contains("visible")) return;
+  e.preventDefault();
+  isViewPaused = !isViewPaused;
+  pressedKeys.clear();
 });
 
 // --- Cursor nach 3s Inaktivität ausblenden -------------------------------
@@ -2321,6 +2443,11 @@ function triggerCollisionFlash() {
 }
 
 let velocity = new Cesium.Cartesian3(0, 0, 0); // aktuelle Geschwindigkeit, Weltkoordinaten (m/s) - siehe Schwerkraft/Schub-Modell oben
+// Tastatur-Flug (kein Controller): eingestellte Fluggeschwindigkeit in m/s.
+// W = schneller, S = langsamer/bremsen, ohne Taste bleibt sie erhalten.
+let keyboardSpeed = 0;
+const KEYBOARD_SPEED_ACCEL = 40; // m/s^2 bei gehaltenem W/S
+let wasKeyboardFlight = false;
 let throttle = 0; // 0..1, aktuelle Gasstellung (kein Rückwärtsschub - siehe Tick-Handler)
 let pitch = 0; // angezeigter/tatsächlich geflogener Wert, immer = softLimitAngle(pitchRaw, ...)
 let pitchRaw = 0; // ungekappter interner Akkumulator, siehe softLimitAngle oben
@@ -2343,7 +2470,7 @@ let wasColliding = false; // für Flankenerkennung: Flash nur beim Kollisionsbeg
 
 const pressedKeys = new Set();
 window.addEventListener("keydown", (e) => {
-  if (!isPaused) pressedKeys.add(e.code);
+  if (!isPaused && !isViewPaused) pressedKeys.add(e.code);
 });
 window.addEventListener("keyup", (e) => pressedKeys.delete(e.code));
 window.addEventListener("blur", () => pressedKeys.clear());
@@ -2385,12 +2512,32 @@ const CONTROLLER_YAW_RATE = Cesium.Math.toRadians(200); // rad/s bei Vollausschl
 
 const controllerDebugEl = document.getElementById("controller-debug");
 
+// Startlage für die Drohnen-/FPV-Ansicht: Die Kamera ist um cameraTiltOffset
+// nach oben geneigt (wie bei einer echten FPV-Drohne). Bei pitch = 0 würde
+// die Ansicht dadurch direkt zum Himmel zeigen (und der Schub senkrecht
+// nach oben gehen). Deshalb wird die Drohne hier um genau diesen Winkel
+// nach vorne geneigt - Rendering-Pitch (pitch + Tilt) ergibt 0, man
+// schaut also geradeaus zum Horizont und fliegt sofort nach vorne.
+function applyDroneStartPitch() {
+  pitch = wrapAngle(-cameraTiltOffset);
+  pitchRaw = inverseSoftLimitAngle(
+    pitch,
+    PITCH_MAX,
+    Cesium.Math.toRadians(PITCH_LIMIT_EASE_DEG),
+  );
+  pitchRate = 0;
+  // Controller-Pfad hält den Winkel bei Stick-Mitte; der Tastatur-Pfad
+  // würde ihn dagegen wieder Richtung 0 zurückführen.
+  pitchControlSource = "controller";
+}
+
 window.addEventListener("gamepadconnected", (e) => {
   connectedGamepadIndex = e.gamepad.index;
   // Debug-Overlay (Achsenwerte) bleibt bewusst dauerhaft ausgeblendet -
   // war nur fürs Controller-Tuning während der Entwicklung gedacht.
   updateHorizonVisibility();
   applyDroneViewDefaults();
+  applyDroneStartPitch();
 });
 window.addEventListener("gamepaddisconnected", (e) => {
   if (connectedGamepadIndex === e.gamepad.index) {
@@ -2487,7 +2634,7 @@ viewer.clock.onTick.addEventListener(() => {
 
   // Pausiert: keine Bewegung/Steuerungsänderung, Frame einfach überspringen
   // (lastTime wurde oben schon aktualisiert, damit es beim Fortsetzen keinen dt-Sprung gibt)
-  if (isPaused) return;
+  if (isPaused || isViewPaused) return;
 
   const camera = viewer.camera;
 
@@ -2497,7 +2644,18 @@ viewer.clock.onTick.addEventListener(() => {
   // Gasstellung nur bis 0 zurücknehmen - danach übernimmt allein die
   // Schwerkraft (siehe unten), Bremsen/Sinken passiert dann rein
   // physikalisch statt über Reverse-Thrust.
-  if (pressedKeys.has("KeyW")) {
+  const keyboardFlight = !isDroneView();
+  if (keyboardFlight) {
+    // Beim Wechsel in den Tastatur-Flug die aktuelle Geschwindigkeit übernehmen.
+    if (!wasKeyboardFlight) {
+      keyboardSpeed = Math.min(Cesium.Cartesian3.magnitude(velocity), MAX_SPEED);
+    }
+    if (pressedKeys.has("KeyW")) {
+      keyboardSpeed = Math.min(keyboardSpeed + KEYBOARD_SPEED_ACCEL * dt, MAX_SPEED);
+    } else if (pressedKeys.has("KeyS")) {
+      keyboardSpeed = Math.max(keyboardSpeed - KEYBOARD_SPEED_ACCEL * dt, 0);
+    }
+  } else if (pressedKeys.has("KeyW")) {
     throttle = Math.min(throttle + dt / THROTTLE_RAMP_TIME, 1);
   } else if (pressedKeys.has("KeyS")) {
     throttle = Math.max(throttle - dt / THROTTLE_RAMP_TIME, 0);
@@ -2785,39 +2943,51 @@ viewer.clock.onTick.addEventListener(() => {
     new Cesium.Cartesian3(),
   );
 
-  const accel = Cesium.Cartesian3.multiplyByScalar(
-    bodyUp,
-    throttle * THRUST_MAX_ACCEL,
-    new Cesium.Cartesian3(),
-  );
-  Cesium.Cartesian3.subtract(
-    accel,
-    Cesium.Cartesian3.multiplyByScalar(
-      localUp,
-      GRAVITY_ACCEL,
+  if (keyboardFlight) {
+    // Tastatur-Flug: Geschwindigkeit bleibt wie eingestellt und zeigt immer
+    // in Flugrichtung (Heading + Flug-Pitch). Der Kamera-Blickwinkel
+    // (cameraTiltOffset) wird erst danach aufs Rendering addiert und ändert
+    // die Flugrichtung daher nicht.
+    velocity = Cesium.Cartesian3.multiplyByScalar(
+      camera.direction,
+      keyboardSpeed,
       new Cesium.Cartesian3(),
-    ),
-    accel,
-  );
-  // Quadratischer statt linearer Luftwiderstand - siehe Kommentar bei
-  // DRAG_COEFF_QUAD oben: bremst bei niedrigem Tempo kaum, erst nahe der
-  // Grenzgeschwindigkeit spürbar.
-  const speedForDrag = Cesium.Cartesian3.magnitude(velocity);
-  Cesium.Cartesian3.subtract(
-    accel,
-    Cesium.Cartesian3.multiplyByScalar(
-      velocity,
-      DRAG_COEFF_QUAD * speedForDrag,
+    );
+  } else {
+    const accel = Cesium.Cartesian3.multiplyByScalar(
+      bodyUp,
+      throttle * THRUST_MAX_ACCEL,
       new Cesium.Cartesian3(),
-    ),
-    accel,
-  );
+    );
+    Cesium.Cartesian3.subtract(
+      accel,
+      Cesium.Cartesian3.multiplyByScalar(
+        localUp,
+        GRAVITY_ACCEL,
+        new Cesium.Cartesian3(),
+      ),
+      accel,
+    );
+    // Quadratischer statt linearer Luftwiderstand - siehe Kommentar bei
+    // DRAG_COEFF_QUAD oben: bremst bei niedrigem Tempo kaum, erst nahe der
+    // Grenzgeschwindigkeit spürbar.
+    const speedForDrag = Cesium.Cartesian3.magnitude(velocity);
+    Cesium.Cartesian3.subtract(
+      accel,
+      Cesium.Cartesian3.multiplyByScalar(
+        velocity,
+        DRAG_COEFF_QUAD * speedForDrag,
+        new Cesium.Cartesian3(),
+      ),
+      accel,
+    );
 
-  Cesium.Cartesian3.add(
-    velocity,
-    Cesium.Cartesian3.multiplyByScalar(accel, dt, new Cesium.Cartesian3()),
-    velocity,
-  );
+    Cesium.Cartesian3.add(
+      velocity,
+      Cesium.Cartesian3.multiplyByScalar(accel, dt, new Cesium.Cartesian3()),
+      velocity,
+    );
+  }
 
   // Sicherheits-Cap, falls die Konstanten (z.B. beim Tunen) mal eine
   // unrealistisch hohe Geschwindigkeit zulassen würden.
@@ -2875,6 +3045,11 @@ viewer.clock.onTick.addEventListener(() => {
   } else {
     wasColliding = false;
   }
+
+  // Kollisionsbremsung übernehmen, damit der Tastatur-Flug danach nicht
+  // wieder auf die alte Geschwindigkeit springt.
+  if (keyboardFlight) keyboardSpeed = speed;
+  wasKeyboardFlight = keyboardFlight;
 
   if (speed !== 0) {
     const newPosition = Cesium.Cartesian3.add(
