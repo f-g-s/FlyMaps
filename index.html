@@ -228,13 +228,35 @@
               Zurücksetzen
             </button>
           </div>
+          <div id="night-mode-row" class="setting-row">
+            <label for="night-mode-toggle">Nacht-Modus</label>
+            <label class="switch">
+              <input id="night-mode-toggle" type="checkbox" />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          <div
+            id="star-brightness-row"
+            class="setting-row"
+            style="display: none"
+          >
+            <label for="star-brightness-slider">Sterne</label>
+            <input
+              id="star-brightness-slider"
+              type="range"
+              min="0"
+              max="150"
+              step="1"
+            />
+            <span id="star-brightness-value"></span>
+          </div>
           <div id="contrast-row" class="setting-row">
             <label for="contrast-slider">Kontrast</label>
             <input
               id="contrast-slider"
               type="range"
-              min="80"
-              max="130"
+              min="0"
+              max="150"
               step="1"
             />
             <span id="contrast-value"></span>
@@ -244,8 +266,8 @@
             <input
               id="saturation-slider"
               type="range"
-              min="70"
-              max="140"
+              min="0"
+              max="150"
               step="1"
             />
             <span id="saturation-value"></span>
@@ -255,16 +277,21 @@
             <input
               id="brightness-slider"
               type="range"
-              min="60"
-              max="120"
+              min="0"
+              max="150"
               step="1"
             />
             <span id="brightness-value"></span>
           </div>
           <div id="sepia-row" class="setting-row">
             <label for="sepia-slider">Sepia</label>
-            <input id="sepia-slider" type="range" min="0" max="100" step="1" />
+            <input id="sepia-slider" type="range" min="0" max="150" step="1" />
             <span id="sepia-value"></span>
+          </div>
+          <div id="tint-row" class="setting-row">
+            <label for="tint-slider">Blaustich</label>
+            <input id="tint-slider" type="range" min="0" max="150" step="1" />
+            <span id="tint-value"></span>
           </div>
           <div id="vignette-row" class="setting-row">
             <label for="vignette-slider">Vignette</label>
@@ -272,19 +299,19 @@
               id="vignette-slider"
               type="range"
               min="0"
-              max="60"
+              max="150"
               step="1"
             />
             <span id="vignette-value"></span>
           </div>
           <div id="grain-row" class="setting-row">
             <label for="grain-slider">Filmkorn</label>
-            <input id="grain-slider" type="range" min="0" max="100" step="1" />
+            <input id="grain-slider" type="range" min="0" max="150" step="1" />
             <span id="grain-value"></span>
           </div>
           <div id="blur-row" class="setting-row">
             <label for="blur-slider">Blur</label>
-            <input id="blur-slider" type="range" min="0" max="100" step="1" />
+            <input id="blur-slider" type="range" min="0" max="150" step="1" />
             <span id="blur-value"></span>
           </div>
           <div id="dof-row" class="setting-row">
@@ -341,6 +368,10 @@
           <li>
             <span class="key-badge">P</span>
             <span class="control-desc">Pause ohne Menü (Landschaft ansehen)</span>
+          </li>
+          <li>
+            <span class="key-badge">R</span>
+            <span class="control-desc">Zufälligen Ort anfliegen</span>
           </li>
         </ul>
         <button id="controls-panel-start-button" type="button">

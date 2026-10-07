@@ -175,12 +175,17 @@ function saveCameraState() {
         saturationPct: colorGradeSettings.saturationAmount * 100,
         brightnessPct: colorGradeSettings.brightnessAmount * 100,
         sepiaPct: colorGradeSettings.sepiaAmount * 100,
+        tintPct: colorGradeSettings.tintAmount * 100,
         vignettePct: colorGradeSettings.vignetteAmount * 100,
         grainPct: (colorGradeSettings.grainAmount / GRAIN_MAX_INTENSITY) * 100,
         blurPct: colorGradeSettings.blurAmount * 100,
         dofEnabled: dofSettings.enabled,
         dofStrengthPct: dofSettings.strengthPct,
         dofFocusSlider: dofSettings.focusSlider,
+        nightMode,
+        nightDaySnapshot,
+        starBrightnessPct: colorGradeSettings.starBrightness * 100,
+        moonAzimuthDeg: Cesium.Math.toDegrees(moonAzimuthRad),
       }),
     );
   } catch {
@@ -225,6 +230,9 @@ let colorGradeSettings = {
   saturationAmount: 1.12,
   brightnessAmount: 1.0,
   sepiaAmount: 0,
+  tintAmount: 0, // Blaustich (Nacht-Look), 0 = aus
+  moonAmount: 0, // Mond (nur im Nacht-Modus), 0 = aus
+  starBrightness: 1, // Helligkeit der Sterne/Skybox (nur im Nacht-Modus), 1 = unverändert
   vignetteAmount: 0.12, // 1 - bisheriger fixer Wert 0.88
   grainAmount: 0,
   blurAmount: 0,
@@ -243,6 +251,51 @@ let dofSettings = {
   focusSlider: DOF_FOCUS_DEFAULT_SLIDER,
 };
 let depthOfFieldStage = null;
+
+// Nacht-Modus (Schalter im Filter-Block des Pausenmenüs, siehe applyNightMode).
+// nightDaySnapshot merkt sich die Filterwerte von vor dem Umschalten, damit sie
+// beim Ausschalten wiederhergestellt werden.
+let nightMode = false;
+let nightDaySnapshot = null;
+
+// Mond (nur im Nacht-Modus): wird im Farbkorrektur-Shader auf die Himmels-
+// Pixel gezeichnet (also hinter Gelände/Gebäuden und ohne Nebel/Abdunklung).
+// Er steht fest am lokalen Himmel (Azimut/Höhe über dem Horizont) und
+// wandert beim Fliegen nicht weg. Der Azimut wird beim Einschalten nach der
+// Halbkugel gesetzt (Nord -> Süden, Süd -> Norden), passend zu den in die
+// 3D-Kacheln eingebrannten Schatten (siehe applyNightMode).
+const MOON_ANGULAR_RADIUS_DEG = 1.2; // scheinbare Größe (real nur ca. 0.26°)
+const MOON_ELEVATION_DEG = 10; // Höhe über dem Horizont
+const MOON_AZIMUTH_OFFSET_DEG = 25; // nur noch Startwert vor dem ersten Einschalten
+// moon.png wird halbtransparent über den prozeduralen Mond gelegt: so bleibt der
+// Mond-Rand/Schein erhalten und die Krater-/Meer-Struktur kommt aus dem Foto.
+const MOON_TEXTURE_URL = "/moon.png";
+const MOON_TEXTURE_OPACITY = 0.85; // 0 = nur prozeduraler Mond, 1 = nur Foto
+// Farbstich des Mondes (RGB-Faktor): (1,1,1) = neutral grau/weiß, kleineres Blau =
+// wärmer/gelblicher, größeres Blau = kühler. Vorher (1.0, 0.98, 0.90) = deutlich gelb.
+const MOON_TINT = new Cesium.Cartesian3(0.95, 0.97, 1.0);
+const MOON_TEXTURE_BRIGHTNESS = 0.9; // das Foto ist recht dunkel -> aufhellen
+let moonAzimuthRad = Cesium.Math.toRadians(MOON_AZIMUTH_OFFSET_DEG);
+
+const moonScratchEnu = new Cesium.Matrix4();
+const moonScratchLocal = new Cesium.Cartesian3();
+const moonScratchWorld = new Cesium.Cartesian3();
+
+// Mondrichtung in Weltkoordinaten: lokale Richtung (Ost/Nord/Oben) an der
+// aktuellen Kameraposition -> Welt. Wird pro Frame als Shader-Uniform gelesen.
+function computeMoonDirection() {
+  const enu = Cesium.Transforms.eastNorthUpToFixedFrame(
+    viewer.camera.positionWC,
+    Cesium.Ellipsoid.WGS84,
+    moonScratchEnu,
+  );
+  const elevation = Cesium.Math.toRadians(MOON_ELEVATION_DEG);
+  moonScratchLocal.x = Math.cos(elevation) * Math.sin(moonAzimuthRad);
+  moonScratchLocal.y = Math.cos(elevation) * Math.cos(moonAzimuthRad);
+  moonScratchLocal.z = Math.sin(elevation);
+  Cesium.Matrix4.multiplyByPointAsVector(enu, moonScratchLocal, moonScratchWorld);
+  return Cesium.Cartesian3.normalize(moonScratchWorld, moonScratchWorld);
+}
 
 function dofFocusMeters(slider) {
   return DOF_FOCUS_MIN_M * Math.pow(DOF_FOCUS_MAX_M / DOF_FOCUS_MIN_M, slider / 100);
@@ -314,9 +367,19 @@ function setupCinematicFilters() {
         uniform float saturationAmount;
         uniform float brightnessAmount;
         uniform float sepiaAmount;
+        uniform float tintAmount;
         uniform float vignetteAmount;
         uniform float grainAmount;
         uniform float blurAmount;
+        uniform sampler2D depthTexture;
+        uniform float moonAmount;
+        uniform float starBrightness;
+        uniform vec3 moonDirection;
+        uniform float moonRadius;
+        uniform vec3 moonTint;
+        uniform sampler2D moonTexture;
+        uniform float moonTextureOpacity;
+        uniform float moonTextureBrightness;
         in vec2 v_textureCoordinates;
 
         // Einfache Pseudo-Zufallszahl aus einem 2D-Vektor - Standardtrick
@@ -324,6 +387,18 @@ function setupCinematicFilters() {
         // hochfrequent für Filmkorn.
         float randomFromVec2(vec2 co) {
           return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+        }
+
+        // Einfaches Value-Noise für die Mondoberfläche (dunklere "Meere").
+        float noise2(vec2 p) {
+          vec2 i = floor(p);
+          vec2 f = fract(p);
+          f = f * f * (3.0 - 2.0 * f);
+          float a = randomFromVec2(i);
+          float b = randomFromVec2(i + vec2(1.0, 0.0));
+          float c = randomFromVec2(i + vec2(0.0, 1.0));
+          float d = randomFromVec2(i + vec2(1.0, 1.0));
+          return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
         }
 
         void main() {
@@ -356,6 +431,11 @@ function setupCinematicFilters() {
           vec3 sepiaTone = gray * vec3(1.15, 0.95, 0.75);
           color.rgb = clamp(mix(color.rgb, sepiaTone, sepiaAmount), 0.0, 1.0);
 
+          // Blaustich (kühle Nacht-Tönung): multipliziert einen bläulichen
+          // Faktor auf das Bild - Rot/Grün werden abgesenkt, Blau bleibt.
+          // tintAmount 0 = keine Wirkung.
+          color.rgb *= mix(vec3(1.0), vec3(0.55, 0.65, 1.0), tintAmount);
+
           // Helligkeit / Abdunkeln
           color.rgb = clamp(color.rgb * brightnessAmount, 0.0, 1.0);
 
@@ -365,6 +445,50 @@ function setupCinematicFilters() {
           vec2 uv = v_textureCoordinates - 0.5;
           float vignette = smoothstep(0.8, 0.35, length(uv));
           color.rgb *= mix(1.0 - vignetteAmount, 1.0, vignette);
+
+          // Mond: nur auf Himmels-Pixeln (Tiefe 1.0 = nichts gerendert), damit
+          // Gelände und Gebäude ihn korrekt verdecken. Wird nach Helligkeit/
+          // Tönung/Vignette gezeichnet, bleibt also hell und unverfärbt.
+          if (moonAmount > 0.0) {
+            float skyDepth = czm_unpackDepth(texture(depthTexture, v_textureCoordinates));
+            if (skyDepth >= 1.0) {
+              // Sterne/Skybox abdunkeln bzw. aufhellen, bevor Mond + Schein
+              // gezeichnet werden (diese bleiben davon unberührt).
+              color.rgb = clamp(color.rgb * starBrightness, 0.0, 1.0);
+
+              vec4 eyePoint = czm_inverseProjection * vec4(v_textureCoordinates * 2.0 - 1.0, 0.0, 1.0);
+              vec3 viewDirWorld = normalize(czm_inverseViewRotation * normalize(eyePoint.xyz / eyePoint.w));
+
+              float moonAngle = acos(clamp(dot(viewDirWorld, moonDirection), -1.0, 1.0));
+              float disk = 1.0 - smoothstep(moonRadius * 0.96, moonRadius, moonAngle);
+
+              // 2D-Koordinaten auf der Mondscheibe (-1..1) für die Oberfläche
+              vec3 moonHelper = normalize(czm_viewerPositionWC); // lokal "oben" -> Mond bleibt zum Horizont aufrecht
+              vec3 moonTangent1 = normalize(cross(moonDirection, moonHelper));
+              vec3 moonTangent2 = cross(moonDirection, moonTangent1);
+              vec2 moonPoint = vec2(dot(viewDirWorld, moonTangent1), dot(viewDirWorld, moonTangent2)) / sin(moonRadius);
+              float moonR2 = clamp(dot(moonPoint, moonPoint), 0.0, 1.0);
+
+              float moonNoise = noise2(moonPoint * 3.0 + 7.0) * 0.6 + noise2(moonPoint * 8.0) * 0.4;
+              float surface = 0.72 + 0.28 * smoothstep(0.3, 0.7, moonNoise);
+              float limb = 0.85 + 0.15 * sqrt(1.0 - moonR2);
+              vec3 moonColor = clamp(moonTint * surface * limb * 1.15, 0.0, 1.0);
+
+              // moon.png halbtransparent darüberlegen (moonPoint.y zeigt nach
+              // unten, die Textur wird mit Zeile 0 = oben abgetastet).
+              vec2 moonUv = clamp(moonPoint * 0.5 + 0.5, 0.0, 1.0);
+              vec4 moonTex = texture(moonTexture, moonUv);
+              vec3 moonTexColor = clamp(moonTex.rgb * moonTextureBrightness, 0.0, 1.0) * moonTint;
+              moonColor = mix(moonColor, moonTexColor, moonTex.a * moonTextureOpacity);
+
+              // Weicher, leicht bläulicher Schein um den Mond
+              float glow = exp(-pow(moonAngle / (moonRadius * 3.0), 2.0)) * 0.22
+                         + exp(-pow(moonAngle / (moonRadius * 8.0), 2.0)) * 0.08;
+              color.rgb += vec3(0.65, 0.75, 1.0) * glow * moonAmount;
+              color.rgb = mix(color.rgb, moonColor, disk * moonAmount);
+              color.rgb = clamp(color.rgb, 0.0, 1.0);
+            }
+          }
 
           // Filmkorn: pro Pixel und Frame neu berechnetes Rauschen (mit
           // czm_frameNumber als zusätzlichem Seed-Offset, damit es wie
@@ -384,6 +508,15 @@ function setupCinematicFilters() {
         saturationAmount: () => colorGradeSettings.saturationAmount,
         brightnessAmount: () => colorGradeSettings.brightnessAmount,
         sepiaAmount: () => colorGradeSettings.sepiaAmount,
+        tintAmount: () => colorGradeSettings.tintAmount,
+        moonAmount: () => colorGradeSettings.moonAmount,
+        starBrightness: () => colorGradeSettings.starBrightness,
+        moonDirection: computeMoonDirection,
+        moonRadius: () => Cesium.Math.toRadians(MOON_ANGULAR_RADIUS_DEG),
+        moonTint: () => MOON_TINT,
+        moonTexture: MOON_TEXTURE_URL,
+        moonTextureOpacity: () => MOON_TEXTURE_OPACITY,
+        moonTextureBrightness: () => MOON_TEXTURE_BRIGHTNESS,
         vignetteAmount: () => colorGradeSettings.vignetteAmount,
         grainAmount: () => colorGradeSettings.grainAmount,
         blurAmount: () => colorGradeSettings.blurAmount,
@@ -392,6 +525,26 @@ function setupCinematicFilters() {
   );
 }
 
+// Tag-/Nacht-Werte für den Tiefennebel (siehe Nacht-Modus weiter unten).
+const DAY_FOG_COLOR = "#b9c9d6";
+const DAY_FOG_DENSITY = 0.00003;
+const NIGHT_FOG_COLOR = "#05080f";
+const NIGHT_SKY_COLOR = "#05080f"; // Hintergrund, wenn die Himmelsatmosphäre aus ist
+const NIGHT_FOG_DENSITY = 0.0000;
+
+const depthFogSettings = {
+  // Nebelfarbe: an die Himmelsfarbe angleichen, damit der Übergang zum
+  // Horizont nicht wie ein grauer Vorhang wirkt, sondern wie natürlicher
+  // Dunst. Bei Bedarf an Tageszeit/Wetter koppeln.
+  color: Cesium.Color.fromCssColorString(DAY_FOG_COLOR),
+  // Dichte fürs quadratisch-exponentielle Fog-Modell, siehe Shader unten.
+  // Wirkt auf reale Meter-Distanzen (nicht auf die 0..1-Ellipsoid-Einheit
+  // von viewer.scene.fog!) - deshalb ein ganz anderer Wertebereich.
+  // Klein anfangen und hochtasten: 0.00003 blendet bei ca. 15-20 km
+  // spürbar ein, bei ca. 40 km praktisch komplett zur Nebelfarbe.
+  density: DAY_FOG_DENSITY,
+};
+
 // Tiefenbasierter Nebel als Post-Process-Stage. Anders als
 // viewer.scene.fog (siehe Hinweis oben) wirkt das hier tatsächlich auf
 // alles, was gerendert wurde - inklusive der Google Photorealistic 3D
@@ -399,18 +552,7 @@ function setupCinematicFilters() {
 // arbeiten statt uns auf ein Cesium-internes Fog-Feature zu verlassen,
 // das nur für den Globe gebaut ist.
 function addDepthFogPostProcess() {
-  const fogSettings = {
-    // Nebelfarbe: an die Himmelsfarbe angleichen, damit der Übergang zum
-    // Horizont nicht wie ein grauer Vorhang wirkt, sondern wie natürlicher
-    // Dunst. Bei Bedarf an Tageszeit/Wetter koppeln.
-    color: Cesium.Color.fromCssColorString("#b9c9d6"),
-    // Dichte fürs quadratisch-exponentielle Fog-Modell, siehe Shader unten.
-    // Wirkt auf reale Meter-Distanzen (nicht auf die 0..1-Ellipsoid-Einheit
-    // von viewer.scene.fog!) - deshalb ein ganz anderer Wertebereich.
-    // Klein anfangen und hochtasten: 0.00003 blendet bei ca. 15-20 km
-    // spürbar ein, bei ca. 40 km praktisch komplett zur Nebelfarbe.
-    density: 0.00003,
-  };
+  const fogSettings = depthFogSettings;
 
   const fragmentShader = `
     uniform sampler2D colorTexture;
@@ -571,6 +713,8 @@ async function loadGoogleTiles() {
         applyBrightness(usableSavedState.brightnessPct);
       if (Number.isFinite(usableSavedState.sepiaPct))
         applySepia(usableSavedState.sepiaPct);
+      if (Number.isFinite(usableSavedState.tintPct))
+        applyTint(usableSavedState.tintPct);
       if (Number.isFinite(usableSavedState.vignettePct))
         applyVignette(usableSavedState.vignettePct);
       if (Number.isFinite(usableSavedState.grainPct))
@@ -583,6 +727,15 @@ async function loadGoogleTiles() {
         applyDofFocus(usableSavedState.dofFocusSlider);
       if (typeof usableSavedState.dofEnabled === "boolean")
         applyDofEnabled(usableSavedState.dofEnabled);
+      if (Number.isFinite(usableSavedState.starBrightnessPct))
+        applyStarBrightness(usableSavedState.starBrightnessPct);
+      if (Number.isFinite(usableSavedState.moonAzimuthDeg))
+        moonAzimuthRad = Cesium.Math.toRadians(usableSavedState.moonAzimuthDeg);
+      if (typeof usableSavedState.nightMode === "boolean") {
+        nightDaySnapshot = usableSavedState.nightDaySnapshot ?? null;
+        // Gespeicherte Filterwerte gelten schon - nicht erneut preseten.
+        applyNightMode(usableSavedState.nightMode, { applyFilters: false });
+      }
       readyStatusText = "Weltdaten geladen (letzte Position wiederhergestellt)";
     } else {
       // Kein gespeicherter Stand: statt immer derselben Stadt einen
@@ -1375,39 +1528,44 @@ loadPlaneModel();
 // fertigen Frame, brauchen also (anders als z.B. der Kamera-Tilt) keinen
 // eigenen Re-Render-Aufruf beim Ändern, um während der Pause sichtbar zu
 // sein.
-const CONTRAST_MIN_PCT = 80;
-const CONTRAST_MAX_PCT = 130;
+const CONTRAST_MIN_PCT = 0;
+const CONTRAST_MAX_PCT = 150;
 const CONTRAST_DEFAULT_PCT = 105;
 
-const SATURATION_MIN_PCT = 70;
-const SATURATION_MAX_PCT = 140;
+const SATURATION_MIN_PCT = 0;
+const SATURATION_MAX_PCT = 150;
 const SATURATION_DEFAULT_PCT = 110;
 
-const BRIGHTNESS_MIN_PCT = 60;
-const BRIGHTNESS_MAX_PCT = 120;
+const BRIGHTNESS_MIN_PCT = 0;
+const BRIGHTNESS_MAX_PCT = 150;
 const BRIGHTNESS_DEFAULT_PCT = 95;
 
 const SEPIA_MIN_PCT = 0;
-const SEPIA_MAX_PCT = 100;
+const SEPIA_MAX_PCT = 150;
 const SEPIA_DEFAULT_PCT = 5;
+
+// Blaustich: 0% = aus (Standard), wird vom Nacht-Modus per Preset gesetzt.
+const TINT_MIN_PCT = 0;
+const TINT_MAX_PCT = 150;
+const TINT_DEFAULT_PCT = 0;
 
 // Vignette: Prozentwert = Abdunklung an den Ecken direkt in vignetteAmount
 // (siehe Shader oben, 0% = kein Vignetting, 60% = Ecken auf 40% Helligkeit
 // abgedunkelt). Default 12% entspricht dem bisherigen fixen Wert (0.88).
 const VIGNETTE_MIN_PCT = 0;
-const VIGNETTE_MAX_PCT = 60;
+const VIGNETTE_MAX_PCT = 150;
 const VIGNETTE_DEFAULT_PCT = 15;
 
 // Filmkorn: 0% = aus (Standard), 100% = deutlich sichtbares Korn. Wird im
 // Shader auf eine maximale Rauschamplitude von 0.15 gemappt (siehe
 // applyGrain unten) - höher wirkt schnell wie Bildrauschen statt Filmkorn.
 const GRAIN_MIN_PCT = 0;
-const GRAIN_MAX_PCT = 100;
+const GRAIN_MAX_PCT = 150;
 const GRAIN_DEFAULT_PCT = 8;
 const GRAIN_MAX_INTENSITY = 0.15;
 
 const BLUR_MIN_PCT = 0;
-const BLUR_MAX_PCT = 100;
+const BLUR_MAX_PCT = 150;
 const BLUR_DEFAULT_PCT = 5;
 
 const contrastSlider = document.getElementById("contrast-slider");
@@ -1418,10 +1576,20 @@ const brightnessSlider = document.getElementById("brightness-slider");
 const brightnessValueEl = document.getElementById("brightness-value");
 const sepiaSlider = document.getElementById("sepia-slider");
 const sepiaValueEl = document.getElementById("sepia-value");
+const tintSlider = document.getElementById("tint-slider");
+const tintValueEl = document.getElementById("tint-value");
 const vignetteSlider = document.getElementById("vignette-slider");
 const vignetteValueEl = document.getElementById("vignette-value");
 const grainSlider = document.getElementById("grain-slider");
 const grainValueEl = document.getElementById("grain-value");
+// Sternhelligkeit: nur im Nacht-Modus sichtbar/wirksam, bewusst nicht Teil der
+// Filter-Presets/Favoriten.
+const starBrightnessRow = document.getElementById("star-brightness-row");
+const starBrightnessSlider = document.getElementById("star-brightness-slider");
+const starBrightnessValueEl = document.getElementById("star-brightness-value");
+const STAR_BRIGHTNESS_MIN_PCT = 0;
+const STAR_BRIGHTNESS_MAX_PCT = 150;
+const STAR_BRIGHTNESS_DEFAULT_PCT = 100;
 const blurSlider = document.getElementById("blur-slider");
 const blurValueEl = document.getElementById("blur-value");
 
@@ -1461,11 +1629,29 @@ function applySepia(pct) {
   sepiaValueEl.textContent = `${Math.round(clamped)}%`;
 }
 
+function applyTint(pct) {
+  const clamped = Cesium.Math.clamp(pct, TINT_MIN_PCT, TINT_MAX_PCT);
+  colorGradeSettings.tintAmount = clamped / 100;
+  tintSlider.value = clamped;
+  tintValueEl.textContent = `${Math.round(clamped)}%`;
+}
+
 function applyVignette(pct) {
   const clamped = Cesium.Math.clamp(pct, VIGNETTE_MIN_PCT, VIGNETTE_MAX_PCT);
   colorGradeSettings.vignetteAmount = clamped / 100;
   vignetteSlider.value = clamped;
   vignetteValueEl.textContent = `${Math.round(clamped)}%`;
+}
+
+function applyStarBrightness(pct) {
+  const clamped = Cesium.Math.clamp(
+    pct,
+    STAR_BRIGHTNESS_MIN_PCT,
+    STAR_BRIGHTNESS_MAX_PCT,
+  );
+  colorGradeSettings.starBrightness = clamped / 100;
+  starBrightnessSlider.value = clamped;
+  starBrightnessValueEl.textContent = `${Math.round(clamped)}%`;
 }
 
 function applyGrain(pct) {
@@ -1494,6 +1680,9 @@ applyBrightness(BRIGHTNESS_DEFAULT_PCT);
 sepiaSlider.min = SEPIA_MIN_PCT;
 sepiaSlider.max = SEPIA_MAX_PCT;
 applySepia(SEPIA_DEFAULT_PCT);
+tintSlider.min = TINT_MIN_PCT;
+tintSlider.max = TINT_MAX_PCT;
+applyTint(TINT_DEFAULT_PCT);
 vignetteSlider.min = VIGNETTE_MIN_PCT;
 vignetteSlider.max = VIGNETTE_MAX_PCT;
 applyVignette(VIGNETTE_DEFAULT_PCT);
@@ -1503,6 +1692,13 @@ applyGrain(GRAIN_DEFAULT_PCT);
 blurSlider.min = BLUR_MIN_PCT;
 blurSlider.max = BLUR_MAX_PCT;
 applyBlur(BLUR_DEFAULT_PCT);
+starBrightnessSlider.min = STAR_BRIGHTNESS_MIN_PCT;
+starBrightnessSlider.max = STAR_BRIGHTNESS_MAX_PCT;
+applyStarBrightness(STAR_BRIGHTNESS_DEFAULT_PCT);
+starBrightnessSlider.addEventListener("input", () => {
+  applyStarBrightness(Number(starBrightnessSlider.value));
+  saveCameraState();
+});
 
 contrastSlider.addEventListener("input", () => {
   applyContrast(Number(contrastSlider.value));
@@ -1518,6 +1714,10 @@ brightnessSlider.addEventListener("input", () => {
 });
 sepiaSlider.addEventListener("input", () => {
   applySepia(Number(sepiaSlider.value));
+  saveCameraState();
+});
+tintSlider.addEventListener("input", () => {
+  applyTint(Number(tintSlider.value));
   saveCameraState();
 });
 vignetteSlider.addEventListener("input", () => {
@@ -1589,19 +1789,108 @@ applyDofEnabled(false);
 // Vignette 12% - dieselben Werte wie CONTRAST_DEFAULT_PCT/
 // SATURATION_DEFAULT_PCT/VIGNETTE_DEFAULT_PCT oben), Helligkeit/Sepia/
 // Filmkorn auf ihren jeweiligen Aus-Zustand (100%/0%/0%).
+const FILTER_DEFAULTS = {
+  contrastPct: CONTRAST_DEFAULT_PCT,
+  saturationPct: SATURATION_DEFAULT_PCT,
+  brightnessPct: BRIGHTNESS_DEFAULT_PCT,
+  sepiaPct: SEPIA_DEFAULT_PCT,
+  tintPct: TINT_DEFAULT_PCT,
+  vignettePct: VIGNETTE_DEFAULT_PCT,
+  grainPct: GRAIN_DEFAULT_PCT,
+  blurPct: BLUR_DEFAULT_PCT,
+};
+
+// Filter-Preset für den Nacht-Modus: abgedunkelt und entsättigt mit kühlem
+// Blaustich, dezente Vignette, leichtes Korn, kein Blur.
+const NIGHT_FILTER_PRESET = {
+  contrastPct: 105,
+  saturationPct: 40,
+  brightnessPct: 50,
+  sepiaPct: 5,
+  tintPct: 70,
+  vignettePct: 30,
+  grainPct: 5,
+  blurPct: 0,
+};
+
+function currentFilterValues() {
+  return {
+    contrastPct: colorGradeSettings.contrastAmount * 100,
+    saturationPct: colorGradeSettings.saturationAmount * 100,
+    brightnessPct: colorGradeSettings.brightnessAmount * 100,
+    sepiaPct: colorGradeSettings.sepiaAmount * 100,
+    tintPct: colorGradeSettings.tintAmount * 100,
+    vignettePct: colorGradeSettings.vignetteAmount * 100,
+    grainPct: (colorGradeSettings.grainAmount / GRAIN_MAX_INTENSITY) * 100,
+    blurPct: colorGradeSettings.blurAmount * 100,
+  };
+}
+
+function applyFilterValues(values) {
+  applyContrast(values.contrastPct);
+  applySaturation(values.saturationPct);
+  applyBrightness(values.brightnessPct);
+  applySepia(values.sepiaPct);
+  applyTint(values.tintPct ?? TINT_DEFAULT_PCT);
+  applyVignette(values.vignettePct);
+  applyGrain(values.grainPct);
+  applyBlur(values.blurPct);
+}
+
+// "Zurücksetzen"-Button: stellt den ursprünglichen Look wieder her - im
+// Nacht-Modus entsprechend das Nacht-Preset statt der Tageswerte.
 const filtersResetButton = document.getElementById("filters-reset-button");
 filtersResetButton.addEventListener("click", () => {
-  applyContrast(CONTRAST_DEFAULT_PCT);
-  applySaturation(SATURATION_DEFAULT_PCT);
-  applyBrightness(BRIGHTNESS_DEFAULT_PCT);
-  applySepia(SEPIA_DEFAULT_PCT);
-  applyVignette(VIGNETTE_DEFAULT_PCT);
-  applyGrain(GRAIN_DEFAULT_PCT);
-  applyBlur(BLUR_DEFAULT_PCT);
+  applyFilterValues(nightMode ? NIGHT_FILTER_PRESET : FILTER_DEFAULTS);
   applyDofStrength(DOF_STRENGTH_DEFAULT_PCT);
   applyDofFocus(DOF_FOCUS_DEFAULT_SLIDER);
   applyDofEnabled(false);
   saveCameraState();
+});
+
+// --- Nacht-Modus -----------------------------------------------------------
+// Sehr dunkelblauer, dichterer Tiefennebel (die Fernsicht fällt ins Dunkel),
+// keine Himmelsatmosphäre (dunkler Himmel mit Sternen) und die Filter auf das
+// Nacht-Preset. Beim Ausschalten kommen die vorherigen Filterwerte zurück.
+const nightModeToggle = document.getElementById("night-mode-toggle");
+
+function applyNightMode(enabled, { applyFilters = true } = {}) {
+  const wasNight = nightMode;
+  nightMode = enabled;
+  nightModeToggle.checked = enabled;
+
+  depthFogSettings.color = Cesium.Color.fromCssColorString(
+    enabled ? NIGHT_FOG_COLOR : DAY_FOG_COLOR,
+  );
+  depthFogSettings.density = enabled ? NIGHT_FOG_DENSITY : DAY_FOG_DENSITY;
+  viewer.scene.skyAtmosphere.show = !enabled;
+  colorGradeSettings.moonAmount = enabled ? 1 : 0;
+  starBrightnessRow.style.display = enabled ? "" : "none";
+  viewer.scene.backgroundColor = Cesium.Color.fromCssColorString(
+    enabled ? NIGHT_SKY_COLOR : "#000",
+  );
+
+  if (!applyFilters || enabled === wasNight) return;
+  if (enabled) {
+    // Mond zur Sonnenrichtung der eingebrannten Schatten passend platzieren:
+    // Nordhalbkugel -> Süden (Azimut 180°), Südhalbkugel -> Norden (0°).
+    const cameraLatitude = Cesium.Cartographic.fromCartesian(
+      viewer.camera.positionWC,
+    ).latitude;
+    moonAzimuthRad = cameraLatitude >= 0 ? Math.PI : 0;
+    nightDaySnapshot = currentFilterValues();
+    applyFilterValues(NIGHT_FILTER_PRESET);
+  } else {
+    applyFilterValues(nightDaySnapshot ?? FILTER_DEFAULTS);
+    nightDaySnapshot = null;
+  }
+}
+
+nightModeToggle.addEventListener("change", () => {
+  applyNightMode(nightModeToggle.checked);
+  saveCameraState();
+  // Fokus von der Checkbox nehmen, damit die Tastatursteuerung nicht hängt.
+  nightModeToggle.blur();
 });
 
 async function getGroundHeight(lon, lat) {
@@ -1857,10 +2146,41 @@ spotFilterInput.addEventListener("input", renderSpotList);
 // initialen Laden (siehe loadGoogleTiles oben) - ignoriert bewusst den
 // aktuell gewählten Länder-/Filter-Eintrag und wählt aus der KOMPLETTEN
 // Spot-Liste, nicht nur aus den gerade sichtbaren Treffern.
-randomSpotButton.addEventListener("click", () => {
-  const query = pickRandomSpotQuery();
-  searchInput.value = query;
-  geocodeAndFlyTo(query);
+let isRandomSpotFlightActive = false;
+
+async function flyToRandomSpot() {
+  // Doppelauslösung verhindern (z.B. R mehrfach gedrückt, solange der
+  // Anflug bzw. das Kachel-Laden noch läuft).
+  if (isRandomSpotFlightActive) return;
+  isRandomSpotFlightActive = true;
+
+  try {
+    // Im laufenden Flug zuerst ins Pausenmenü wechseln, damit Status-Texte
+    // ("Suche…", "Gefunden: …", "Lade Kacheln…") und Ladeanzeige exakt wie
+    // beim Klick auf den Button erscheinen. geocodeAndFlyTo() setzt den Flug
+    // am Ende selbst wieder fort (togglePause).
+    if (!isPaused) togglePause();
+
+    const query = pickRandomSpotQuery();
+    searchInput.value = query;
+    await geocodeAndFlyTo(query);
+  } finally {
+    isRandomSpotFlightActive = false;
+  }
+}
+
+randomSpotButton.addEventListener("click", flyToRandomSpot);
+
+// R: zufälligen Ort aus der 3D-Spots-Liste anfliegen - im Flug und im
+// Pausenmenü. Mit Strg/Cmd/Alt ignorieren, damit z.B. Strg+R (Reload) nicht
+// versehentlich einen Sprung auslöst.
+window.addEventListener("keydown", (e) => {
+  if (e.code !== "KeyR" || e.repeat) return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (isTypingInFormField(e.target)) return;
+  if (controlsPanel.classList.contains("visible")) return;
+  e.preventDefault();
+  flyToRandomSpot();
 });
 
 // --- Favoriten (gespeicherte Positionen, nur im Pausenmodus) -----------
@@ -2058,9 +2378,14 @@ async function saveFavorite() {
     saturationPct: colorGradeSettings.saturationAmount * 100,
     brightnessPct: colorGradeSettings.brightnessAmount * 100,
     sepiaPct: colorGradeSettings.sepiaAmount * 100,
+    tintPct: colorGradeSettings.tintAmount * 100,
     vignettePct: colorGradeSettings.vignetteAmount * 100,
     grainPct: (colorGradeSettings.grainAmount / GRAIN_MAX_INTENSITY) * 100,
     blurPct: colorGradeSettings.blurAmount * 100,
+    nightMode,
+    nightDaySnapshot,
+    starBrightnessPct: colorGradeSettings.starBrightness * 100,
+    moonAzimuthDeg: Cesium.Math.toDegrees(moonAzimuthRad),
   };
 
   const favorites = await loadFavorites();
@@ -2133,10 +2458,21 @@ async function flyToFavorite(favorite) {
     if (Number.isFinite(favorite.brightnessPct))
       applyBrightness(favorite.brightnessPct);
     if (Number.isFinite(favorite.sepiaPct)) applySepia(favorite.sepiaPct);
+    // Ältere Favoriten kennen keinen Blaustich/Nacht-Modus -> Tagwerte.
+    applyTint(
+      Number.isFinite(favorite.tintPct) ? favorite.tintPct : TINT_DEFAULT_PCT,
+    );
     if (Number.isFinite(favorite.vignettePct))
       applyVignette(favorite.vignettePct);
     if (Number.isFinite(favorite.grainPct)) applyGrain(favorite.grainPct);
     if (Number.isFinite(favorite.blurPct)) applyBlur(favorite.blurPct);
+    if (Number.isFinite(favorite.starBrightnessPct))
+      applyStarBrightness(favorite.starBrightnessPct);
+    if (Number.isFinite(favorite.moonAzimuthDeg))
+      moonAzimuthRad = Cesium.Math.toRadians(favorite.moonAzimuthDeg);
+    nightDaySnapshot = favorite.nightDaySnapshot ?? null;
+    // Die gespeicherten Filterwerte gelten schon - nicht erneut preseten.
+    applyNightMode(favorite.nightMode === true, { applyFilters: false });
     saveCameraState();
 
     if (isPaused) togglePause();
