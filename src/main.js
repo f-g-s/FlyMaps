@@ -1,6 +1,7 @@
 import * as Cesium from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import spotsByCountry from "./google_earth_3d_locations_by_country.json";
+import { initDiscovery } from "./discover.js";
 
 // --- API-Key konfigurieren -------------------------------------------------
 const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -1501,6 +1502,33 @@ async function updateLocationBanner(now) {
     console.error(err);
   }
 }
+
+// --- Sehenswürdigkeiten in der Nähe (Wikidata, siehe discover.js) ---------
+const discovery = initDiscovery();
+
+function updateDiscovery(now) {
+  const camera = viewer.camera;
+  const carto = Cesium.Cartographic.fromCartesian(camera.positionWC);
+  discovery.update(
+    now,
+    Cesium.Math.toDegrees(carto.latitude),
+    Cesium.Math.toDegrees(carto.longitude),
+    camera.heading,
+  );
+}
+
+// X: nächste, Y: vorherige Sehenswürdigkeit in der Nähe. e.code statt e.key,
+// damit die Tasten (wie WASD) an ihrer Position bleiben: auf deutscher
+// Tastatur liegt "Y" auf KeyZ, "X" auf KeyX - beide direkt nebeneinander.
+// Mit Strg/Cmd/Alt ignorieren.
+window.addEventListener("keydown", (e) => {
+  if (e.code !== "KeyZ" && e.code !== "KeyX") return;
+  if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (isTypingInFormField(e.target)) return;
+  if (controlsPanel.classList.contains("visible")) return;
+  e.preventDefault();
+  discovery.cycleTarget(e.code === "KeyX" ? 1 : -1);
+});
 
 async function loadPlaneModel() {
   try {
@@ -3428,6 +3456,7 @@ viewer.clock.onTick.addEventListener(() => {
   updatePlaneModelMatrix();
   updateControllerDebugOverlay();
   updateLocationBanner(now);
+  updateDiscovery(now);
 
   // Position/Lage regelmäßig für den Reload-Fall sichern (siehe oben)
   if (now - lastSaveTime > SAVE_INTERVAL_MS) {

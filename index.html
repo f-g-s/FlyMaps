@@ -19,6 +19,23 @@
       <span id="location-banner-district"></span>
       <span id="location-banner-country"></span>
     </div>
+    <div id="discovery-hint">
+      <svg
+        id="discovery-hint-arrow"
+        viewBox="0 0 24 24"
+        width="28"
+        height="28"
+        aria-hidden="true"
+      >
+        <path d="M12 2 L20 20 L12 15.5 L4 20 Z" fill="currentColor" />
+      </svg>
+      <div id="discovery-hint-text">
+        <span id="discovery-hint-label">In der Nähe</span>
+        <span id="discovery-hint-name"></span>
+        <span id="discovery-hint-meta"></span>
+      </div>
+    </div>
+    <div id="discovery-announcer" class="discovery-sr-only" aria-live="polite"></div>
     <div id="collision-flash"></div>
     <div id="controller-debug" hidden></div>
     <button
@@ -208,6 +225,13 @@
             <label for="location-banner-toggle">Ort beim Überfliegen anzeigen</label>
             <label class="switch">
               <input id="location-banner-toggle" type="checkbox" checked />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          <div id="discovery-row" class="setting-row">
+            <label for="discovery-toggle">Sehenswürdigkeiten in der Nähe (Y/X: vorheriger/nächster)</label>
+            <label class="switch">
+              <input id="discovery-toggle" type="checkbox" checked />
               <span class="switch-slider"></span>
             </label>
           </div>

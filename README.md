@@ -68,3 +68,9 @@ Flugsteuerung mit HUD, Minimap, Ortssuche und 3D-Spots bereitstellt.
 Läuft als Cloudflare Pages Projekt (`functions/` wird automatisch als Pages
 Function deployed). `GEOCODING_API_KEY` muss dort unter
 Settings -> Environment variables gesetzt werden (nicht in `.env`).
+- Sehenswürdigkeiten in der Nähe (`src/discover.js`): lädt je nach Position
+  Orte aus Wikidata (Brücken, Kirchen, Plätze, Parks, Industrie, Hochhäuser, …)
+  und zeigt die bekannteste in der Nähe samt Entfernung und Richtung. Kein
+  API-Key nötig (Wikidata-SPARQL erlaubt CORS), Ergebnisse werden pro Zelle in
+  `localStorage` zwischengespeichert. Kategorien und Mindestgrößen stehen in der
+  Tabelle `CATEGORIES`. Mit `Y`/`X` wechselt man zur vorherigen/nächsten Sehenswürdigkeit in der Nähe.
