@@ -31,8 +31,8 @@ const ENABLED_KEY = "flymaps_discovery_enabled";
 
 const NEARBY_RADIUS_M = 10000;
 const ARRIVED_RADIUS_M = 300;
+const ARRIVED_PIN_PATH = "M12 2a8 8 0 0 0-8 8c0 5 8 12 8 12s8-7 8-12a8 8 0 0 0-8-8zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6z";
 const KEEP_RADIUS_FACTOR = 1.3;
-const SWITCH_SCORE_FACTOR = 1.5;
 const EVALUATE_INTERVAL_MS = 1000;
 const ARROW_INTERVAL_MS = 100;
 const CELL_CHECK_INTERVAL_MS = 1500;
@@ -458,33 +458,6 @@ function normalizeDegrees(deg) {
   return d;
 }
 
-function describeDirection(relDeg) {
-  const abs = Math.abs(relDeg);
-
-  const side =
-    relDeg < 0
-      ? "links"
-      : "rechts";
-
-  if (abs < 20) {
-    return "geradeaus";
-  }
-
-  if (abs < 70) {
-    return `vorne ${side}`;
-  }
-
-  if (abs < 110) {
-    return side;
-  }
-
-  if (abs < 160) {
-    return `hinten ${side}`;
-  }
-
-  return "hinter dir";
-}
-
 function formatDistance(meters) {
   if (meters < 1000) {
     return `${Math.max(
@@ -513,6 +486,10 @@ export function initDiscovery() {
     document.getElementById(
       "discovery-hint-arrow"
     );
+  const arrowPathEl =
+    arrowEl.querySelector("path");
+  const arrowPath =
+    arrowPathEl.getAttribute("d");
 
   const nameEl =
     document.getElementById(
@@ -554,10 +531,13 @@ export function initDiscovery() {
   }
 
   let target = null;
+  let targetSelectionStarted = false;
 
   let lastCellCheck = 0;
   let lastEvaluate = 0;
   let lastArrow = 0;
+  let lastLoggedTargetIds = null;
+  let showingPin = false;
 
   let lastPose = null;
 
@@ -759,8 +739,12 @@ export function initDiscovery() {
     const list = [];
 
     for (const poi of pois.values()) {
+      const isCurrentTarget =
+        target?.poi.id === poi.id;
+
       if (
-        visited.has(poi.id)
+        visited.has(poi.id) &&
+        !isCurrentTarget
       ) {
         continue;
       }
@@ -789,7 +773,9 @@ export function initDiscovery() {
           poi.id
         );
 
-        continue;
+        if (!isCurrentTarget) {
+          continue;
+        }
       }
 
       if (
@@ -829,6 +815,35 @@ export function initDiscovery() {
           KEEP_RADIUS_FACTOR
       );
 
+    const available =
+      candidates.filter(
+        (candidate) =>
+          candidate.distance <=
+          NEARBY_RADIUS_M
+      );
+    const targetIds = available
+      .map((candidate) => candidate.poi.id)
+      .sort();
+    const targetSignature = targetIds.join(",");
+
+    if (
+      import.meta.env.DEV &&
+      targetSignature !== lastLoggedTargetIds
+    ) {
+      lastLoggedTargetIds = targetSignature;
+      console.info(
+        `[Discovery] Verfügbare Ziele im Umkreis von 10 km (${available.length})`
+      );
+      console.table(
+        available.map((candidate) => ({
+          name: candidate.poi.name,
+          kategorie: CATEGORIES[candidate.poi.cat].label,
+          entfernung_m: Math.round(candidate.distance),
+          id: candidate.poi.id,
+        }))
+      );
+    }
+
     const current =
       target
         ? candidates.find(
@@ -838,6 +853,23 @@ export function initDiscovery() {
           ) ?? null
         : null;
 
+    if (target) {
+      if (!current) {
+        clearTarget();
+      } else {
+        target = {
+          ...target,
+          score: current.score,
+        };
+      }
+
+      return;
+    }
+
+    if (targetSelectionStarted) {
+      return;
+    }
+
     const best =
       candidates.find(
         (c) =>
@@ -845,52 +877,21 @@ export function initDiscovery() {
           NEARBY_RADIUS_M
       ) ?? null;
 
-    // Manuell gewähltes Ziel bleibt,
-    // bis es erreicht ist oder außer
-    // Reichweite gerät.
-    //
-    // Sonst bleibt das aktuelle Ziel,
-    // solange nichts deutlich Besseres
-    // auftaucht.
-    const keepCurrent =
-      current &&
-      (
-        target.pinned ||
-        !best ||
-        best.score <=
-          current.score *
-            SWITCH_SCORE_FACTOR
-      );
-
-    const next =
-      keepCurrent
-        ? current
-        : best;
-
-    if (!next) {
+    if (!best) {
       clearTarget();
       return;
     }
 
-    const changed =
-      !target ||
-      target.poi.id !==
-        next.poi.id;
-
     target = {
-      poi: next.poi,
-      score: next.score,
-      pinned:
-        !changed &&
-        target.pinned,
+      poi: best.poi,
+      score: best.score,
     };
+    targetSelectionStarted = true;
 
-    if (changed) {
-      announceTarget(
-        next.poi,
-        next.distance
-      );
-    }
+    announceTarget(
+      best.poi,
+      best.distance
+    );
   }
 
   function announceTarget(
@@ -939,6 +940,42 @@ export function initDiscovery() {
         north
       );
 
+    const arrived = distance <= 100;
+
+    metaEl.textContent =
+      `${CATEGORIES[target.poi.cat].label}` +
+      (arrived
+        ? ""
+        : ` · ${formatDistance(distance)}`);
+
+    if (arrived) {
+      if (!showingPin) {
+        arrowPathEl.setAttribute(
+          "d",
+          ARRIVED_PIN_PATH
+        );
+        arrowEl.setAttribute(
+          "fill-rule",
+          "evenodd"
+        );
+        arrowEl.style.transform = "none";
+        showingPin = true;
+      }
+
+      return;
+    }
+
+    if (showingPin) {
+      arrowPathEl.setAttribute(
+        "d",
+        arrowPath
+      );
+      arrowEl.removeAttribute(
+        "fill-rule"
+      );
+      showingPin = false;
+    }
+
     const bearingDeg =
       (
         Math.atan2(
@@ -957,11 +994,6 @@ export function initDiscovery() {
 
     arrowEl.style.transform =
       `rotate(${relDeg.toFixed(1)}deg)`;
-
-    metaEl.textContent =
-      `${CATEGORIES[target.poi.cat].label} · ` +
-      `${formatDistance(distance)} · ` +
-      `${describeDirection(relDeg)}`;
   }
 
   // Pro Frame aus dem Tick-Handler rufen.
@@ -1089,8 +1121,8 @@ export function initDiscovery() {
     target = {
       poi: next.poi,
       score: next.score,
-      pinned: true,
     };
+    targetSelectionStarted = true;
 
     announceTarget(
       next.poi,
