@@ -269,11 +269,17 @@ body.pause-mode #fullscreen-toggle-button {
 }
 
 #search-panel.visible {
-  display: block;
+  display: flex;
+  flex-direction: column;
   position: absolute;
-  top: 60px;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
+  /* Passt das Panel nicht ins Fenster, scrollt nur der Inhalt
+     (#search-panel-content, siehe unten) - Schließen-/Hilfe-Button bleiben
+     dadurch an Ort und Stelle. Höhe = Fenster minus Padding (2 x 20px),
+     Rand (2 x 1px) und etwas Luft zum Fensterrand. */
+  max-height: calc(100vh - 82px);
 }
 
 #search-panel-close,
@@ -361,7 +367,13 @@ body.pause-mode #fullscreen-toggle-button {
   display: flex;
   gap: 14px;
   flex-wrap: wrap;
-  overflow: auto;
+  /* min-height: 0 erlaubt dem Flex-Kind, kleiner als sein Inhalt zu werden -
+     erst dadurch greift das Scrollen. */
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #3a3f4a transparent;
 }
 
 
