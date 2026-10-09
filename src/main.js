@@ -233,7 +233,7 @@ let colorGradeSettings = {
   sepiaAmount: 0,
   tintAmount: 0, // Blaustich (Nacht-Look), 0 = aus
   moonAmount: 0, // Mond (nur im Nacht-Modus), 0 = aus
-  starBrightness: 1, // Helligkeit der Sterne/Skybox (nur im Nacht-Modus), 1 = unverändert
+  starBrightness: 1.5, // Helligkeit der Sterne/Skybox (nur im Nacht-Modus), 1 = unverändert, Standard 1.5
   vignetteAmount: 0.12, // 1 - bisheriger fixer Wert 0.88
   grainAmount: 0,
   blurAmount: 0,
@@ -1530,6 +1530,18 @@ window.addEventListener("keydown", (e) => {
   discovery.cycleTarget(e.code === "KeyX" ? 1 : -1);
 });
 
+// C: Sehenswürdigkeiten-Funktion ein-/ausschalten (wie der Schalter im
+// Pausenmenü, #discovery-toggle - setEnabled() hält beide synchron).
+const discoveryToggleEl = document.getElementById("discovery-toggle");
+window.addEventListener("keydown", (e) => {
+  if (e.code !== "KeyC") return;
+  if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (isTypingInFormField(e.target)) return;
+  if (controlsPanel.classList.contains("visible")) return;
+  e.preventDefault();
+  discovery.setEnabled(!discoveryToggleEl.checked);
+});
+
 async function loadPlaneModel() {
   try {
     planeModel = await Cesium.Model.fromGltfAsync({
@@ -1617,7 +1629,7 @@ const starBrightnessSlider = document.getElementById("star-brightness-slider");
 const starBrightnessValueEl = document.getElementById("star-brightness-value");
 const STAR_BRIGHTNESS_MIN_PCT = 0;
 const STAR_BRIGHTNESS_MAX_PCT = 150;
-const STAR_BRIGHTNESS_DEFAULT_PCT = 100;
+const STAR_BRIGHTNESS_DEFAULT_PCT = 150;
 const blurSlider = document.getElementById("blur-slider");
 const blurValueEl = document.getElementById("blur-value");
 
@@ -1961,6 +1973,9 @@ async function geocodeAndFlyTo(query) {
     const { lat, lng } = data;
     searchStatusEl.textContent = `Gefunden: ${data.formatted_address}`;
 
+    // Sehenswürdigkeits-Hinweis ausblenden, bis der neue Ort geladen ist.
+    discovery.setSuspended(true);
+
     // Startpunkt 3km südlich des Ziels (statt direkt darüber), Blickrichtung
     // Norden (heading 0) - man fliegt den Ort so quasi an, statt schon
     // mittendrin zu starten. Erst die Position (unabhängig von der Höhe)
@@ -2036,8 +2051,10 @@ async function geocodeAndFlyTo(query) {
     // Startlage, sonst zeigt die Kamera nach dem Sprung gen Himmel.
     if (isDroneView()) applyDroneStartPitch();
     if (isPaused) togglePause();
+    discovery.setSuspended(false);
   } catch (err) {
     console.error(err);
+    discovery.setSuspended(false);
     searchStatusEl.textContent = "Fehler bei der Suche.";
     searchPanel.classList.remove("searching"); // erneute Eingabe erlauben
   }
@@ -2435,6 +2452,8 @@ favoriteNameInput.addEventListener("keydown", (e) => {
 async function flyToFavorite(favorite) {
   searchStatusEl.textContent = `Fliege zu "${favorite.name}"…`;
   searchPanel.classList.add("searching");
+  // Sehenswürdigkeits-Hinweis ausblenden, bis der neue Ort geladen ist.
+  discovery.setSuspended(true);
   try {
     const destination = new Cesium.Cartesian3(
       favorite.x,
@@ -2504,8 +2523,10 @@ async function flyToFavorite(favorite) {
     saveCameraState();
 
     if (isPaused) togglePause();
+    discovery.setSuspended(false);
   } catch (err) {
     console.error(err);
+    discovery.setSuspended(false);
     searchStatusEl.textContent = "Fehler beim Anfliegen des Favoriten.";
     searchPanel.classList.remove("searching");
   }

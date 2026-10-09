@@ -51,9 +51,10 @@ body.view-cropped #cesiumContainer {
    künstlichen Horizont aus. Ist ausschließlich für die eigene Ansicht
    gedacht; bei öffentlich geteilten Aufnahmen sollte die Attribution
    wieder eingeblendet werden. Der collision-flash bleibt bewusst
-   sichtbar, da er Sicherheits-Feedback ist, keine Dateneinblendung. */
+   sichtbar, da er Sicherheits-Feedback ist, keine Dateneinblendung.
+   Der Sehenswürdigkeiten-Hinweis (#discovery-hint) bleibt ebenfalls
+   sichtbar - er wird über den eigenen Schalter bzw. Taste C gesteuert. */
 body.hide-hud #hud,
-body.hide-hud #discovery-hint,
 body.hide-hud #flight-data,
 body.hide-hud #minimap-wrapper,
 body.hide-hud #horizon-wrapper,
@@ -1243,6 +1244,11 @@ body.pause-mode #fullscreen-toggle-button {
 #discovery-hint-visited {
   flex: none;
   color: #3ddc73;
+}
+
+/* [hidden] greift bei Inline-SVG nicht von selbst */
+#discovery-hint-visited[hidden] {
+  display: none;
 }
 
 #discovery-hint-meta {

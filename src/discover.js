@@ -24,13 +24,21 @@ const FALLBACK_RADIUS_KM = 13; // knapp über Zellhälfte + NEARBY_RADIUS_M
 const FALLBACK_EXTRA_SITELINKS = 4; // leichte Abfrage: nur bekanntere Orte
 const QUERY_LIMIT = 1500;
 const RETRY_AFTER_FAILURE_MS = 60000;
+const MIN_REQUEST_GAP_MS = 2500; // Mindestabstand zwischen zwei Wikidata-Abfragen
+const DEFAULT_RATE_LIMIT_PAUSE_MS = 60000; // Pause bei 429 ohne Retry-After-Header
+const MAX_RATE_LIMIT_PAUSE_MS = 300000;
 
-const CACHE_PREFIX = "flymaps_poi_cell_v4_";
+// Gemeinsamer Zustand: Wikidata begrenzt die gesamte Rechenzeit pro Client.
+// Nach einem 429 pausiert jede weitere Abfrage, bis die Sperre abgelaufen ist.
+let rateLimitedUntil = 0;
+let lastRequestEndedAt = 0;
+
+const CACHE_PREFIX = "flymaps_poi_cell_v5_";
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const ENABLED_KEY = "flymaps_discovery_enabled";
 
 const NEARBY_RADIUS_M = 10000;
-const ARRIVED_RADIUS_M = 300;
+const ARRIVED_RADIUS_M = 100; // Pin erscheint und Ort gilt als besucht
 const ARRIVED_PIN_PATH = "M12 2a8 8 0 0 0-8 8c0 5 8 12 8 12s8-7 8-12a8 8 0 0 0-8-8zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6z";
 const KEEP_RADIUS_FACTOR = 1.3;
 const EVALUATE_INTERVAL_MS = 1000;
@@ -53,31 +61,52 @@ const CELL_CHECK_INTERVAL_MS = 1500;
 // (siehe Performance-Hinweis bei buildQuery) - sonst wird die Abfrage für
 // alle ~30 Kategorien teuer.
 const CATEGORIES = [
+  // --- Sakral ---
   { id: "cathedral", label: "Kathedrale", classes: ["Q2977"], minSitelinks: 6 },
   { id: "church", label: "Kirche", classes: ["Q16970"], minSitelinks: 14 },
   { id: "mosque", label: "Moschee", classes: ["Q32815"], minSitelinks: 6 },
   { id: "synagogue", label: "Synagoge", classes: ["Q34627"], minSitelinks: 6 },
+  { id: "temple", label: "Tempel", classes: ["Q44539"], minSitelinks: 6 },
+  { id: "abbey", label: "Kloster / Abtei", classes: ["Q160742", "Q44613"], minSitelinks: 6 },
+  // --- Burgen, Archäologie ---
   { id: "castle", label: "Burg", classes: ["Q23413"], minSitelinks: 8 },
   { id: "palace", label: "Schloss", classes: ["Q16560"], minSitelinks: 8 },
   { id: "fortification", label: "Festung", classes: ["Q57821"], minSitelinks: 6 },
+  { id: "pyramid", label: "Pyramide", classes: ["Q12516"], minSitelinks: 4 },
+  { id: "archaeo", label: "Archäologische Stätte", classes: ["Q839954"], minSitelinks: 5 },
+  // --- Bauwerke / Technik ---
   { id: "bridge", label: "Brücke", classes: ["Q12280"], minSitelinks: 8, minLength: 200 },
   { id: "dam", label: "Staumauer", classes: ["Q12323"], minSitelinks: 5 },
+  { id: "reservoir", label: "Stausee", classes: ["Q131681"], minSitelinks: 5 },
+  { id: "canal", label: "Kanal", classes: ["Q12284"], minSitelinks: 6 },
   { id: "skyscraper", label: "Hochhaus", classes: ["Q11303"], minSitelinks: 5, minHeight: 100 },
+  { id: "obstower", label: "Aussichtsturm", classes: ["Q1440300"], minSitelinks: 4 },
   { id: "tower", label: "Turm", classes: ["Q12518"], minSitelinks: 8, minHeight: 50 },
   { id: "lighthouse", label: "Leuchtturm", classes: ["Q39715"], minSitelinks: 6 },
+  { id: "windmill", label: "Windmühle", classes: ["Q38720"], minSitelinks: 4 },
   { id: "stadium", label: "Stadion", classes: ["Q483110"], minSitelinks: 6 },
   { id: "opera", label: "Opernhaus", classes: ["Q153562"], minSitelinks: 5 },
+  // --- Denkmäler ---
+  { id: "warmemorial", label: "Kriegerdenkmal", classes: ["Q575759"], minSitelinks: 6 },
+  { id: "memorial", label: "Gedenkstätte", classes: ["Q5003624"], minSitelinks: 8 },
+  { id: "statue", label: "Statue", classes: ["Q179700"], minSitelinks: 10 },
+  { id: "monument", label: "Denkmal", classes: ["Q4989906"], minSitelinks: 12 },
+  // --- Plätze, Parks, Freizeit ---
   { id: "square", label: "Platz", classes: ["Q174782"], minSitelinks: 8 },
   { id: "park", label: "Park", classes: ["Q22698"], minSitelinks: 8, minArea: 100000 },
-  { id: "monument", label: "Denkmal", classes: ["Q4989906"], minSitelinks: 12 },
-  { id: "power", label: "Kraftwerk", classes: ["Q159719"], minSitelinks: 5 },
+  { id: "garden", label: "Garten", classes: ["Q167346", "Q1107656"], minSitelinks: 6 },
+  { id: "amusement", label: "Freizeitpark", classes: ["Q194195"], minSitelinks: 4 },
+  { id: "zoo", label: "Zoo", classes: ["Q43501"], minSitelinks: 6 },
+  // --- Industrie, Verkehr ---
+  // power mit expand: schließt Atom-, Wasser-, Kohlekraftwerke etc. über Unterklassen ein.
+  { id: "power", label: "Kraftwerk", classes: ["Q159719"], minSitelinks: 5, expand: true },
+  { id: "windfarm", label: "Windpark", classes: ["Q194356"], minSitelinks: 4 },
   { id: "factory", label: "Industrieanlage", classes: ["Q83405"], minSitelinks: 6 },
   { id: "mine", label: "Bergwerk", classes: ["Q820477"], minSitelinks: 6 },
   { id: "port", label: "Hafen", classes: ["Q44782"], minSitelinks: 6 },
   { id: "airport", label: "Flughafen", classes: ["Q1248784"], minSitelinks: 8 },
   { id: "station", label: "Bahnhof", classes: ["Q55488"], minSitelinks: 10 },
-  { id: "amusement", label: "Freizeitpark", classes: ["Q194195"], minSitelinks: 4 },
-  { id: "zoo", label: "Zoo", classes: ["Q43501"], minSitelinks: 6 },
+  // --- Natur ---
   {
     id: "volcano",
     label: "Vulkan",
@@ -85,12 +114,42 @@ const CATEGORIES = [
     minSitelinks: 6,
     expand: true,
   },
-  { id: "mountain", label: "Berg", classes: ["Q8502"], minSitelinks: 14, expand: true },
+  // Berg: bekannt (>= strongSitelinks) ODER hoch (>= minElevation m, P2044)
+  // und wenigstens minSitelinks. Orte ohne Höhenangabe zählen nur über Bekanntheit.
+  {
+    id: "mountain",
+    label: "Berg",
+    classes: ["Q8502"],
+    minSitelinks: 5,
+    strongSitelinks: 14,
+    minElevation: 1500,
+    expand: true,
+  },
   { id: "waterfall", label: "Wasserfall", classes: ["Q34038"], minSitelinks: 6, expand: true },
-  { id: "canyon", label: "Canyon", classes: ["Q179049"], minSitelinks: 4, expand: true },
+  // ACHTUNG: vorher Q179049 - das ist vermutlich "Naturschutzgebiet", nicht Canyon. Bitte prüfen.
+  { id: "canyon", label: "Canyon", classes: ["Q150784"], minSitelinks: 4, expand: true },
   { id: "glacier", label: "Gletscher", classes: ["Q35666"], minSitelinks: 6, expand: true },
   { id: "geyser", label: "Geysir", classes: ["Q1420294"], minSitelinks: 4, expand: true },
+  { id: "natpark", label: "Nationalpark", classes: ["Q46169"], minSitelinks: 6 },
+  { id: "lake", label: "See", classes: ["Q23397"], minSitelinks: 10 }, // bewusst ohne expand: P279* ist teuer
+  { id: "island", label: "Insel", classes: ["Q23442"], minSitelinks: 10 },
+  { id: "beach", label: "Strand", classes: ["Q40080"], minSitelinks: 6 },
+  { id: "cave", label: "Höhle", classes: ["Q35509"], minSitelinks: 5 },
+  { id: "desert", label: "Wüste", classes: ["Q8514"], minSitelinks: 8 },
+  // --- Auffänger (bewusst zuletzt: spezifischere Kategorien gewinnen per Math.min) ---
+  { id: "attraction", label: "Sehenswürdigkeit", classes: ["Q570116"], minSitelinks: 8 },
 ];
+
+// UNESCO-Welterbe: klassenunabhängig über P1435 (Schutzstatus). Wird in
+// buildQuery als eigener UNION-Zweig abgefragt und landet in der Kategorie "unesco".
+const HERITAGE_CLASS = "Q9259";
+CATEGORIES.push({
+  id: "unesco",
+  label: "UNESCO-Welterbe",
+  classes: [HERITAGE_CLASS],
+  minSitelinks: 5,
+  heritage: true,
+});
 
 const CATEGORY_INDEX_BY_CLASS = new Map();
 
@@ -112,18 +171,18 @@ const GLOBAL_MIN_SITELINKS = Math.min(
 // da Naturobjekte in Wikidata oft nur über Unterklassen erfasst sind (siehe
 // Kommentar bei CATEGORIES).
 function buildQuery(lat, lon, radiusKm, minSitelinks) {
-  const directValues = CATEGORIES.filter((c) => !c.expand)
+  const directValues = CATEGORIES.filter((c) => !c.expand && !c.heritage)
     .flatMap((c) => c.classes)
     .map((q) => `wd:${q}`)
     .join(" ");
 
-  const expandValues = CATEGORIES.filter((c) => c.expand)
+  const expandValues = CATEGORIES.filter((c) => c.expand && !c.heritage)
     .flatMap((c) => c.classes)
     .map((q) => `wd:${q}`)
     .join(" ");
 
   return `
-SELECT ?item ?coord ?sitelinks ?cat ?de ?en ?area ?height ?length WHERE {
+SELECT ?item ?coord ?sitelinks ?cat ?de ?en ?area ?height ?length ?elevation WHERE {
 
   SERVICE wikibase:around {
     ?item wdt:P625 ?coord .
@@ -145,6 +204,11 @@ SELECT ?item ?coord ?sitelinks ?cat ?de ?en ?area ?height ?length WHERE {
   {
     ?item wdt:P31/wdt:P279* ?cat .
     VALUES ?cat { ${expandValues} }
+  }
+  UNION
+  {
+    ?item wdt:P1435 ?cat .
+    VALUES ?cat { wd:${HERITAGE_CLASS} }
   }
 
   ?item wikibase:sitelinks ?sitelinks .
@@ -171,6 +235,10 @@ SELECT ?item ?coord ?sitelinks ?cat ?de ?en ?area ?height ?length WHERE {
 
   OPTIONAL {
     ?item p:P2043/psn:P2043/wikibase:quantityAmount ?length
+  }
+
+  OPTIONAL {
+    ?item p:P2044/psn:P2044/wikibase:quantityAmount ?elevation
   }
 }
 LIMIT ${QUERY_LIMIT}`;
@@ -224,6 +292,7 @@ function rowsToPois(rows) {
         area: numberOrNull(row.area),
         height: numberOrNull(row.height),
         length: numberOrNull(row.length),
+        elevation: numberOrNull(row.elevation),
       };
 
       byId.set(id, poi);
@@ -238,6 +307,7 @@ function rowsToPois(rows) {
       poi.area ??= numberOrNull(row.area);
       poi.height ??= numberOrNull(row.height);
       poi.length ??= numberOrNull(row.length);
+      poi.elevation ??= numberOrNull(row.elevation);
     }
   }
 
@@ -252,6 +322,16 @@ function rowsToPois(rows) {
 
     if (poi.sl < category.minSitelinks) {
       continue;
+    }
+
+    // Berge: bekannt genug ODER hoch genug (nur wenn Höhe bekannt).
+    if (category.strongSitelinks && poi.sl < category.strongSitelinks) {
+      if (
+        poi.elevation === null ||
+        poi.elevation < (category.minElevation ?? Infinity)
+      ) {
+        continue;
+      }
     }
 
     if (
@@ -325,6 +405,19 @@ async function runQuery(
       }
     );
 
+    if (response.status === 429 || response.status === 503) {
+      const header = Number(response.headers.get("Retry-After"));
+      const pause = Number.isFinite(header) && header > 0
+        ? header * 1000
+        : DEFAULT_RATE_LIMIT_PAUSE_MS;
+      const err = new Error(
+        `Wikidata antwortet mit ${response.status} (Rate-Limit)`
+      );
+      err.name = "RateLimitError";
+      err.pauseMs = Math.min(pause, MAX_RATE_LIMIT_PAUSE_MS);
+      throw err;
+    }
+
     if (!response.ok) {
       throw new Error(
         `Wikidata antwortet mit ${response.status}`
@@ -353,6 +446,7 @@ async function runQuery(
     return result;
   } finally {
     clearTimeout(timeout);
+    lastRequestEndedAt = performance.now();
   }
 }
 
@@ -578,6 +672,10 @@ export function initDiscovery() {
   let target = null;
   let targetSelectionStarted = false;
 
+  // Während eines Ortssprungs (Suche, R, Favorit) ausgeblendet,
+  // bis der neue Ort geladen ist.
+  let suspended = false;
+
   let lastCellCheck = 0;
   let lastEvaluate = 0;
   let lastArrow = 0;
@@ -606,6 +704,21 @@ export function initDiscovery() {
       // Frischer Start: wieder automatisch das nächstbeste Ziel
       // wählen, statt auf manuelles Durchblättern (X/Y) zu warten.
       targetSelectionStarted = false;
+      lastEvaluate = 0;
+    }
+  }
+
+  function setSuspended(value) {
+    suspended = value;
+
+    if (value) {
+      clearTarget();
+      targetSelectionStarted = false;
+    } else {
+      // Neuer Ort: sofort frisch auswerten und
+      // wieder automatisch das nächstbeste Ziel wählen.
+      targetSelectionStarted = false;
+      lastCellCheck = 0;
       lastEvaluate = 0;
     }
   }
@@ -689,11 +802,20 @@ export function initDiscovery() {
         err
       );
 
-      failedUntil.set(
-        cell.key,
-        performance.now() +
-          RETRY_AFTER_FAILURE_MS
-      );
+      if (err?.name === "RateLimitError") {
+        rateLimitedUntil =
+          performance.now() + err.pauseMs;
+
+        console.warn(
+          `[Discovery] Rate-Limit - pausiere ${Math.round(err.pauseMs / 1000)} s`
+        );
+      } else {
+        failedUntil.set(
+          cell.key,
+          performance.now() +
+            RETRY_AFTER_FAILURE_MS
+        );
+      }
     } finally {
       loading = false;
     }
@@ -706,6 +828,13 @@ export function initDiscovery() {
     headingDeg
   ) {
     if (loading) {
+      return;
+    }
+
+    if (
+      now < rateLimitedUntil ||
+      performance.now() - lastRequestEndedAt < MIN_REQUEST_GAP_MS
+    ) {
       return;
     }
 
@@ -984,10 +1113,19 @@ export function initDiscovery() {
         north
       );
 
-    const arrived = distance <= 100;
+    const arrived =
+      distance <= ARRIVED_RADIUS_M;
 
-    visitedIconEl.hidden = !visited.has(
-      target.poi.id
+    // Besucht = Pin ist sichtbar, Pfeil ist weg.
+    if (arrived) {
+      visited.add(target.poi.id);
+    }
+
+    // SVG-Elemente haben keine .hidden-Property,
+    // daher das Attribut direkt umschalten.
+    visitedIconEl.toggleAttribute(
+      "hidden",
+      !visited.has(target.poi.id)
     );
 
     metaEl.textContent =
@@ -1056,7 +1194,7 @@ export function initDiscovery() {
     lonDeg,
     headingRad
   ) {
-    if (!enabled) {
+    if (!enabled || suspended) {
       return;
     }
 
@@ -1119,6 +1257,7 @@ export function initDiscovery() {
   ) {
     if (
       !enabled ||
+      suspended ||
       !lastPose
     ) {
       return;
@@ -1184,5 +1323,6 @@ export function initDiscovery() {
     update,
     cycleTarget,
     setEnabled,
+    setSuspended,
   };
 }
