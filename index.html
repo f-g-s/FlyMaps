@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FlyMaps</title>
+    <link rel="icon" href="/icons/web/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/icons/web/apple-touch-icon.png" />
+    <link rel="manifest" href="/icons/web/manifest.webmanifest" />
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
@@ -31,7 +34,22 @@
       </svg>
       <div id="discovery-hint-text">
         <span id="discovery-hint-label">In der Nähe</span>
-        <span id="discovery-hint-name"></span>
+        <span id="discovery-hint-name-row">
+          <span id="discovery-hint-name"></span>
+          <svg
+            id="discovery-hint-visited"
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            aria-hidden="true"
+            hidden
+          >
+            <path
+              d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"
+              fill="currentColor"
+            />
+          </svg>
+        </span>
         <span id="discovery-hint-meta"></span>
       </div>
     </div>

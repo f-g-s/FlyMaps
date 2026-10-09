@@ -25,7 +25,7 @@ const FALLBACK_EXTRA_SITELINKS = 4; // leichte Abfrage: nur bekanntere Orte
 const QUERY_LIMIT = 1500;
 const RETRY_AFTER_FAILURE_MS = 60000;
 
-const CACHE_PREFIX = "flymaps_poi_cell_v2_";
+const CACHE_PREFIX = "flymaps_poi_cell_v4_";
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const ENABLED_KEY = "flymaps_discovery_enabled";
 
@@ -42,6 +42,16 @@ const CELL_CHECK_INTERVAL_MS = 1500;
 // Größenangaben greifen nur, wenn Wikidata einen Wert kennt - Orte ohne
 // Maßangabe bleiben bei ausreichender Bekanntheit erhalten.
 // Höhe/Länge in Metern, Fläche in m².
+//
+// expand: true - matcht auch Unterklassen (P279*) der angegebenen Klasse,
+// nicht nur direkte P31-Treffer. Nötig bei Naturobjekten: der Fuji z.B. ist
+// nicht direkt als "Vulkan" (Q8072) klassifiziert, sondern nur über Unter-
+// klassen wie "aktiver Vulkan"/"Stratovulkan". Die einzelnen Unterklassen
+// aufzuzählen ist unzuverlässig (davon gibt es sehr viele: Schildvulkan,
+// Caldera, Lavadom, ...), daher hier die Hierarchie auflösen statt sie
+// aufzuzählen. Bewusst nur für diese wenigen Naturkategorien, nicht global
+// (siehe Performance-Hinweis bei buildQuery) - sonst wird die Abfrage für
+// alle ~30 Kategorien teuer.
 const CATEGORIES = [
   { id: "cathedral", label: "Kathedrale", classes: ["Q2977"], minSitelinks: 6 },
   { id: "church", label: "Kirche", classes: ["Q16970"], minSitelinks: 14 },
@@ -68,6 +78,18 @@ const CATEGORIES = [
   { id: "station", label: "Bahnhof", classes: ["Q55488"], minSitelinks: 10 },
   { id: "amusement", label: "Freizeitpark", classes: ["Q194195"], minSitelinks: 4 },
   { id: "zoo", label: "Zoo", classes: ["Q43501"], minSitelinks: 6 },
+  {
+    id: "volcano",
+    label: "Vulkan",
+    classes: ["Q8072"], // Vulkan (deckt per P279* auch Stratovulkan, aktiver Vulkan, ... ab)
+    minSitelinks: 6,
+    expand: true,
+  },
+  { id: "mountain", label: "Berg", classes: ["Q8502"], minSitelinks: 14, expand: true },
+  { id: "waterfall", label: "Wasserfall", classes: ["Q34038"], minSitelinks: 6, expand: true },
+  { id: "canyon", label: "Canyon", classes: ["Q179049"], minSitelinks: 4, expand: true },
+  { id: "glacier", label: "Gletscher", classes: ["Q35666"], minSitelinks: 6, expand: true },
+  { id: "geyser", label: "Geysir", classes: ["Q1420294"], minSitelinks: 4, expand: true },
 ];
 
 const CATEGORY_INDEX_BY_CLASS = new Map();
@@ -83,11 +105,20 @@ const GLOBAL_MIN_SITELINKS = Math.min(
 );
 
 // Performance:
-// Keine globale P279*-Klassenhierarchie mehr in jeder Anfrage.
-// Es werden nur direkte P31-Klassen der Kategorien abgefragt.
-// Das vermeidet die extrem teure Unterklassenauflösung in Wikidata.
+// Für die meisten Kategorien (Gebäude/Bauwerke) wird weiterhin nur die
+// direkte P31-Klasse abgefragt - keine globale P279*-Klassenhierarchie,
+// das wäre für ~25 Kategorien extrem teuer. Für die wenigen Naturkategorien
+// (expand: true) wird gezielt per P31/P279* auch über Unterklassen gesucht,
+// da Naturobjekte in Wikidata oft nur über Unterklassen erfasst sind (siehe
+// Kommentar bei CATEGORIES).
 function buildQuery(lat, lon, radiusKm, minSitelinks) {
-  const values = [...CATEGORY_INDEX_BY_CLASS.keys()]
+  const directValues = CATEGORIES.filter((c) => !c.expand)
+    .flatMap((c) => c.classes)
+    .map((q) => `wd:${q}`)
+    .join(" ");
+
+  const expandValues = CATEGORIES.filter((c) => c.expand)
+    .flatMap((c) => c.classes)
     .map((q) => `wd:${q}`)
     .join(" ");
 
@@ -106,10 +137,14 @@ SELECT ?item ?coord ?sitelinks ?cat ?de ?en ?area ?height ?length WHERE {
       "${radiusKm}" .
   }
 
-  ?item wdt:P31 ?cat .
-
-  VALUES ?cat {
-    ${values}
+  {
+    ?item wdt:P31 ?cat .
+    VALUES ?cat { ${directValues} }
+  }
+  UNION
+  {
+    ?item wdt:P31/wdt:P279* ?cat .
+    VALUES ?cat { ${expandValues} }
   }
 
   ?item wikibase:sitelinks ?sitelinks .
@@ -491,9 +526,19 @@ export function initDiscovery() {
   const arrowPath =
     arrowPathEl.getAttribute("d");
 
+  const labelEl =
+    document.getElementById(
+      "discovery-hint-label"
+    );
+
   const nameEl =
     document.getElementById(
       "discovery-hint-name"
+    );
+
+  const visitedIconEl =
+    document.getElementById(
+      "discovery-hint-visited"
     );
 
   const metaEl =
@@ -557,6 +602,11 @@ export function initDiscovery() {
 
     if (!value) {
       clearTarget();
+    } else {
+      // Frischer Start: wieder automatisch das nächstbeste Ziel
+      // wählen, statt auf manuelles Durchblättern (X/Y) zu warten.
+      targetSelectionStarted = false;
+      lastEvaluate = 0;
     }
   }
 
@@ -739,16 +789,6 @@ export function initDiscovery() {
     const list = [];
 
     for (const poi of pois.values()) {
-      const isCurrentTarget =
-        target?.poi.id === poi.id;
-
-      if (
-        visited.has(poi.id) &&
-        !isCurrentTarget
-      ) {
-        continue;
-      }
-
       const {
         east,
         north,
@@ -772,10 +812,6 @@ export function initDiscovery() {
         visited.add(
           poi.id
         );
-
-        if (!isCurrentTarget) {
-          continue;
-        }
       }
 
       if (
@@ -787,6 +823,7 @@ export function initDiscovery() {
       list.push({
         poi,
         distance,
+        visited: visited.has(poi.id),
         score: scoreOf(
           poi,
           distance
@@ -822,14 +859,19 @@ export function initDiscovery() {
           NEARBY_RADIUS_M
       );
     const targetIds = available
-      .map((candidate) => candidate.poi.id)
+      .map(
+        (candidate) =>
+          `${candidate.poi.id}:${candidate.visited ? 1 : 0}`
+      )
       .sort();
     const targetSignature = targetIds.join(",");
 
-    if (
-      import.meta.env.DEV &&
-      targetSignature !== lastLoggedTargetIds
-    ) {
+    labelEl.textContent =
+      available.length > 0
+        ? `In der Nähe (${available.length})`
+        : "In der Nähe";
+
+    if (targetSignature !== lastLoggedTargetIds) {
       lastLoggedTargetIds = targetSignature;
       console.info(
         `[Discovery] Verfügbare Ziele im Umkreis von 10 km (${available.length})`
@@ -839,6 +881,7 @@ export function initDiscovery() {
           name: candidate.poi.name,
           kategorie: CATEGORIES[candidate.poi.cat].label,
           entfernung_m: Math.round(candidate.distance),
+          besucht: candidate.visited,
           id: candidate.poi.id,
         }))
       );
@@ -874,7 +917,8 @@ export function initDiscovery() {
       candidates.find(
         (c) =>
           c.distance <=
-          NEARBY_RADIUS_M
+            NEARBY_RADIUS_M &&
+          !c.visited
       ) ?? null;
 
     if (!best) {
@@ -942,6 +986,10 @@ export function initDiscovery() {
 
     const arrived = distance <= 100;
 
+    visitedIconEl.hidden = !visited.has(
+      target.poi.id
+    );
+
     metaEl.textContent =
       `${CATEGORIES[target.poi.cat].label}` +
       (arrived
@@ -959,6 +1007,7 @@ export function initDiscovery() {
           "evenodd"
         );
         arrowEl.style.transform = "none";
+        arrowEl.classList.add("arrived");
         showingPin = true;
       }
 
@@ -973,6 +1022,7 @@ export function initDiscovery() {
       arrowEl.removeAttribute(
         "fill-rule"
       );
+      arrowEl.classList.remove("arrived");
       showingPin = false;
     }
 

@@ -1205,7 +1205,11 @@ body.pause-mode #fullscreen-toggle-button {
   flex: none;
   color: #6ea0ff;
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
-  transition: transform 0.1s linear;
+  transition: transform 0.1s linear, color 0.3s ease;
+}
+
+#discovery-hint-arrow.arrived {
+  color: #3ddc73;
 }
 
 #discovery-hint-text {
@@ -1221,12 +1225,24 @@ body.pause-mode #fullscreen-toggle-button {
   opacity: 0.7;
 }
 
+#discovery-hint-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
 #discovery-hint-name {
   font-size: 1.1rem;
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+#discovery-hint-visited {
+  flex: none;
+  color: #3ddc73;
 }
 
 #discovery-hint-meta {
