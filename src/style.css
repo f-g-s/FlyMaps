@@ -286,7 +286,8 @@ body.pause-mode #fullscreen-toggle-button {
 
 #search-panel-close,
 #controls-panel-close,
-#controls-help-button {
+#controls-help-button,
+#settings-menu-button {
   position: absolute;
   top: 28px;
   right: 28px;
@@ -308,23 +309,32 @@ body.pause-mode #fullscreen-toggle-button {
   /* links neben dem Schließen-Button (32px Breite + 8px Abstand) */
 }
 
+#settings-menu-button {
+  right: 108px;
+  /* links neben dem Hilfe-Button */
+}
+
 #search-panel-close svg,
 #controls-panel-close svg,
-#controls-help-button svg {
+#controls-help-button svg,
+#settings-menu-button svg {
   width: 18px;
   height: 18px;
 }
 
 #search-panel-close:hover,
 #controls-panel-close:hover,
-#controls-help-button:hover {
+#controls-help-button:hover,
+#settings-menu-button:hover,
+#settings-menu-button[aria-expanded="true"] {
   background: rgba(255, 255, 255, 0.08);
   color: #fff;
 }
 
 #search-panel-close:focus-visible,
 #controls-panel-close:focus-visible,
-#controls-help-button:focus-visible {
+#controls-help-button:focus-visible,
+#settings-menu-button:focus-visible {
   outline: 2px solid #2a6df4;
   outline-offset: 2px;
 }
@@ -392,7 +402,9 @@ body.pause-mode #fullscreen-toggle-button {
    selbst dafür einstellt. */
 #search-panel.searching #search-panel-content,
 #search-panel.searching #search-panel-close,
-#search-panel.searching #controls-help-button {
+#search-panel.searching #controls-help-button,
+#search-panel.searching #settings-menu-button,
+#search-panel.searching #settings-menu {
   display: none;
 }
 
@@ -683,7 +695,7 @@ body.pause-mode #fullscreen-toggle-button {
   outline-offset: 2px;
 }
 
-#search-panel button:not(.search-tab):not(#search-panel-close):not(#controls-help-button):not(.favorite-item-delete) {
+#search-panel button:not(.search-tab):not(#search-panel-close):not(#controls-help-button):not(#settings-menu-button):not(#settings-api-key-item):not(.favorite-item-delete) {
   padding: 9px 12px;
   border-radius: 7px;
   border: none;
@@ -695,7 +707,7 @@ body.pause-mode #fullscreen-toggle-button {
   transition: background 0.15s ease;
 }
 
-#search-panel button:not(.search-tab):not(#search-panel-close):not(#controls-help-button):not(.favorite-item-delete):hover {
+#search-panel button:not(.search-tab):not(#search-panel-close):not(#controls-help-button):not(#settings-menu-button):not(#settings-api-key-item):not(.favorite-item-delete):hover {
   background: #1d55c4;
 }
 
@@ -1014,6 +1026,73 @@ body.pause-mode #fullscreen-toggle-button {
   pointer-events: none;
 }
 
+/* Stick-Overlay: zeigt die beiden Controller-Sticks live an, solange ein
+   Gamepad verbunden ist (Sichtbarkeit wird in main.js über das hidden-
+   Attribut gesteuert). Unten mittig. */
+#stick-overlay {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  gap: 12px;
+  pointer-events: none;
+}
+
+#stick-overlay[hidden] {
+  display: none;
+}
+
+.stick-box {
+  background: rgba(22, 24, 29, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  border-radius: 8px;
+}
+
+.stick-gate {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+/* Fadenkreuz in der Mitte */
+.stick-cross::before,
+.stick-cross::after {
+  content: "";
+  position: absolute;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.stick-cross::before {
+  left: 50%;
+  top: 0px;
+  bottom: 0px;
+  width: 1px;
+}
+
+.stick-cross::after {
+  top: 50%;
+  left: 0px;
+  right: 0px;
+  height: 1px;
+}
+
+/* Position wird per transform aus JS gesetzt (translate3d). */
+.stick-dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border-radius: 50%;
+  background: #2a6df4;
+  box-shadow: 0 0 8px rgba(42, 109, 244, 0.7);
+  will-change: transform;
+}
+
 @keyframes collision-flash-anim {
   0% {
     opacity: 1;
@@ -1127,29 +1206,55 @@ body.pause-mode #fullscreen-toggle-button {
   background: #1d55c4;
 }
 
+/* --- Oben mittig: Hinweis auf Sehenswürdigkeiten in der Nähe ------------ */
+#top-center-stack {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100vw - 32px);
+  pointer-events: none;
+}
+
+/* Ausgeblendete Elemente belegen keinen Platz im Stapel. */
+#top-center-stack > :not(.visible) {
+  position: absolute;
+}
+
 /* --- Standort-Banner ("Bauchbinde") --------------------------------- */
+/* Rechts über der Minimap (Minimap: unten 12px, 226px hoch inkl. Rand, plus
+   8px Abstand), rechtsbündig mit ihr und mindestens so breit wie sie; längere
+   Ortsnamen verbreitern den Banner nach links. Blendet von unten ein. */
 #location-banner {
   position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%) translateY(-12px);
+  right: 12px;
+  bottom: 246px;
+  z-index: 20;
+  min-width: 226px;
+  max-width: min(420px, calc(100vw - 24px));
+  box-sizing: border-box;
+  transform: translateY(12px);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.4s ease, transform 0.4s ease;
-  z-index: 20;
-  text-align: center;
+  text-align: left;
   font-family: inherit;
   color: #fff;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
   background: rgba(22, 24, 29, 0.85);
   border-left: 2px solid #2a6df4;
   border-radius: 8px;
-  padding: 8px 24px;
+  padding: 8px 16px;
 }
 
 #location-banner.visible {
   opacity: 1;
-  transform: translateX(-50%) translateY(0);
+  transform: translateY(0);
 }
 
 #location-banner-place {
@@ -1177,10 +1282,7 @@ body.pause-mode #fullscreen-toggle-button {
 
 /* --- Sehenswürdigkeiten in der Nähe (siehe src/discover.js) --------- */
 #discovery-hint {
-  position: fixed;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%) translateY(-12px);
+  transform: translateY(-12px);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -1188,7 +1290,6 @@ body.pause-mode #fullscreen-toggle-button {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.4s ease, transform 0.4s ease;
-  z-index: 20;
   color: #fff;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
   background: rgba(22, 24, 29, 0.85);
@@ -1199,7 +1300,7 @@ body.pause-mode #fullscreen-toggle-button {
 
 #discovery-hint.visible {
   opacity: 1;
-  transform: translateX(-50%) translateY(0);
+  transform: translateY(0);
 }
 
 #discovery-hint-arrow {
@@ -1267,4 +1368,172 @@ body.pause-mode #fullscreen-toggle-button {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+/* --- Dialog: Google-API-Key (siehe src/apikey.js) ------------------------ */
+#api-key-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+  background: #16181d;
+  color: #e6e8ec;
+}
+
+#api-key-gate[hidden] {
+  display: none;
+}
+
+.api-key-card {
+  width: min(560px, 100%);
+  margin: auto;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.api-key-card h1 {
+  margin: 0 0 12px;
+  font-size: 22px;
+}
+
+.api-key-card p {
+  margin: 0 0 12px;
+  color: #c3c6cc;
+}
+
+.api-key-card ol {
+  margin: 0 0 16px;
+  padding-left: 20px;
+  color: #c3c6cc;
+}
+
+.api-key-card li {
+  margin-bottom: 6px;
+}
+
+.api-key-card a {
+  color: #2a6df4;
+}
+
+.api-key-card label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.api-key-card input[type="password"],
+.api-key-card input[type="text"] {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #1f222a;
+  color: #e6e8ec;
+  font-size: 14px;
+  font-family: ui-monospace, monospace;
+}
+
+.api-key-card input:focus {
+  outline: 2px solid #2a6df4;
+  outline-offset: 1px;
+}
+
+.api-key-card .api-key-show-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 0;
+  font-weight: 400;
+  color: #9aa0aa;
+}
+
+#api-key-error {
+  margin: 12px 0 0;
+  color: #ff8a8a;
+}
+
+#api-key-error[hidden] {
+  display: none;
+}
+
+.api-key-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.api-key-actions button {
+  padding: 9px 14px;
+  border-radius: 7px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+#api-key-submit {
+  border: none;
+  background: #2a6df4;
+  color: #fff;
+  transition: background 0.15s ease;
+}
+
+#api-key-submit:hover:not(:disabled) {
+  background: #1d55c4;
+}
+
+#api-key-submit:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+#api-key-cancel {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #9aa0aa;
+}
+
+#api-key-cancel[hidden] {
+  display: none;
+}
+
+/* --- Einstellungen-Menü (Zahnrad im Pausenmenü) ---------------------------- */
+#settings-menu {
+  position: absolute;
+  top: 66px;
+  right: 108px;
+  z-index: 5;
+  min-width: 220px;
+  padding: 6px;
+  background: #1f222a;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+#settings-menu[hidden] {
+  display: none;
+}
+
+#settings-api-key-item {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: #e6e8ec;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+#settings-api-key-item:hover,
+#settings-api-key-item:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  outline: none;
 }

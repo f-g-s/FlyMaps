@@ -2,13 +2,13 @@ import * as Cesium from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import spotsByCountry from "./google_earth_3d_locations_by_country.json";
 import { initDiscovery } from "./discover.js";
+import { getApiKey, requestApiKey } from "./apikey.js";
+import { geocode } from "./geocode.js";
 
-// --- API-Key konfigurieren -------------------------------------------------
-const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-if (!apiKey) {
-  throw new Error("VITE_GOOGLE_MAPS_API_KEY fehlt - siehe .env.example");
-}
-Cesium.GoogleMaps.defaultApiKey = apiKey;
+// --- API-Key -----------------------------------------------------------------
+// Jeder Spieler nutzt seinen eigenen Google-API-Key (Eingabe-Dialog beim
+// ersten Start, siehe apikey.js und startApp() unten). Es gibt keinen Standard-
+// Key im Bundle.
 
 // Ohne eigenen Cesium-ion-Token brauchen wir Cesiums Standard-Weltterrain/
 // Imagery nicht - wir nutzen ausschließlich Googles Photorealistic 3D Tiles.
@@ -641,13 +641,11 @@ function waitForTilesReady(tileset, { timeoutMs = 8000, quietMs = 600 } = {}) {
 // geladenen Kacheln der neuen Position warten kann.
 let tileset;
 
-// Kleiner Wrapper um die /api/geocode-Route (siehe functions/api/geocode.js) -
+// Kleiner Wrapper um geocode() (siehe geocode.js, nutzt den Key des Spielers) -
 // wird sowohl von der Ortssuche (geocodeAndFlyTo) als auch vom zufälligen
 // Startort (loadGoogleTiles) genutzt.
 async function fetchGeocode(query) {
-  const url = `/api/geocode?q=${encodeURIComponent(query)}`;
-  const response = await fetch(url);
-  return response.json();
+  return geocode({ q: query });
 }
 
 // Zufälligen Eintrag aus derselben Spot-Liste wählen, die auch der
@@ -752,6 +750,8 @@ async function loadGoogleTiles() {
           destLon = data.lng;
           destLat = data.lat;
           placeLabel = data.formatted_address;
+        } else {
+          console.warn("Geocoding fehlgeschlagen:", data.status, data.error);
         }
       } catch (err) {
         console.error(err);
@@ -795,10 +795,29 @@ async function loadGoogleTiles() {
     setStatus("Fehler beim Laden der 3D Tiles - API-Key prüfen");
     loadingOverlayEl.classList.add("hidden");
     console.error(err);
+    // Scheitert schon das Anlegen des Tilesets (tileset noch undefined), liegt
+    // es meist am Key: ungültig, Map Tiles API nicht aktiviert oder keine
+    // Abrechnung. Dann Dialog erneut zeigen und nach neuer Eingabe neu laden.
+    if (!tileset) {
+      await requestApiKey({
+        error:
+          "Die 3D Tiles konnten nicht geladen werden. Prüfe, ob die Map Tiles API aktiviert ist, die Abrechnung eingerichtet ist und der Key stimmt, und gib den Key erneut ein.",
+      });
+      location.reload();
+    }
   }
 }
 
-loadGoogleTiles();
+// Start: ohne gespeicherten Key zuerst den Eingabe-Dialog mit Anleitung zeigen.
+async function startApp() {
+  let key = getApiKey();
+  if (!key) key = await requestApiKey();
+  Cesium.GoogleMaps.defaultApiKey = key;
+  await loadGoogleTiles();
+}
+
+startApp();
+
 
 // --- Minimap (unten rechts) --------------------------------------------
 // Eigenes, schlankes CesiumWidget (keine Toolbar/Steuerung nötig) mit
@@ -941,6 +960,36 @@ controlsHelpButton.addEventListener("click", () => {
   if (isPaused) togglePause();
   controlsPanel.classList.add("visible");
   controlsPanelCloseBtn.focus();
+});
+
+// --- Einstellungen-Menü (Zahnrad links neben dem Hilfe-Button) ------------
+// Erster Eintrag: Google-API-Key ändern. Neuer Key -> Neuladen, damit Tiles und
+// Ortsabfragen sauber mit dem neuen Key starten.
+const settingsMenuButton = document.getElementById("settings-menu-button");
+const settingsMenuEl = document.getElementById("settings-menu");
+const settingsApiKeyItem = document.getElementById("settings-api-key-item");
+
+function setSettingsMenuOpen(open) {
+  settingsMenuEl.hidden = !open;
+  settingsMenuButton.setAttribute("aria-expanded", String(open));
+}
+
+settingsMenuButton.addEventListener("click", (event) => {
+  event.stopPropagation();
+  setSettingsMenuOpen(settingsMenuEl.hidden);
+});
+
+// Klick irgendwo anders schließt das Menü wieder.
+document.addEventListener("click", (event) => {
+  if (!settingsMenuEl.hidden && !settingsMenuEl.contains(event.target)) {
+    setSettingsMenuOpen(false);
+  }
+});
+
+settingsApiKeyItem.addEventListener("click", async () => {
+  setSettingsMenuOpen(false);
+  const newKey = await requestApiKey({ cancellable: true });
+  if (newKey) location.reload();
 });
 
 // --- Vollbild-Button (Ersatz für Cesiums Standard-Fullscreen-Button) -----
@@ -1378,9 +1427,9 @@ applyHudHidden(hudHidden);
 // --- Standort-Banner ("Bauchbinde") -------------------------------------
 // Zeigt beim Überfliegen einer neuen Region kurz Ort + Land ein (siehe
 // updateLocationBanner() im Tick-Handler weiter unten). Nutzt denselben
-// /api/geocode-Proxy wie die Ortssuche und "Aktueller Ort" im Pausenmenü,
+// Geocoding (geocode.js) wie die Ortssuche und "Aktueller Ort" im Pausenmenü,
 // hier aber mit latlng und den zusätzlichen place/country-Feldern (siehe
-// functions/api/geocode.js). Per Schalter im Menü optional abschaltbar.
+// geocode.js). Per Schalter im Menü optional abschaltbar.
 let locationBannerEnabled = true;
 const locationBannerToggle = document.getElementById(
   "location-banner-toggle",
@@ -1473,9 +1522,7 @@ async function updateLocationBanner(now) {
 
   const requestId = ++locationBannerRequestId;
   try {
-    const url = `/api/geocode?latlng=${lat},${lon}`;
-    const response = await fetch(url);
-    const data = await response.json();
+    const data = await geocode({ latlng: `${lat},${lon}` });
     if (requestId !== locationBannerRequestId) return; // veraltete Antwort
     if (data.status !== "OK" || !data.place) return;
 
@@ -1957,15 +2004,13 @@ async function geocodeAndFlyTo(query) {
   // Sinn (siehe #search-panel.searching in style.css).
   searchPanel.classList.add("searching");
   try {
-    // Läuft über die eigene /api/geocode-Route (Cloudflare Pages Function),
-    // die den Google-Geocoding-Key serverseitig hält - der Key landet damit
-    // nie im Client-Bundle. Siehe functions/api/geocode.js.
-    const url = `/api/geocode?q=${encodeURIComponent(query)}`;
-    const response = await fetch(url);
-    const data = await response.json();
+    // Direkt über die Geocoding API mit dem Key des Spielers (siehe geocode.js).
+    const data = await fetchGeocode(query);
 
     if (data.status !== "OK") {
-      searchStatusEl.textContent = `Kein Ergebnis gefunden (${data.status}).`;
+      searchStatusEl.textContent =
+        `Kein Ergebnis gefunden (${data.status}).` +
+        (data.error ? ` ${data.error}` : "");
       searchPanel.classList.remove("searching"); // erneute Eingabe erlauben
       return;
     }
@@ -2533,8 +2578,8 @@ async function flyToFavorite(favorite) {
 }
 
 // --- Aktueller Ort (Reverse Geocoding, nur im Pausenmodus) --------------
-// Nutzt denselben /api/geocode-Proxy wie die Ortssuche, hier mit dem
-// latlng-Parameter statt q (siehe functions/api/geocode.js).
+// Nutzt dasselbe Geocoding (geocode.js) wie die Ortssuche, hier mit dem
+// latlng-Parameter statt q.
 const currentLocationEl = document.getElementById("current-location");
 const currentLocationMapsLinkEl = document.getElementById(
   "current-location-maps-link",
@@ -2560,9 +2605,7 @@ async function updateCurrentLocation() {
   currentLocationEl.textContent = "Aktueller Ort wird ermittelt…";
 
   try {
-    const url = `/api/geocode?latlng=${lat},${lon}`;
-    const response = await fetch(url);
-    const data = await response.json();
+    const data = await geocode({ latlng: `${lat},${lon}` });
     if (requestId !== currentLocationRequestId) return; // veraltete Antwort
 
     if (data.status === "OK") {
@@ -2587,6 +2630,7 @@ function togglePause() {
   pressedKeys.clear();
   randomSpotButton.hidden = !isPaused;
   document.body.classList.toggle("pause-mode", isPaused);
+  setSettingsMenuOpen(false);
 
   if (isPaused) {
     viewer.camera.cancelFlight();
@@ -2962,6 +3006,46 @@ function updateControllerDebugOverlay() {
     .map((v, i) => `  Achse ${i}: ${v.toFixed(2)}`)
     .join("\n");
   controllerDebugEl.textContent = `Controller: ${gp.id}\n${axesText}`;
+}
+
+// --- Stick-Overlay ----------------------------------------------------------
+// Zeigt beide Sticks als Punkt in einem Quadrat an, solange ein Controller
+// verbunden ist. Linker Stick: Gieren (x) / Gas (y), rechter Stick: Roll (x) /
+// Pitch (y). Dargestellt wird die Stick-Stellung ohne Deadzone, aber mit der
+// Achsen-Zuordnung/Invertierung aus CONTROLLER_AXIS. Positiv = rechts bzw. oben.
+const stickOverlayEl = document.getElementById("stick-overlay");
+const stickLeftDotEl = document.getElementById("stick-left-dot");
+const stickRightDotEl = document.getElementById("stick-right-dot");
+const STICK_DOT_TRAVEL_PX = 40; // maximaler Weg des Punkts von der Mitte (Feld 96px, Punkt 16px)
+
+function getControllerAxisRaw(axisConfig, gp) {
+  if (!gp || !gp.axes || gp.axes.length <= axisConfig.index) return 0;
+  const raw = gp.axes[axisConfig.index];
+  return Cesium.Math.clamp(axisConfig.invert ? -raw : raw, -1, 1);
+}
+
+function setStickDot(dotEl, x, y) {
+  // y positiv = Stick nach oben -> Punkt nach oben (negative CSS-y)
+  dotEl.style.transform = `translate3d(${x * STICK_DOT_TRAVEL_PX}px, ${-y * STICK_DOT_TRAVEL_PX}px, 0)`;
+}
+
+function updateStickOverlay() {
+  if (!stickOverlayEl) return;
+  const connected = connectedGamepadIndex !== null;
+  if (stickOverlayEl.hidden === connected) stickOverlayEl.hidden = !connected;
+  if (!connected) return;
+  const gp = navigator.getGamepads()[connectedGamepadIndex];
+  if (!gp) return;
+  setStickDot(
+    stickLeftDotEl,
+    getControllerAxisRaw(CONTROLLER_AXIS.yaw, gp),
+    getControllerAxisRaw(CONTROLLER_AXIS.throttle, gp),
+  );
+  setStickDot(
+    stickRightDotEl,
+    getControllerAxisRaw(CONTROLLER_AXIS.roll, gp),
+    -getControllerAxisRaw(CONTROLLER_AXIS.pitch, gp), // Pitch im Overlay invertiert
+  );
 }
 
 let lastTime = performance.now();
@@ -3476,6 +3560,7 @@ viewer.clock.onTick.addEventListener(() => {
   updateHorizon();
   updatePlaneModelMatrix();
   updateControllerDebugOverlay();
+  updateStickOverlay();
   updateLocationBanner(now);
   updateDiscovery(now);
 

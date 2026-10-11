@@ -43,6 +43,7 @@ const ARRIVED_PIN_PATH = "M12 2a8 8 0 0 0-8 8c0 5 8 12 8 12s8-7 8-12a8 8 0 0 0-8
 const KEEP_RADIUS_FACTOR = 1.3;
 const EVALUATE_INTERVAL_MS = 1000;
 const ARROW_INTERVAL_MS = 100;
+const AUTO_ADVANCE_MS = 5000; // so lange nach der Ankunft, dann kommt das nächste Ziel
 const CELL_CHECK_INTERVAL_MS = 1500;
 
 // Kategorien. Reihenfolge = Priorität, falls ein Ort zu mehreren passt
@@ -907,8 +908,8 @@ export function initDiscovery() {
     );
   }
 
-  // Alle Kandidaten in Reichweite,
-  // bekannteste/nächste zuerst.
+  // Alle Kandidaten in Reichweite: nächster unbesuchter Ort zuerst, dann die
+  // weiter entfernten, zuletzt die besuchten.
   // Erreichte Orte werden als besucht markiert.
   function collectCandidates(
     lat,
@@ -960,10 +961,17 @@ export function initDiscovery() {
       });
     }
 
+    // Noch nicht besuchte zuerst, darin nach Entfernung aufsteigend (nächste
+    // zuerst); bei gleicher Entfernung entscheidet die Bekanntheit.
+    // Besuchte Orte folgen danach, ebenfalls nach Entfernung.
     list.sort(
       (a, b) =>
-        b.score -
-        a.score
+        Number(a.visited) -
+          Number(b.visited) ||
+        a.distance -
+          b.distance ||
+        b.poi.sl -
+          a.poi.sl
     );
 
     return list;
@@ -1058,6 +1066,7 @@ export function initDiscovery() {
     target = {
       poi: best.poi,
       score: best.score,
+      wasVisited: best.visited,
     };
     targetSelectionStarted = true;
 
@@ -1089,6 +1098,42 @@ export function initDiscovery() {
     lastArrow = 0;
   }
 
+  // Nach der Ankunft am Ziel automatisch zur nächsten noch nicht besuchten
+  // Sehenswürdigkeit wechseln (wie X). Liefert false, wenn keine übrig ist.
+  function advanceToNextUnvisited() {
+    if (!lastPose) {
+      return false;
+    }
+
+    const next =
+      collectCandidates(
+        lastPose.lat,
+        lastPose.lon,
+        NEARBY_RADIUS_M
+      ).find(
+        (c) =>
+          !c.visited
+      ) ?? null;
+
+    if (!next) {
+      return false;
+    }
+
+    target = {
+      poi: next.poi,
+      score: next.score,
+      wasVisited: false,
+    };
+    targetSelectionStarted = true;
+
+    announceTarget(
+      next.poi,
+      next.distance
+    );
+
+    return true;
+  }
+
   function updateArrow(now) {
     if (
       !target ||
@@ -1115,6 +1160,30 @@ export function initDiscovery() {
 
     const arrived =
       distance <= ARRIVED_RADIUS_M;
+
+    // Erstmalige Ankunft an einem bisher unbesuchten Ziel: Timer starten.
+    // (Gezielt aufgerufene, schon besuchte Orte wechseln nicht automatisch.)
+    if (
+      arrived &&
+      !target.wasVisited &&
+      target.arrivedAt === undefined
+    ) {
+      target.arrivedAt = now;
+    }
+
+    if (
+      target.arrivedAt !== undefined &&
+      now - target.arrivedAt >=
+        AUTO_ADVANCE_MS
+    ) {
+      if (advanceToNextUnvisited()) {
+        return;
+      }
+
+      // Nichts mehr übrig: Timer abschalten, damit nicht ständig neu gesucht wird.
+      target.arrivedAt = undefined;
+      target.wasVisited = true;
+    }
 
     // Besucht = Pin ist sichtbar, Pfeil ist weg.
     if (arrived) {
@@ -1263,11 +1332,17 @@ export function initDiscovery() {
       return;
     }
 
+    // Vorwärts (X): nur noch nicht besuchte Orte. Rückwärts (Z): alle, auch
+    // besuchte (diese stehen in der Liste hinter den unbesuchten).
     const candidates =
       collectCandidates(
         lastPose.lat,
         lastPose.lon,
         NEARBY_RADIUS_M
+      ).filter(
+        (c) =>
+          direction < 0 ||
+          !c.visited
       );
 
     if (
@@ -1310,6 +1385,7 @@ export function initDiscovery() {
     target = {
       poi: next.poi,
       score: next.score,
+      wasVisited: next.visited,
     };
     targetSelectionStarted = true;
 
