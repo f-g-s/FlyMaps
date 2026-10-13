@@ -892,6 +892,8 @@ function updateMinimap() {
 
   const headingDeg = Cesium.Math.toDegrees(viewer.camera.heading);
   minimapMarkerEl.style.transform = `rotate(${headingDeg}deg)`;
+  // Mit verbundenem Controller: Drohne statt Flugzeug-Symbol.
+  minimapMarkerEl.classList.toggle("drone", connectedGamepadIndex !== null);
 }
 
 const minimapLabelsToggle = document.getElementById("minimap-labels-toggle");

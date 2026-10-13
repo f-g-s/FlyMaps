@@ -257,6 +257,174 @@ body.pause-mode #fullscreen-toggle-button {
   filter: drop-shadow(0 0 1.5px #333333) drop-shadow(0 0 1.5px #333333);
 }
 
+/* Drohnen-Symbol (Draufsicht, Kamera vorn = oben): ersetzt Rumpf/Flügel/
+   Leitwerk, solange ein Controller verbunden ist (Klasse .drone auf
+   #minimap-marker, gesetzt in main.js). Aufbau: Rumpf mit Kamera vorn, vier
+   kräftige Arme zu den Motoren (Kreis mit Ring und Mittelpunkt), hinten zwei
+   nach außen geneigte Antennen mit blauem Streifen. Alle Maße in px relativ
+   zur Mitte; der weiße Schein macht das dunkle Symbol auf der Karte lesbar. */
+#minimap-marker-drone {
+  --drone-dark: #161718; /* Farbe der dunklen Teile (Arme, Ränder, Motoren) */
+  display: none;
+  scale: 0.66; /* Gesamtgröße des Symbols */
+  filter: drop-shadow(0 0 1px #ffffff) drop-shadow(0 0 1px #ffffff);
+}
+
+#minimap-marker.drone #minimap-marker-drone {
+  display: block;
+}
+
+#minimap-marker.drone #minimap-marker-fuselage,
+#minimap-marker.drone #minimap-marker-wings,
+#minimap-marker.drone #minimap-marker-tail {
+  display: none;
+}
+
+/* Arme: Ursprung am Rumpf (transform-origin links), Drehwinkel = Richtung des
+   Arms (0° = rechts, im Uhrzeigersinn). Vorn zeigen sie leicht nach oben
+   (31°), hinten leicht nach unten (26°) zu den Motoren. */
+.drone-arm {
+  position: absolute;
+  height: 4px;
+  margin-top: -3px;
+  background: white;
+  border: 1px solid var(--drone-dark);
+  transform-origin: 0 50%;
+}
+
+.drone-arm-fr {
+  top: -4.5px;
+  left: 5px;
+  width: 16.4px;
+  transform: rotate(-31deg);
+}
+
+.drone-arm-fl {
+  top: -4.5px;
+  left: -5px;
+  width: 16.4px;
+  transform: rotate(-149deg);
+}
+
+.drone-arm-rr {
+  top: 6.3px;
+  left: 5px;
+  width: 15.5px;
+  transform: rotate(26deg);
+}
+
+.drone-arm-rl {
+  top: 6.3px;
+  left: -5px;
+  width: 15.5px;
+  transform: rotate(154deg);
+}
+
+/* Rumpf: weißes Rechteck mit dunklem Rand (liegt über den Armen). */
+.drone-body {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  width: 10px;
+  height: 27px;
+  margin: -13.5px 0 0 -5px;
+  background: #ffffff;
+  border: 1px solid var(--drone-dark);
+  border-radius: 3px;
+}
+
+/* Kamera vorn (oben) mit Linse. */
+.drone-camera {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  width: 11px;
+  height: 8px;
+  margin: -21px 0 0 -5.5px;
+  background: #ffffff;
+  border: 2px solid var(--drone-dark);
+  border-radius: 10px;
+}
+
+
+
+/* Antennen hinten (unten), nach außen geneigt, mit blauem Streifen. */
+.drone-antenna {
+  position: absolute;
+  top: 13px;
+  width: 2px;
+  height: 12px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--drone-dark);
+  transform-origin: 50% 0;
+}
+
+.drone-antenna::after {
+  content: "";
+  position: absolute;
+  top: 3.5px;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  background: #2a6df4;
+}
+
+.drone-antenna-l {
+  left: -3.4px;
+  transform: rotate(23deg);
+}
+
+.drone-antenna-r {
+  left: 3.4px;
+  transform: rotate(-23deg);
+}
+
+/* Motoren: Kreis mit weißem Ring und weißem Mittelpunkt. Die Mittelpunkte
+   liegen bei (+-19.1, +-13.05) relativ zur Rumpfmitte. */
+.drone-motor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border: 2px solid var(--drone-dark);
+  border-radius: 50%;
+  background: white;
+}
+
+.drone-motor::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 2px;
+  margin: -1.2px 0 0 -1.2px;
+  border-radius: 50%;
+  background: var(--drone-dark);
+}
+
+.drone-motor-fl {
+  transform: translate(-19.1px, -13.05px);
+}
+
+.drone-motor-fr {
+  transform: translate(19.1px, -13.05px);
+}
+
+.drone-motor-rl {
+  transform: translate(-19.1px, 13.05px);
+}
+
+.drone-motor-rr {
+  transform: translate(19.1px, 13.05px);
+}
+
 #search-panel {
   z-index: 20;
   display: none;
