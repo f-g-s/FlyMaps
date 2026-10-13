@@ -33,7 +33,6 @@ const MAX_RATE_LIMIT_PAUSE_MS = 300000;
 let rateLimitedUntil = 0;
 let lastRequestEndedAt = 0;
 
-const CACHE_PREFIX = "flymaps_poi_cell_v5_";
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const ENABLED_KEY = "flymaps_discovery_enabled";
 
@@ -43,8 +42,22 @@ const ARRIVED_PIN_PATH = "M12 2a8 8 0 0 0-8 8c0 5 8 12 8 12s8-7 8-12a8 8 0 0 0-8
 const KEEP_RADIUS_FACTOR = 1.3;
 const EVALUATE_INTERVAL_MS = 1000;
 const ARROW_INTERVAL_MS = 100;
-const AUTO_ADVANCE_MS = 5000; // so lange nach der Ankunft, dann kommt das nächste Ziel
+const AUTO_ADVANCE_MS = 4000; // so lange nach der Ankunft, dann kommt das nächste Ziel
 const CELL_CHECK_INTERVAL_MS = 1500;
+
+// Stadt-Modus: Befinden sich mindestens CITY_MIN_POIS Nicht-Natur-Ziele im
+// Umkreis CITY_RADIUS_M, gilt die Position als "in der Stadt". Dann werden
+// Berge in der Reihenfolge nach hinten geschoben: ihre Entfernung zählt für die
+// Sortierung MOUNTAIN_CITY_PENALTY-fach (Innsbruck: erst die Stadt, dann die
+// Nordkette). Berge bleiben erreichbar (X/Z), nur eben weiter hinten.
+const NATURE_CATEGORY_IDS = new Set([
+  "volcano", "mountain", "waterfall", "canyon", "glacier", "geyser",
+  "natpark", "lake", "island", "beach", "cave", "desert",
+]);
+const DEPRIORITIZED_IN_CITY_IDS = new Set(["mountain"]);
+const CITY_RADIUS_M = 4000;
+const CITY_MIN_POIS = 3;
+const MOUNTAIN_CITY_PENALTY = 4;
 
 // Kategorien. Reihenfolge = Priorität, falls ein Ort zu mehreren passt
 // (spezifischer zuerst). minSitelinks filtert nach Bekanntheit; die
@@ -64,49 +77,63 @@ const CELL_CHECK_INTERVAL_MS = 1500;
 const CATEGORIES = [
   // --- Sakral ---
   { id: "cathedral", label: "Kathedrale", classes: ["Q2977"], minSitelinks: 6 },
-  { id: "church", label: "Kirche", classes: ["Q16970"], minSitelinks: 14 },
+  // expand: Dom, Hallenkirche, Pfarrkirche usw. sind in Wikidata oft nur Unterklassen von "Kirchengebäude".
+  { id: "church", label: "Kirche", classes: ["Q16970"], minSitelinks: 7, expand: true },
   { id: "mosque", label: "Moschee", classes: ["Q32815"], minSitelinks: 6 },
   { id: "synagogue", label: "Synagoge", classes: ["Q34627"], minSitelinks: 6 },
   { id: "temple", label: "Tempel", classes: ["Q44539"], minSitelinks: 6 },
-  { id: "abbey", label: "Kloster / Abtei", classes: ["Q160742", "Q44613"], minSitelinks: 6 },
+  { id: "abbey", label: "Kloster / Abtei", classes: ["Q160742", "Q44613"], minSitelinks: 4 },
   // --- Burgen, Archäologie ---
-  { id: "castle", label: "Burg", classes: ["Q23413"], minSitelinks: 8 },
-  { id: "palace", label: "Schloss", classes: ["Q16560"], minSitelinks: 8 },
-  { id: "fortification", label: "Festung", classes: ["Q57821"], minSitelinks: 6 },
-  { id: "pyramid", label: "Pyramide", classes: ["Q12516"], minSitelinks: 4 },
-  { id: "archaeo", label: "Archäologische Stätte", classes: ["Q839954"], minSitelinks: 5 },
+  { id: "castle", label: "Burg", classes: ["Q23413"], minSitelinks: 2 },
+  { id: "palace", label: "Schloss", classes: ["Q16560"], minSitelinks: 2 },
+  { id: "fortification", label: "Festung", classes: ["Q57821"], minSitelinks: 2 },
+  { id: "ruin", label: "Ruine", classes: ["Q109607"], minSitelinks: 3 },
+  { id: "pyramid", label: "Pyramide", classes: ["Q12516"], minSitelinks: 2 },
+  { id: "archaeo", label: "Archäologische Stätte", classes: ["Q839954"], minSitelinks: 3 },
   // --- Bauwerke / Technik ---
   { id: "bridge", label: "Brücke", classes: ["Q12280"], minSitelinks: 8, minLength: 200 },
-  { id: "dam", label: "Staumauer", classes: ["Q12323"], minSitelinks: 5 },
+  { id: "dam", label: "Staumauer", classes: ["Q12323"], minSitelinks: 4 },
   { id: "reservoir", label: "Stausee", classes: ["Q131681"], minSitelinks: 5 },
   { id: "canal", label: "Kanal", classes: ["Q12284"], minSitelinks: 6 },
   { id: "skyscraper", label: "Hochhaus", classes: ["Q11303"], minSitelinks: 5, minHeight: 100 },
   { id: "obstower", label: "Aussichtsturm", classes: ["Q1440300"], minSitelinks: 4 },
-  { id: "tower", label: "Turm", classes: ["Q12518"], minSitelinks: 8, minHeight: 50 },
+  { id: "tower", label: "Turm", classes: ["Q12518"], minSitelinks: 5, minHeight: 10 },
   { id: "lighthouse", label: "Leuchtturm", classes: ["Q39715"], minSitelinks: 6 },
   { id: "windmill", label: "Windmühle", classes: ["Q38720"], minSitelinks: 4 },
   { id: "stadium", label: "Stadion", classes: ["Q483110"], minSitelinks: 6 },
   { id: "opera", label: "Opernhaus", classes: ["Q153562"], minSitelinks: 5 },
+  // Q3918 = Universität, Q875538 = staatliche Universität (viele Hochschulen sind nur so erfasst).
+  // Der Wikidata-Punkt liegt oft am Hauptcampus/Verwaltungsgebäude.
+  { id: "university", label: "Universität", classes: ["Q3918", "Q875538"], minSitelinks: 3 },
+  { id: "theatre", label: "Theater", classes: ["Q24354"], minSitelinks: 5 },
+  // Museen sind sehr zahlreich - Schwelle bewusst höher, sonst fluten sie Großstädte.
+  { id: "museum", label: "Museum", classes: ["Q33506"], minSitelinks: 6 },
+  { id: "cityhall", label: "Rathaus", classes: ["Q543654"], minSitelinks: 2 },
   // --- Denkmäler ---
   { id: "warmemorial", label: "Kriegerdenkmal", classes: ["Q575759"], minSitelinks: 6 },
   { id: "memorial", label: "Gedenkstätte", classes: ["Q5003624"], minSitelinks: 8 },
+  { id: "citywall", label: "Stadtmauer / Stadttor", classes: ["Q16748868", "Q82117"], minSitelinks: 3 },
+  { id: "fountain", label: "Brunnen", classes: ["Q483453"], minSitelinks: 5 },
   { id: "statue", label: "Statue", classes: ["Q179700"], minSitelinks: 10 },
   { id: "monument", label: "Denkmal", classes: ["Q4989906"], minSitelinks: 12 },
   // --- Plätze, Parks, Freizeit ---
-  { id: "square", label: "Platz", classes: ["Q174782"], minSitelinks: 8 },
-  { id: "park", label: "Park", classes: ["Q22698"], minSitelinks: 8, minArea: 100000 },
-  { id: "garden", label: "Garten", classes: ["Q167346", "Q1107656"], minSitelinks: 6 },
+  // Q330284 = Marktplatz (z.B. Hauptmarkt); viele Marktplätze sind nicht als "Platz" erfasst.
+  { id: "square", label: "Platz", classes: ["Q174782", "Q330284"], minSitelinks: 3 },
+  { id: "park", label: "Park", classes: ["Q22698"], minSitelinks: 4, minArea: 100000 },
+  { id: "garden", label: "Garten", classes: ["Q167346", "Q1107656"], minSitelinks: 4 },
   { id: "amusement", label: "Freizeitpark", classes: ["Q194195"], minSitelinks: 4 },
-  { id: "zoo", label: "Zoo", classes: ["Q43501"], minSitelinks: 6 },
+  { id: "zoo", label: "Zoo", classes: ["Q43501"], minSitelinks: 4 },
   // --- Industrie, Verkehr ---
   // power mit expand: schließt Atom-, Wasser-, Kohlekraftwerke etc. über Unterklassen ein.
   { id: "power", label: "Kraftwerk", classes: ["Q159719"], minSitelinks: 5, expand: true },
   { id: "windfarm", label: "Windpark", classes: ["Q194356"], minSitelinks: 4 },
   { id: "factory", label: "Industrieanlage", classes: ["Q83405"], minSitelinks: 6 },
+  // Q8148: Orte, die direkt als "Industrie" erfasst sind (ohne expand - nur direkte P31-Treffer).
+  { id: "industry", label: "Industrie", classes: ["Q8148"], minSitelinks: 3 },
   { id: "mine", label: "Bergwerk", classes: ["Q820477"], minSitelinks: 6 },
   { id: "port", label: "Hafen", classes: ["Q44782"], minSitelinks: 6 },
   { id: "airport", label: "Flughafen", classes: ["Q1248784"], minSitelinks: 8 },
-  { id: "station", label: "Bahnhof", classes: ["Q55488"], minSitelinks: 10 },
+  { id: "station", label: "Bahnhof", classes: ["Q55488"], minSitelinks: 5 },
   // --- Natur ---
   {
     id: "volcano",
@@ -129,16 +156,16 @@ const CATEGORIES = [
   { id: "waterfall", label: "Wasserfall", classes: ["Q34038"], minSitelinks: 6, expand: true },
   // ACHTUNG: vorher Q179049 - das ist vermutlich "Naturschutzgebiet", nicht Canyon. Bitte prüfen.
   { id: "canyon", label: "Canyon", classes: ["Q150784"], minSitelinks: 4, expand: true },
-  { id: "glacier", label: "Gletscher", classes: ["Q35666"], minSitelinks: 6, expand: true },
-  { id: "geyser", label: "Geysir", classes: ["Q1420294"], minSitelinks: 4, expand: true },
-  { id: "natpark", label: "Nationalpark", classes: ["Q46169"], minSitelinks: 6 },
-  { id: "lake", label: "See", classes: ["Q23397"], minSitelinks: 10 }, // bewusst ohne expand: P279* ist teuer
-  { id: "island", label: "Insel", classes: ["Q23442"], minSitelinks: 10 },
+  { id: "glacier", label: "Gletscher", classes: ["Q35666"], minSitelinks: 4, expand: true },
+  { id: "geyser", label: "Geysir", classes: ["Q1420294"], minSitelinks: 3, expand: true },
+  { id: "natpark", label: "Nationalpark", classes: ["Q46169"], minSitelinks: 4 },
+  { id: "lake", label: "See", classes: ["Q23397"], minSitelinks: 8 }, // bewusst ohne expand: P279* ist teuer
+  { id: "island", label: "Insel", classes: ["Q23442"], minSitelinks: 8 },
   { id: "beach", label: "Strand", classes: ["Q40080"], minSitelinks: 6 },
   { id: "cave", label: "Höhle", classes: ["Q35509"], minSitelinks: 5 },
   { id: "desert", label: "Wüste", classes: ["Q8514"], minSitelinks: 8 },
   // --- Auffänger (bewusst zuletzt: spezifischere Kategorien gewinnen per Math.min) ---
-  { id: "attraction", label: "Sehenswürdigkeit", classes: ["Q570116"], minSitelinks: 8 },
+  { id: "attraction", label: "Sehenswürdigkeit", classes: ["Q570116"], minSitelinks: 5 },
 ];
 
 // UNESCO-Welterbe: klassenunabhängig über P1435 (Schutzstatus). Wird in
@@ -151,6 +178,45 @@ CATEGORIES.push({
   minSitelinks: 5,
   heritage: true,
 });
+
+// Cache-Schlüssel automatisch aus der Konfiguration ableiten: Die Filter
+// (minSitelinks, minHeight, ...) werden schon beim Speichern einer Zelle
+// angewendet. Ändert sich CATEGORIES oder ein Abfrage-Parameter, ändert sich
+// der Hash, und alle alten Zellen werden neu geladen - ohne manuelles
+// Hochzählen einer Versionsnummer. Alte Einträge werden beim Start gelöscht.
+const CACHE_BASE = "flymaps_poi_cell_";
+const CACHE_PREFIX =
+  CACHE_BASE +
+  (() => {
+    const text = JSON.stringify([
+      CATEGORIES,
+      FETCH_RADIUS_KM,
+      FALLBACK_RADIUS_KM,
+      FALLBACK_EXTRA_SITELINKS,
+      QUERY_LIMIT,
+    ]);
+    let h = 5381;
+    for (let i = 0; i < text.length; i++) {
+      h = ((h * 33) ^ text.charCodeAt(i)) >>> 0;
+    }
+    return "h" + h.toString(36);
+  })() +
+  "_";
+
+try {
+  for (let i = localStorage.length - 1; i >= 0; i--) {
+    const key = localStorage.key(i);
+    if (
+      key &&
+      key.startsWith(CACHE_BASE) &&
+      !key.startsWith(CACHE_PREFIX)
+    ) {
+      localStorage.removeItem(key);
+    }
+  }
+} catch {
+  // kein localStorage - dann gibt es auch keinen Cache
+}
 
 const CATEGORY_INDEX_BY_CLASS = new Map();
 
@@ -313,15 +379,30 @@ function rowsToPois(rows) {
   }
 
   const result = [];
+  const dropped = [];
+
+  const drop = (poi, grund) =>
+    dropped.push({
+      name: poi.name ?? `(ohne de/en-Label) ${poi.id}`,
+      kategorie: CATEGORIES[poi.cat].label,
+      sitelinks: poi.sl,
+      grund,
+      id: poi.id,
+    });
 
   for (const poi of byId.values()) {
     if (!poi.name || /^Q\d+$/.test(poi.name)) {
+      drop(poi, "kein deutsches/englisches Label");
       continue;
     }
 
     const category = CATEGORIES[poi.cat];
 
     if (poi.sl < category.minSitelinks) {
+      drop(
+        poi,
+        `zu wenig Sitelinks (${poi.sl} < ${category.minSitelinks})`
+      );
       continue;
     }
 
@@ -331,6 +412,7 @@ function rowsToPois(rows) {
         poi.elevation === null ||
         poi.elevation < (category.minElevation ?? Infinity)
       ) {
+        drop(poi, "Berg: zu unbekannt bzw. zu niedrig");
         continue;
       }
     }
@@ -340,6 +422,7 @@ function rowsToPois(rows) {
       poi.height !== null &&
       poi.height < category.minHeight
     ) {
+      drop(poi, `zu niedrig (${poi.height} m < ${category.minHeight} m)`);
       continue;
     }
 
@@ -348,6 +431,7 @@ function rowsToPois(rows) {
       poi.length !== null &&
       poi.length < category.minLength
     ) {
+      drop(poi, `zu kurz (${poi.length} m < ${category.minLength} m)`);
       continue;
     }
 
@@ -356,6 +440,7 @@ function rowsToPois(rows) {
       poi.area !== null &&
       poi.area < category.minArea
     ) {
+      drop(poi, `zu klein (${Math.round(poi.area)} m² < ${category.minArea} m²)`);
       continue;
     }
 
@@ -367,6 +452,23 @@ function rowsToPois(rows) {
       sl: poi.sl,
       cat: poi.cat,
     });
+  }
+
+  // Diagnose: zeigt, was die Filter aus den Wikidata-Treffern entfernt haben.
+  // Kirchen und Bahnhöfe (Massenware) stehen am Ende, damit seltenere
+  // Kategorien nicht aus der Tabelle herausfallen.
+  if (dropped.length > 0) {
+    const bulk = new Set(["Kirche", "Bahnhof"]);
+    dropped.sort(
+      (x, y) =>
+        Number(bulk.has(x.kategorie)) - Number(bulk.has(y.kategorie)) ||
+        y.sitelinks - x.sitelinks
+    );
+    console.groupCollapsed(
+      `[Discovery] Aussortiert: ${dropped.length} von ${byId.size} Treffern`
+    );
+    console.table(dropped.slice(0, 200));
+    console.groupEnd();
   }
 
   return result;
@@ -673,6 +775,11 @@ export function initDiscovery() {
   let target = null;
   let targetSelectionStarted = false;
 
+  // true, sobald alle Orte im Umkreis besucht sind und der Hinweis
+  // ausgeblendet wurde. Kommen durch Bewegung neue unbesuchte Orte in
+  // Reichweite, wird automatisch wieder ein Ziel eingeblendet.
+  let allVisitedHidden = false;
+
   // Während eines Ortssprungs (Suche, R, Favorit) ausgeblendet,
   // bis der neue Ort geladen ist.
   let suspended = false;
@@ -705,6 +812,7 @@ export function initDiscovery() {
       // Frischer Start: wieder automatisch das nächstbeste Ziel
       // wählen, statt auf manuelles Durchblättern (X/Y) zu warten.
       targetSelectionStarted = false;
+      allVisitedHidden = false;
       lastEvaluate = 0;
     }
   }
@@ -715,6 +823,7 @@ export function initDiscovery() {
     if (value) {
       clearTarget();
       targetSelectionStarted = false;
+      allVisitedHidden = false;
     } else {
       // Neuer Ort: sofort frisch auswerten und
       // wieder automatisch das nächstbeste Ziel wählen.
@@ -917,6 +1026,7 @@ export function initDiscovery() {
     radius
   ) {
     const list = [];
+    let urbanNearby = 0;
 
     for (const poi of pois.values()) {
       const {
@@ -944,6 +1054,17 @@ export function initDiscovery() {
         );
       }
 
+      // Stadt-Erkennung: zählt alle Nicht-Natur-Ziele (auch besuchte) im
+      // Nahbereich, damit der Stadt-Modus beim Abarbeiten nicht kippt.
+      if (
+        distance <= CITY_RADIUS_M &&
+        !NATURE_CATEGORY_IDS.has(
+          CATEGORIES[poi.cat].id
+        )
+      ) {
+        urbanNearby++;
+      }
+
       if (
         distance > radius
       ) {
@@ -953,6 +1074,7 @@ export function initDiscovery() {
       list.push({
         poi,
         distance,
+        sortDistance: distance,
         visited: visited.has(poi.id),
         score: scoreOf(
           poi,
@@ -961,15 +1083,30 @@ export function initDiscovery() {
       });
     }
 
-    // Noch nicht besuchte zuerst, darin nach Entfernung aufsteigend (nächste
-    // zuerst); bei gleicher Entfernung entscheidet die Bekanntheit.
+    // In der Stadt: Berge für die Reihenfolge weiter weg rechnen.
+    if (urbanNearby >= CITY_MIN_POIS) {
+      for (const entry of list) {
+        if (
+          DEPRIORITIZED_IN_CITY_IDS.has(
+            CATEGORIES[entry.poi.cat].id
+          )
+        ) {
+          entry.sortDistance =
+            entry.distance *
+            MOUNTAIN_CITY_PENALTY;
+        }
+      }
+    }
+
+    // Noch nicht besuchte zuerst, darin nach (ggf. gewichteter) Entfernung
+    // aufsteigend; bei Gleichstand entscheidet die Bekanntheit.
     // Besuchte Orte folgen danach, ebenfalls nach Entfernung.
     list.sort(
       (a, b) =>
         Number(a.visited) -
           Number(b.visited) ||
-        a.distance -
-          b.distance ||
+        a.sortDistance -
+          b.sortDistance ||
         b.poi.sl -
           a.poi.sl
     );
@@ -1046,7 +1183,10 @@ export function initDiscovery() {
       return;
     }
 
-    if (targetSelectionStarted) {
+    if (
+      targetSelectionStarted &&
+      !allVisitedHidden
+    ) {
       return;
     }
 
@@ -1069,6 +1209,7 @@ export function initDiscovery() {
       wasVisited: best.visited,
     };
     targetSelectionStarted = true;
+    allVisitedHidden = false;
 
     announceTarget(
       best.poi,
@@ -1180,9 +1321,11 @@ export function initDiscovery() {
         return;
       }
 
-      // Nichts mehr übrig: Timer abschalten, damit nicht ständig neu gesucht wird.
-      target.arrivedAt = undefined;
-      target.wasVisited = true;
+      // Nichts mehr übrig: Hinweis ausblenden. evaluate() blendet wieder ein,
+      // sobald durch Bewegung neue unbesuchte Orte in Reichweite kommen.
+      clearTarget();
+      allVisitedHidden = true;
+      return;
     }
 
     // Besucht = Pin ist sichtbar, Pfeil ist weg.
@@ -1388,6 +1531,7 @@ export function initDiscovery() {
       wasVisited: next.visited,
     };
     targetSelectionStarted = true;
+    allVisitedHidden = false;
 
     announceTarget(
       next.poi,

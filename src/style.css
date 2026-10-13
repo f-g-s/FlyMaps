@@ -1396,15 +1396,17 @@ body.pause-mode #fullscreen-toggle-button {
 
 /* --- Standort-Banner ("Bauchbinde") --------------------------------- */
 /* Rechts über der Minimap (Minimap: unten 12px, 226px hoch inkl. Rand, plus
-   8px Abstand), rechtsbündig mit ihr und mindestens so breit wie sie; längere
-   Ortsnamen verbreitern den Banner nach links. Blendet von unten ein. */
+   8px Abstand), mindestens so breit wie sie; längere Ortsnamen verbreitern
+   den Banner nach links. Die Box reicht bis zum rechten Viewport-Rand (nur
+   links abgerundet); das zusätzliche rechte Padding (12px) hält den Text
+   dort, wo er vorher stand, bündig mit der Minimap. Blendet von unten ein. */
 #location-banner {
   position: fixed;
-  right: 12px;
+  right: 0;
   bottom: 246px;
   z-index: 20;
-  min-width: 226px;
-  max-width: min(420px, calc(100vw - 24px));
+  min-width: 238px;
+  max-width: min(432px, 100vw);
   box-sizing: border-box;
   transform: translateY(12px);
   opacity: 0;
@@ -1416,8 +1418,8 @@ body.pause-mode #fullscreen-toggle-button {
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
   background: rgba(22, 24, 29, 0.85);
   border-left: 2px solid #2a6df4;
-  border-radius: 8px;
-  padding: 8px 16px;
+  border-radius: 8px 0 0 8px;
+  padding: 8px 28px 8px 16px;
 }
 
 #location-banner.visible {

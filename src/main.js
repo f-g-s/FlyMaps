@@ -1152,7 +1152,7 @@ fovSlider.addEventListener("input", () => {
 const CAMERA_TILT_MIN_DEG = -60; // maximal nach unten
 const CAMERA_TILT_MAX_DEG = 60; // maximal nach oben
 // Siehe FOV_DEFAULT_DEG oben - derselbe Drohnen-/FPV-Hintergrund.
-const CAMERA_TILT_DEFAULT_DEG = 50;
+const CAMERA_TILT_DEFAULT_DEG = 45;
 // Flug-Pitch (bis PITCH_MAX) + Kamera-Tilt-Offset addiert sich - hart
 // gedeckelt knapp unter +-90°, damit die Kamera nie "durchschlägt"/kippt.
 const RENDER_PITCH_LIMIT = Cesium.Math.toRadians(89);
