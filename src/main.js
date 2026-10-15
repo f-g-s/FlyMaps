@@ -2998,6 +2998,15 @@ let acroFlightValid = false;
 // Gieren (yawRate) dreht um yawAxis (Welt-Vektor, = lokale Senkrechte), also
 // immer in der horizontalen Ebene - unabhängig von Pitch/Roll. Rollen dreht
 // um die Flugrichtung, Pitch um die Körper-Rechts-Achse.
+// Test-Regler: Wie stark die Roll-Achse vom Körper-Vorwärtsvektor (0 = wie bei
+// einer echten Drohne mit starrer Kamera, Roll wirkt bei Kamera-Tilt auf dem
+// Bild auch als Gieren) zur Blickachse (1 = reines Bild-Rollen) wandert.
+// Zur Laufzeit in der Browser-Konsole änderbar: setAcroRollBlend(0.5)
+let acroRollAxisBlend = 0.75;
+window.setAcroRollBlend = (v) => {
+  acroRollAxisBlend = Cesium.Math.clamp(Number(v), 0, 1);
+  return acroRollAxisBlend;
+};
 const acroRollAxisScratch = new Cesium.Cartesian3();
 const acroRollAxisUpScratch = new Cesium.Cartesian3();
 function rotateAroundBodyAxes(direction, up, rollRate, pitchRate, yawRate, yawAxis, dt, rollAxisTilt = 0) {
@@ -3570,7 +3579,7 @@ viewer.clock.onTick.addEventListener(() => {
         acroYawAxisScratch,
       ),
       dt,
-      cameraTiltOffset, // Roll um die Blickachse -> rechter Stick links/rechts = reines Rollen, kein scheinbares Gieren
+      cameraTiltOffset * acroRollAxisBlend, // Roll um die Blickachse -> rechter Stick links/rechts = reines Rollen, kein scheinbares Gieren
     );
     camera.setView({
       destination: camera.position,
