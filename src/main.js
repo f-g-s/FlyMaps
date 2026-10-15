@@ -2961,6 +2961,104 @@ const CONTROLLER_PITCH_RATE = Cesium.Math.toRadians(200); // rad/s bei Vollaussc
 const CONTROLLER_ROLL_RATE = Cesium.Math.toRadians(250); // rad/s bei Vollausschlag
 const CONTROLLER_YAW_RATE = Cesium.Math.toRadians(200); // rad/s bei Vollausschlag
 
+// --- Gimbal-freie Acro-Rotation (schräger Looping etc.) -------------------
+// Bug: Wenn Pitch UND Roll gleichzeitig vom Controller kommen (z.B.
+// schräger Looping = rechter Stick diagonal), wurde die Kamera-Ausrichtung
+// bisher jeden Frame neu aus den drei UNABHÄNGIG akkumulierten Skalaren
+// heading/pitch/roll per camera.setView({heading, pitch, roll})
+// zusammengesetzt. Das ist eine Euler-Winkel-Komposition und hat nahe
+// Pitch=±90° eine Gimbal-Singularität: Roll- und Heading-Achse fallen dort
+// (fast) zusammen, wodurch der Pitch-Eingang kurzzeitig gespiegelt
+// ankommt/man "rückwärts" zu fliegen scheint - bis der Winkel durch den
+// kritischen Bereich durch ist (daher "nach Wiederholen wieder normal").
+// Reiner Pitch- oder reiner Roll-Looping (nur eine Achse aktiv) läuft zwar
+// auch durch Pitch=90°, bleibt aber unauffällig, weil dabei keine zweite
+// Achse mitrotiert, die von der Singularität verfälscht werden könnte.
+// Fix NUR für reines Acro-Fliegen (Pitch+Roll+Gier alle vom Controller):
+// die Kamera-Achsen (direction/up) werden nicht mehr aus Winkeln neu
+// zusammengesetzt, sondern direkt um die eigenen Körperachsen weiter-
+// rotiert (Rodrigues-Formel) - das hat keine Singularität, unabhängig vom
+// Flugmanöver. Tastatur-Flug bleibt unangetastet (dort sind Pitch/Roll auf
+// ±45°/±30° begrenzt, die Singularität wird nie erreicht).
+const acroRotScratchRight = new Cesium.Cartesian3();
+const acroRotScratchAxis = new Cesium.Cartesian3();
+const acroRotScratchQuat = new Cesium.Quaternion();
+const acroRotScratchMatrix = new Cesium.Matrix3();
+// Eigene Fluglage des Acro-Pfads (direction/up OHNE kosmetischen Kamera-Tilt).
+// Wichtig: Der Tilt wird pro Frame nur auf KOPIEN angewandt. Würde man die
+// Fluglage aus camera.direction/up zurücklesen, wäre der Tilt vom letzten
+// Frame schon enthalten und würde sich jeden Frame erneut aufaddieren
+// (45° pro Frame -> Kamera taumelt/springt).
+const acroFlightDirection = new Cesium.Cartesian3();
+const acroFlightUp = new Cesium.Cartesian3();
+const acroYawAxisScratch = new Cesium.Cartesian3();
+const acroTiltScratchDirection = new Cesium.Cartesian3();
+const acroTiltScratchUp = new Cesium.Cartesian3();
+let acroFlightValid = false;
+// Gieren (yawRate) dreht um yawAxis (Welt-Vektor, = lokale Senkrechte), also
+// immer in der horizontalen Ebene - unabhängig von Pitch/Roll. Rollen dreht
+// um die Flugrichtung, Pitch um die Körper-Rechts-Achse.
+const acroRollAxisScratch = new Cesium.Cartesian3();
+const acroRollAxisUpScratch = new Cesium.Cartesian3();
+function rotateAroundBodyAxes(direction, up, rollRate, pitchRate, yawRate, yawAxis, dt, rollAxisTilt = 0) {
+  const right = Cesium.Cartesian3.cross(direction, up, acroRotScratchRight);
+  // Roll-Achse = tatsächliche BLICKrichtung (Körper-Vorwärtsachse inkl.
+  // kosmetischem Kamera-Tilt). Würde man um die reine Körper-Vorwärtsachse
+  // rollen, während die Kamera nach oben geneigt ist (FPV-Tilt), sähe das auf
+  // dem Bildschirm wie Roll + Gieren aus, weil die Roll-Achse dann schräg zur
+  // Blickachse steht. Mit der Blickachse dreht sich das Bild rein um die
+  // Bildmitte (reines Rollen).
+  const rollAxis = Cesium.Cartesian3.clone(direction, acroRollAxisScratch);
+  if (rollAxisTilt !== 0) {
+    applyRenderTiltToAxes(
+      rollAxis,
+      Cesium.Cartesian3.clone(up, acroRollAxisUpScratch),
+      rollAxisTilt,
+    );
+  }
+  // Winkelgeschwindigkeits-Vektor (Rollen um Blickachse, Pitch um right,
+  // Gieren um die lokale Senkrechte) zu einem Weltachsen-Vektor kombiniert.
+  const axis = acroRotScratchAxis;
+  axis.x = rollAxis.x * rollRate + right.x * pitchRate + yawAxis.x * yawRate;
+  axis.y = rollAxis.y * rollRate + right.y * pitchRate + yawAxis.y * yawRate;
+  axis.z = rollAxis.z * rollRate + right.z * pitchRate + yawAxis.z * yawRate;
+  const angle = Cesium.Cartesian3.magnitude(axis) * dt;
+  if (angle === 0) return;
+  Cesium.Cartesian3.normalize(axis, axis);
+  const rot = Cesium.Matrix3.fromQuaternion(
+    Cesium.Quaternion.fromAxisAngle(axis, angle, acroRotScratchQuat),
+    acroRotScratchMatrix,
+  );
+  Cesium.Matrix3.multiplyByVector(rot, direction, direction);
+  Cesium.Matrix3.multiplyByVector(rot, up, up);
+  // Gegen schleichenden Float-Drift: direction/up wieder orthonormalisieren.
+  Cesium.Cartesian3.normalize(direction, direction);
+  const d = Cesium.Cartesian3.dot(direction, up);
+  up.x -= direction.x * d;
+  up.y -= direction.y * d;
+  up.z -= direction.z * d;
+  Cesium.Cartesian3.normalize(up, up);
+}
+// Dieselbe Rodrigues-Rotation, nur für den kosmetischen Kamera-Tilt
+// (cameraTiltOffset) - rotiert um die (schon geflogene) eigene Rechts-Achse,
+// statt den Tilt per Euler auf heading/pitch/roll draufzurechnen.
+const tiltRotScratchRight = new Cesium.Cartesian3();
+const tiltRotScratchQuat = new Cesium.Quaternion();
+const tiltRotScratchMatrix = new Cesium.Matrix3();
+function applyRenderTiltToAxes(direction, up, angle) {
+  if (angle === 0) return;
+  const right = Cesium.Cartesian3.normalize(
+    Cesium.Cartesian3.cross(direction, up, tiltRotScratchRight),
+    tiltRotScratchRight,
+  );
+  const rot = Cesium.Matrix3.fromQuaternion(
+    Cesium.Quaternion.fromAxisAngle(right, angle, tiltRotScratchQuat),
+    tiltRotScratchMatrix,
+  );
+  Cesium.Matrix3.multiplyByVector(rot, direction, direction);
+  Cesium.Matrix3.multiplyByVector(rot, up, up);
+}
+
 const controllerDebugEl = document.getElementById("controller-debug");
 
 // Startlage für die Drohnen-/FPV-Ansicht: Die Kamera ist um cameraTiltOffset
@@ -3425,10 +3523,83 @@ viewer.clock.onTick.addEventListener(() => {
 
   flightHeading = heading;
 
-  camera.setView({
-    destination: camera.position,
-    orientation: { heading, pitch, roll },
-  });
+  // Reines Acro-Fliegen (alle drei Achsen vom Controller, siehe Kommentar
+  // bei rotateAroundBodyAxes oben) läuft über Körperachsen-Rotation statt
+  // heading/pitch/roll-Komposition, um den Gimbal bei kombiniertem
+  // Pitch+Roll (schräger Looping) zu vermeiden.
+  // Mit Controller läuft die Fluglage IMMER über den Acro-Pfad, solange keine
+  // Tastatur-Achse aktiv ist. Früher musste dafür jede der drei Achsen schon
+  // einmal per Stick bewegt worden sein (ControlSource === "controller") -
+  // bis dahin lief der Euler-Pfad, und das Umschalten mitten im Flug war
+  // eine Quelle für Sprünge.
+  const fullAcroFlight =
+    connectedGamepadIndex !== null &&
+    pitchTargetKeyboard === 0 &&
+    rollTargetKeyboard === 0 &&
+    yawTargetKeyboard === 0;
+
+  let acroDirection = null;
+  let acroUp = null;
+  if (fullAcroFlight) {
+    pitchControlSource = "controller";
+    rollControlSource = "controller";
+    yawControlSource = "controller";
+    if (!acroFlightValid || cameraChangedExternally) {
+      // Einstieg in den Acro-Pfad (oder Ortssprung/Favorit/Pause-Ende):
+      // Fluglage einmalig aus heading/pitch/roll (ohne Tilt) aufbauen.
+      camera.setView({
+        destination: camera.position,
+        orientation: { heading, pitch, roll },
+      });
+      Cesium.Cartesian3.clone(camera.direction, acroFlightDirection);
+      Cesium.Cartesian3.clone(camera.up, acroFlightUp);
+      acroFlightValid = true;
+    }
+    acroDirection = acroFlightDirection;
+    acroUp = acroFlightUp;
+    rotateAroundBodyAxes(
+      acroDirection,
+      acroUp,
+      rollTargetGamepad * CONTROLLER_ROLL_RATE,
+      pitchTargetGamepad * CONTROLLER_PITCH_RATE,
+      // Minus: Cesium-Heading zählt positiv im Uhrzeigersinn (Rechtskurve),
+      // die Rechte-Hand-Rotation um die Senkrechte dreht dagegen nach links.
+      -yawTargetGamepad, // enthält CONTROLLER_YAW_RATE bereits (siehe oben)
+      Cesium.Ellipsoid.WGS84.geodeticSurfaceNormal(
+        camera.positionWC,
+        acroYawAxisScratch,
+      ),
+      dt,
+      cameraTiltOffset, // Roll um die Blickachse -> rechter Stick links/rechts = reines Rollen, kein scheinbares Gieren
+    );
+    camera.setView({
+      destination: camera.position,
+      orientation: { direction: acroDirection, up: acroUp },
+    });
+    // pitch/roll/flightHeading nur noch als abgeleitete Anzeigewerte (HUD,
+    // Minimap, Favoriten-Speichern) nachführen - die Steuerung läuft rein
+    // über acroFlightDirection/acroFlightUp weiter.
+    pitch = camera.pitch;
+    roll = camera.roll;
+    pitchRaw = inverseSoftLimitAngle(
+      pitch,
+      PITCH_MAX,
+      Cesium.Math.toRadians(PITCH_LIMIT_EASE_DEG),
+    );
+    rollRaw = inverseSoftLimitAngle(
+      roll,
+      ROLL_MAX,
+      Cesium.Math.toRadians(ROLL_LIMIT_EASE_DEG),
+    );
+    flightHeading = camera.heading;
+    heading = flightHeading;
+  } else {
+    acroFlightValid = false;
+    camera.setView({
+      destination: camera.position,
+      orientation: { heading, pitch, roll },
+    });
+  }
 
   // --- Schwerkraft + Schub -------------------------------------------------
   // bodyUp ist die tatsächliche "Oben"-Achse der Drohne in Weltkoordinaten:
@@ -3561,7 +3732,9 @@ viewer.clock.onTick.addEventListener(() => {
     );
     camera.setView({
       destination: newPosition,
-      orientation: { heading, pitch, roll },
+      orientation: fullAcroFlight
+        ? { direction: acroDirection, up: acroUp }
+        : { heading, pitch, roll },
     });
   }
 
@@ -3571,14 +3744,25 @@ viewer.clock.onTick.addEventListener(() => {
   // auf die tatsächliche Kamera-Ausrichtung addiert. Die Flugsteuerung
   // selbst (Bewegungsrichtung, pitch/roll-Variablen) bleibt unangetastet.
   if (cameraTiltOffset !== 0) {
-    camera.setView({
-      destination: camera.position,
-      orientation: {
-        heading,
-        pitch: clampedRenderPitch(cameraTiltOffset),
-        roll,
-      },
-    });
+    if (fullAcroFlight) {
+      // Tilt nur auf Kopien - die Fluglage (acroFlightDirection/Up) bleibt tilt-frei.
+      const tiltDirection = Cesium.Cartesian3.clone(acroDirection, acroTiltScratchDirection);
+      const tiltUp = Cesium.Cartesian3.clone(acroUp, acroTiltScratchUp);
+      applyRenderTiltToAxes(tiltDirection, tiltUp, cameraTiltOffset);
+      camera.setView({
+        destination: camera.position,
+        orientation: { direction: tiltDirection, up: tiltUp },
+      });
+    } else {
+      camera.setView({
+        destination: camera.position,
+        orientation: {
+          heading,
+          pitch: clampedRenderPitch(cameraTiltOffset),
+          roll,
+        },
+      });
+    }
   }
 
   // Endgültige Kameraausrichtung merken (für die Erkennung externer Änderungen).
