@@ -1045,8 +1045,16 @@ const horizonRollPointerEl = document.getElementById("horizon-roll-pointer");
 const HORIZON_PX_PER_DEGREE = 3; // Pixel Verschiebung der Kugel pro Grad Pitch
 
 function updateHorizon() {
-  const pitchDeg = Cesium.Math.toDegrees(pitch);
-  const rollDeg = Cesium.Math.toDegrees(roll);
+  // Über der Senkrechten (|Pitch| > 90°, z.B. im Looping) zeigt ein echter
+  // künstlicher Horizont Rückenlage: Pitch spiegelt zurück, Roll +180°.
+  let pitchShown = pitch;
+  let rollShown = roll;
+  if (Math.abs(pitchShown) > Math.PI / 2) {
+    pitchShown = Math.sign(pitchShown) * Math.PI - pitchShown;
+    rollShown += Math.PI;
+  }
+  const pitchDeg = Cesium.Math.toDegrees(pitchShown);
+  const rollDeg = Cesium.Math.toDegrees(rollShown);
 
   // Reihenfolge in der CSS-transform-Property wird von rechts nach links
   // angewendet: erst die Verschiebung (im noch unrotierten Koordinaten-
@@ -1153,10 +1161,14 @@ const CAMERA_TILT_MIN_DEG = -60; // maximal nach unten
 const CAMERA_TILT_MAX_DEG = 60; // maximal nach oben
 // Siehe FOV_DEFAULT_DEG oben - derselbe Drohnen-/FPV-Hintergrund.
 const CAMERA_TILT_DEFAULT_DEG = 45;
-// Flug-Pitch (bis PITCH_MAX) + Kamera-Tilt-Offset addiert sich - hart
-// gedeckelt knapp unter +-90°, damit die Kamera nie "durchschlägt"/kippt.
+// Flug-Pitch (bis PITCH_MAX) + Kamera-Tilt-Offset addiert sich. Im
+// Tastatur-Flug hart gedeckelt knapp unter +-90°, damit die Kamera nie
+// "durchschlägt"/kippt. Mit Controller (Acro, unbegrenzter Pitch) gibt es
+// KEIN Limit: Cesiums setView akzeptiert beliebige Pitch-Winkel, Pitch über
+// 90° ergibt dann einfach die Rückenlage - das ist nötig für volle Loopings.
 const RENDER_PITCH_LIMIT = Cesium.Math.toRadians(89);
 function clampedRenderPitch(offset) {
+  if (isDroneView()) return wrapAngle(pitch + offset);
   return Cesium.Math.clamp(
     pitch + offset,
     -RENDER_PITCH_LIMIT,
@@ -2880,6 +2892,14 @@ let keyboardSpeed = 0;
 const KEYBOARD_SPEED_ACCEL = 40; // m/s^2 bei gehaltenem W/S
 let wasKeyboardFlight = false;
 let throttle = 0; // 0..1, aktuelle Gasstellung (kein Rückwärtsschub - siehe Tick-Handler)
+// Eigener Heading-Zustand der Flugsteuerung. camera.heading darf NICHT jeden
+// Frame zurückgelesen werden: Cesium schaltet bei fast senkrechtem Blick
+// (|direction.z| > 0.999 im lokalen Frame) auf eine andere Formel um, die den
+// Roll mit einrechnet - das addiert pro Frame einen Fehler auf den Heading
+// und erzeugt die schnelle Spirale beim Blick nach unten.
+let flightHeading = 0;
+let lastAppliedDirection = null; // Kameraausrichtung am Ende des letzten Ticks
+let lastAppliedUp = null; // (um externe Änderungen wie Ortssprung/Favoriten zu erkennen)
 let pitch = 0; // angezeigter/tatsächlich geflogener Wert, immer = softLimitAngle(pitchRaw, ...)
 let pitchRaw = 0; // ungekappter interner Akkumulator, siehe softLimitAngle oben
 let roll = 0; // angezeigter/tatsächlich geflogener Wert, immer = softLimitAngle(rollRaw, ...)
@@ -3382,7 +3402,16 @@ viewer.clock.onTick.addEventListener(() => {
     yawRate += (yawTarget - yawRate) * yawSmoothing;
   }
 
-  let heading = camera.heading;
+  // Heading aus eigenem Zustand fortschreiben. Nur wenn die Kamera seit dem
+  // letzten Tick von außen verstellt wurde (Ortssprung, Favorit, Fortsetzen
+  // nach Pause, erster Tick), wird er einmalig aus camera.heading neu
+  // übernommen - siehe Kommentar bei flightHeading.
+  const cameraChangedExternally =
+    lastAppliedDirection === null ||
+    !Cesium.Cartesian3.equalsEpsilon(camera.direction, lastAppliedDirection, 1e-6) ||
+    !Cesium.Cartesian3.equalsEpsilon(camera.up, lastAppliedUp, 1e-6);
+  if (cameraChangedExternally) flightHeading = camera.heading;
+  let heading = flightHeading;
   heading += yawRate * dt;
   // Koordinierte Kurve durch Rollen ist ein Tastatur-Attitude-Konzept
   // (kleine Schräglage erzeugt einen realistischen Kurvenzug) - beim
@@ -3393,6 +3422,8 @@ viewer.clock.onTick.addEventListener(() => {
   if (rollControlSource !== "controller") {
     heading += roll * ROLL_TURN_COEFF * dt;
   }
+
+  flightHeading = heading;
 
   camera.setView({
     destination: camera.position,
@@ -3549,6 +3580,10 @@ viewer.clock.onTick.addEventListener(() => {
       },
     });
   }
+
+  // Endgültige Kameraausrichtung merken (für die Erkennung externer Änderungen).
+  lastAppliedDirection = Cesium.Cartesian3.clone(camera.direction, lastAppliedDirection);
+  lastAppliedUp = Cesium.Cartesian3.clone(camera.up, lastAppliedUp);
 
   // Geschwindigkeitsanzeige (HUD): m/s -> km/h
   speedEl.textContent = `${Math.round(speed * 3.6)} km/h`;
