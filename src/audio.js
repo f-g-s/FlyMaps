@@ -32,7 +32,7 @@ const tracks = [drone, wind];
 let audioContext;
 let audioUnlocked = false;
 let soundsEnabled = true;
-let masterVolume = 0.15;
+let masterVolume = 0.10;
 
 function startTrack(track) {
   if (
