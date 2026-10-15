@@ -4,6 +4,7 @@ import spotsByCountry from "./google_earth_3d_locations_by_country.json";
 import { initDiscovery } from "./discover.js";
 import { getApiKey, requestApiKey } from "./apikey.js";
 import { geocode } from "./geocode.js";
+import { setSoundsEnabled, updateFlightAudio } from "./audio.js";
 
 // --- API-Key -----------------------------------------------------------------
 // Jeder Spieler nutzt seinen eigenen Google-API-Key (Eingabe-Dialog beim
@@ -22,6 +23,10 @@ const cesiumContainerEl = document.getElementById("cesiumContainer");
 const minimapContainerEl = document.getElementById("minimap");
 const hudEl = document.getElementById("hud");
 const randomSpotButton = document.getElementById("random-spot-button");
+const soundsToggle = document.getElementById("sounds-toggle");
+soundsToggle.addEventListener("change", () => {
+  setSoundsEnabled(soundsToggle.checked);
+});
 let isStatusVisible = true;
 let isPaused = false;
 // Ruhe-Pause (Taste P): Flug ist eingefroren, aber ohne Pausenmenü - zum
@@ -3247,7 +3252,10 @@ viewer.clock.onTick.addEventListener(() => {
 
   // Pausiert: keine Bewegung/Steuerungsänderung, Frame einfach überspringen
   // (lastTime wurde oben schon aktualisiert, damit es beim Fortsetzen keinen dt-Sprung gibt)
-  if (isPaused || isViewPaused) return;
+  if (isPaused || isViewPaused) {
+    updateFlightAudio({ throttle, droneEnabled: false, enabled: false });
+    return;
+  }
 
   const camera = viewer.camera;
 
@@ -3744,6 +3752,12 @@ viewer.clock.onTick.addEventListener(() => {
   // wieder auf die alte Geschwindigkeit springt.
   if (keyboardFlight) keyboardSpeed = speed;
   wasKeyboardFlight = keyboardFlight;
+
+  updateFlightAudio({
+    throttle,
+    droneEnabled: !keyboardFlight,
+    enabled: true,
+  });
 
   if (speed !== 0) {
     const newPosition = Cesium.Cartesian3.add(
