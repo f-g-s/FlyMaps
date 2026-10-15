@@ -32,6 +32,7 @@ const tracks = [drone, wind];
 let audioContext;
 let audioUnlocked = false;
 let soundsEnabled = true;
+let masterVolume = 0.15;
 
 function startTrack(track) {
   if (
@@ -47,7 +48,7 @@ function startTrack(track) {
   source.loop = true;
   source.playbackRate.value = track.playbackRate;
   source.connect(track.gain);
-  track.gain.gain.value = track.volume;
+  track.gain.gain.value = track.volume * masterVolume;
   source.addEventListener(
     "ended",
     () => {
@@ -124,6 +125,11 @@ export function setSoundsEnabled(enabled) {
   syncTracks();
 }
 
+export function setSoundsVolume(volume) {
+  masterVolume = Math.min(Math.max(volume, 0), 1);
+  syncTracks();
+}
+
 export function updateFlightAudio({ throttle, droneEnabled, enabled }) {
   const throttleFactor = Math.min(Math.max(throttle, 0), 1);
   drone.enabled = enabled && droneEnabled;
@@ -142,7 +148,7 @@ function syncTracks() {
   for (const track of tracks) {
     const enabled = soundsEnabled && track.enabled;
     if (track.gain) {
-      track.gain.gain.value = enabled ? track.volume : 0;
+      track.gain.gain.value = enabled ? track.volume * masterVolume : 0;
     }
     if (track.source) track.source.playbackRate.value = track.playbackRate;
 

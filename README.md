@@ -62,6 +62,10 @@ Flugsteuerung mit HUD, Minimap, Ortssuche und 3D-Spots bereitstellt.
   nutzt die Vite-Middleware `%LOCALAPPDATA%\FlyMaps\favorites.json`; im
   Cloudflare-/Browser-only-Betrieb fällt die App auf `localStorage` zurück.
 - Kollisionserkennung mit Gebäuden/Terrain (3D Tiles)
+- Menue-Einstellungen (Bildformat, Sichtfeld, Filter, Audio und Overlays) werden
+  bei jeder Aenderung unter `flymaps_settings` im `localStorage` gespeichert und
+  beim Laden wiederhergestellt, auch nach einem Absturz oder Browser-Neustart.
+  Die Kameraposition bleibt separat im `sessionStorage` des jeweiligen Tabs.
 
 ## Geplant
 

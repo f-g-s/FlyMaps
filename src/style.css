@@ -57,8 +57,8 @@ body.view-cropped #cesiumContainer {
 body.hide-hud #hud,
 body.hide-hud #flight-data,
 body.hide-hud #minimap-wrapper,
-body.hide-hud #horizon-wrapper,
-body.hide-hud .cesium-viewer-bottom {
+body.hide-hud #horizon-wrapper
+/* body.hide-hud .cesium-viewer-bottom */ {
   display: none !important;
 }
 

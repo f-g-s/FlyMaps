@@ -133,7 +133,7 @@ const CATEGORIES = [
   { id: "mine", label: "Bergwerk", classes: ["Q820477"], minSitelinks: 6 },
   { id: "port", label: "Hafen", classes: ["Q44782"], minSitelinks: 6 },
   { id: "airport", label: "Flughafen", classes: ["Q1248784"], minSitelinks: 8 },
-  { id: "station", label: "Bahnhof", classes: ["Q55488"], minSitelinks: 5 },
+  { id: "station", label: "Bahnhof", classes: ["Q55488"], minSitelinks: 6 },
   // --- Natur ---
   {
     id: "volcano",

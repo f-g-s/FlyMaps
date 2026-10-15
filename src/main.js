@@ -4,7 +4,7 @@ import spotsByCountry from "./google_earth_3d_locations_by_country.json";
 import { initDiscovery } from "./discover.js";
 import { getApiKey, requestApiKey } from "./apikey.js";
 import { geocode } from "./geocode.js";
-import { setSoundsEnabled, updateFlightAudio } from "./audio.js";
+import { setSoundsEnabled, setSoundsVolume, updateFlightAudio } from "./audio.js";
 
 // --- API-Key -----------------------------------------------------------------
 // Jeder Spieler nutzt seinen eigenen Google-API-Key (Eingabe-Dialog beim
@@ -26,6 +26,12 @@ const randomSpotButton = document.getElementById("random-spot-button");
 const soundsToggle = document.getElementById("sounds-toggle");
 soundsToggle.addEventListener("change", () => {
   setSoundsEnabled(soundsToggle.checked);
+});
+const soundsVolumeSlider = document.getElementById("sounds-volume-slider");
+const soundsVolumeValue = document.getElementById("sounds-volume-value");
+soundsVolumeSlider.addEventListener("input", () => {
+  setSoundsVolume(Number(soundsVolumeSlider.value) / 100);
+  soundsVolumeValue.textContent = `${soundsVolumeSlider.value}%`;
 });
 let isStatusVisible = true;
 let isPaused = false;
@@ -189,6 +195,7 @@ function saveCameraState() {
         dofStrengthPct: dofSettings.strengthPct,
         dofFocusSlider: dofSettings.focusSlider,
         nightMode,
+        horizonGlowEnabled,
         nightDaySnapshot,
         starBrightnessPct: colorGradeSettings.starBrightness * 100,
         moonAzimuthDeg: Cesium.Math.toDegrees(moonAzimuthRad),
@@ -262,6 +269,7 @@ let depthOfFieldStage = null;
 // nightDaySnapshot merkt sich die Filterwerte von vor dem Umschalten, damit sie
 // beim Ausschalten wiederhergestellt werden.
 let nightMode = false;
+let horizonGlowEnabled = true;
 let nightDaySnapshot = null;
 
 // Mond (nur im Nacht-Modus): wird im Farbkorrektur-Shader auf die Himmels-
@@ -532,8 +540,12 @@ function setupCinematicFilters() {
 }
 
 // Tag-/Nacht-Werte für den Tiefennebel (siehe Nacht-Modus weiter unten).
-const DAY_FOG_COLOR = "#b9c9d6";
+const DAY_FOG_COLOR = "#bed3e9";
 const DAY_FOG_DENSITY = 0.00003;
+const DAY_HORIZON_GLOW_COLOR = "#ead2c6";
+const DAY_HORIZON_GLOW_AMOUNT = 0.3;
+const DAY_HORIZON_GLOW_WIDTH = Cesium.Math.toRadians(6);
+const DAY_HORIZON_HAZE_WIDTH = Cesium.Math.toRadians(15);
 const NIGHT_FOG_COLOR = "#05080f";
 const NIGHT_SKY_COLOR = "#05080f"; // Hintergrund, wenn die Himmelsatmosphäre aus ist
 const NIGHT_FOG_DENSITY = 0.0000;
@@ -559,21 +571,38 @@ const depthFogSettings = {
 // das nur für den Globe gebaut ist.
 function addDepthFogPostProcess() {
   const fogSettings = depthFogSettings;
+  const localUp = new Cesium.Cartesian3();
 
   const fragmentShader = `
     uniform sampler2D colorTexture;
     uniform sampler2D depthTexture;
     uniform vec4 fogColor;
     uniform float fogDensity;
+    uniform bool horizonEnabled;
+    uniform vec3 localUp;
+    uniform vec4 horizonGlowColor;
+    uniform float horizonGlowAmount;
+    uniform float horizonGlowWidth;
+    uniform float horizonHazeWidth;
     in vec2 v_textureCoordinates;
 
     void main() {
       vec4 sceneColor = texture(colorTexture, v_textureCoordinates);
       float depth = czm_unpackDepth(texture(depthTexture, v_textureCoordinates));
+      vec3 hazeColor = fogColor.rgb;
+      float horizonHaze = 0.0;
 
-      if (depth >= 1.0) {
-        // Himmel/nichts gerendert - unverändert durchreichen, kein Nebel.
-        out_FragColor = sceneColor;
+      if (horizonEnabled) {
+        vec4 eyePoint = czm_inverseProjection * vec4(v_textureCoordinates * 2.0 - 1.0, 0.0, 1.0);
+        vec3 viewDirection = normalize(czm_inverseViewRotation * normalize(eyePoint.xyz / eyePoint.w));
+        float elevation = asin(clamp(dot(viewDirection, localUp), -1.0, 1.0));
+        float glow = exp(-pow(elevation / horizonGlowWidth, 2.0));
+        horizonHaze = exp(-pow(elevation / horizonHazeWidth, 2.0));
+        hazeColor = mix(hazeColor, horizonGlowColor.rgb, glow * horizonGlowAmount);
+      }
+
+      if (depth == 0.0 || depth >= 1.0) {
+        out_FragColor = vec4(mix(sceneColor.rgb, hazeColor, horizonHaze), sceneColor.a);
         return;
       }
 
@@ -581,7 +610,7 @@ function addDepthFogPostProcess() {
       float dist = -eyeCoordinate.z / eyeCoordinate.w;
       float scalar = dist * fogDensity;
       float fogFactor = 1.0 - exp(-scalar * scalar);
-      out_FragColor = vec4(mix(sceneColor.rgb, fogColor.rgb, clamp(fogFactor, 0.0, 1.0)), sceneColor.a);
+      out_FragColor = vec4(mix(sceneColor.rgb, hazeColor, clamp(fogFactor, 0.0, 1.0)), sceneColor.a);
     }
   `;
 
@@ -592,6 +621,16 @@ function addDepthFogPostProcess() {
       uniforms: {
         fogColor: () => fogSettings.color,
         fogDensity: () => fogSettings.density,
+        horizonEnabled: () => horizonGlowEnabled && !nightMode,
+        localUp: () =>
+          Cesium.Ellipsoid.WGS84.geodeticSurfaceNormal(
+            viewer.camera.positionWC,
+            localUp,
+          ),
+        horizonGlowColor: Cesium.Color.fromCssColorString(DAY_HORIZON_GLOW_COLOR),
+        horizonGlowAmount: DAY_HORIZON_GLOW_AMOUNT,
+        horizonGlowWidth: DAY_HORIZON_GLOW_WIDTH,
+        horizonHazeWidth: DAY_HORIZON_HAZE_WIDTH,
       },
     }),
   );
@@ -740,6 +779,7 @@ async function loadGoogleTiles() {
         // Gespeicherte Filterwerte gelten schon - nicht erneut preseten.
         applyNightMode(usableSavedState.nightMode, { applyFilters: false });
       }
+      applyHorizonGlowEnabled(usableSavedState.horizonGlowEnabled !== false);
       readyStatusText = "Weltdaten geladen (letzte Position wiederhergestellt)";
     } else {
       // Kein gespeicherter Stand: statt immer derselben Stadt einen
@@ -1951,7 +1991,21 @@ filtersResetButton.addEventListener("click", () => {
   applyDofStrength(DOF_STRENGTH_DEFAULT_PCT);
   applyDofFocus(DOF_FOCUS_DEFAULT_SLIDER);
   applyDofEnabled(false);
+  applyHorizonGlowEnabled(true);
   saveCameraState();
+});
+
+const horizonGlowToggle = document.getElementById("horizon-glow-toggle");
+
+function applyHorizonGlowEnabled(enabled) {
+  horizonGlowEnabled = enabled;
+  horizonGlowToggle.checked = enabled;
+}
+
+horizonGlowToggle.addEventListener("change", () => {
+  applyHorizonGlowEnabled(horizonGlowToggle.checked);
+  saveCameraState();
+  horizonGlowToggle.blur();
 });
 
 // --- Nacht-Modus -----------------------------------------------------------
@@ -2492,6 +2546,7 @@ async function saveFavorite() {
     grainPct: (colorGradeSettings.grainAmount / GRAIN_MAX_INTENSITY) * 100,
     blurPct: colorGradeSettings.blurAmount * 100,
     nightMode,
+    horizonGlowEnabled,
     nightDaySnapshot,
     starBrightnessPct: colorGradeSettings.starBrightness * 100,
     moonAzimuthDeg: Cesium.Math.toDegrees(moonAzimuthRad),
@@ -2584,6 +2639,7 @@ async function flyToFavorite(favorite) {
     nightDaySnapshot = favorite.nightDaySnapshot ?? null;
     // Die gespeicherten Filterwerte gelten schon - nicht erneut preseten.
     applyNightMode(favorite.nightMode === true, { applyFilters: false });
+    applyHorizonGlowEnabled(favorite.horizonGlowEnabled !== false);
     saveCameraState();
 
     if (isPaused) togglePause();
@@ -3111,6 +3167,7 @@ function applyDroneStartPitch() {
 
 window.addEventListener("gamepadconnected", (e) => {
   connectedGamepadIndex = e.gamepad.index;
+  updateStickOverlay();
   // Debug-Overlay (Achsenwerte) bleibt bewusst dauerhaft ausgeblendet -
   // war nur fürs Controller-Tuning während der Entwicklung gedacht.
   updateHorizonVisibility();
@@ -3120,6 +3177,7 @@ window.addEventListener("gamepadconnected", (e) => {
 window.addEventListener("gamepaddisconnected", (e) => {
   if (connectedGamepadIndex === e.gamepad.index) {
     connectedGamepadIndex = null;
+    updateStickOverlay();
     if (controllerDebugEl) controllerDebugEl.hidden = true;
     updateHorizonVisibility();
   }
@@ -3159,10 +3217,12 @@ function updateControllerDebugOverlay() {
 
 // --- Stick-Overlay ----------------------------------------------------------
 // Zeigt beide Sticks als Punkt in einem Quadrat an, solange ein Controller
-// verbunden ist. Linker Stick: Gieren (x) / Gas (y), rechter Stick: Roll (x) /
+// verbunden und das Overlay aktiviert ist. Linker Stick: Gieren (x) / Gas (y), rechter Stick: Roll (x) /
 // Pitch (y). Dargestellt wird die Stick-Stellung ohne Deadzone, aber mit der
 // Achsen-Zuordnung/Invertierung aus CONTROLLER_AXIS. Positiv = rechts bzw. oben.
 const stickOverlayEl = document.getElementById("stick-overlay");
+const stickOverlayToggle = document.getElementById("stick-overlay-toggle");
+stickOverlayToggle.addEventListener("change", updateStickOverlay);
 const stickLeftDotEl = document.getElementById("stick-left-dot");
 const stickRightDotEl = document.getElementById("stick-right-dot");
 const STICK_DOT_TRAVEL_PX = 40; // maximaler Weg des Punkts von der Mitte (Feld 96px, Punkt 16px)
@@ -3180,9 +3240,9 @@ function setStickDot(dotEl, x, y) {
 
 function updateStickOverlay() {
   if (!stickOverlayEl) return;
-  const connected = connectedGamepadIndex !== null;
-  if (stickOverlayEl.hidden === connected) stickOverlayEl.hidden = !connected;
-  if (!connected) return;
+  const visible = stickOverlayToggle.checked && connectedGamepadIndex !== null;
+  if (stickOverlayEl.hidden === visible) stickOverlayEl.hidden = !visible;
+  if (!visible) return;
   const gp = navigator.getGamepads()[connectedGamepadIndex];
   if (!gp) return;
   setStickDot(

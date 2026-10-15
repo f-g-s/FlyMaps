@@ -330,6 +330,16 @@
           </div>
           <div id="sounds-row" class="setting-row">
             <label for="sounds-toggle">Sounds</label>
+            <input
+              id="sounds-volume-slider"
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value="15"
+              aria-label="Sound-Lautstärke"
+            />
+            <span id="sounds-volume-value">15%</span>
             <label class="switch">
               <input id="sounds-toggle" type="checkbox" checked />
               <span class="switch-slider"></span>
@@ -365,6 +375,13 @@
               <span class="switch-slider"></span>
             </label>
           </div>
+          <div id="stick-overlay-row" class="setting-row">
+            <label for="stick-overlay-toggle">Stick-Overlay</label>
+            <label class="switch">
+              <input id="stick-overlay-toggle" type="checkbox" checked />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
         </div>
         <div class="container">
           <div id="filters-heading">
@@ -377,6 +394,13 @@
             <label for="night-mode-toggle">Nacht-Modus</label>
             <label class="switch">
               <input id="night-mode-toggle" type="checkbox" />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          <div id="horizon-glow-row" class="setting-row">
+            <label for="horizon-glow-toggle">Horizontglühen</label>
+            <label class="switch">
+              <input id="horizon-glow-toggle" type="checkbox" checked />
               <span class="switch-slider"></span>
             </label>
           </div>
