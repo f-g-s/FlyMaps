@@ -79,8 +79,8 @@ const CATEGORIES = [
   { id: "cathedral", label: "Kathedrale", classes: ["Q2977"], minSitelinks: 6 },
   // expand: Dom, Hallenkirche, Pfarrkirche usw. sind in Wikidata oft nur Unterklassen von "Kirchengebäude".
   { id: "church", label: "Kirche", classes: ["Q16970"], minSitelinks: 7, expand: true },
-  { id: "mosque", label: "Moschee", classes: ["Q32815"], minSitelinks: 6 },
-  { id: "synagogue", label: "Synagoge", classes: ["Q34627"], minSitelinks: 6 },
+  { id: "mosque", label: "Moschee", classes: ["Q32815"], minSitelinks: 7 },
+  { id: "synagogue", label: "Synagoge", classes: ["Q34627"], minSitelinks: 7 },
   { id: "temple", label: "Tempel", classes: ["Q44539"], minSitelinks: 6 },
   { id: "abbey", label: "Kloster / Abtei", classes: ["Q160742", "Q44613"], minSitelinks: 4 },
   // --- Burgen, Archäologie ---

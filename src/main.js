@@ -2750,7 +2750,7 @@ const MAX_SPEED = 120; // m/s, Sicherheits-Cap für den Geschwindigkeits-Betrag,
 // einer echten Acro-Drohne. Ohne Gas bleibt nur die Schwerkraft übrig, die
 // Drohne sinkt gerade nach unten (durch Luftwiderstand gebremst, aber ohne
 // Rückwärtsschub - siehe Gas-Logik im Tick-Handler).
-const GRAVITY_ACCEL = 12; // m/s^2
+const GRAVITY_ACCEL = 15; // m/s^2
 const THRUST_TO_WEIGHT = 12; // Schub bei Vollgas relativ zur Schwerkraft-Beschleunigung - sportliches Acro-Setup
 // (Ursprünglich 1.5 gewählt, war aber zu knapp: die "Rückhol-Kraft" aus
 // einem Sturzflug hängt vom ABSTAND zwischen aktueller Geschwindigkeit und
@@ -3007,6 +3007,21 @@ window.setAcroRollBlend = (v) => {
   acroRollAxisBlend = Cesium.Math.clamp(Number(v), 0, 1);
   return acroRollAxisBlend;
 };
+// Setzt die Kamera-Lage direkt aus direction/up (Welt-Koordinaten), OHNE den
+// Umweg über Heading/Pitch/Roll: camera.setView({direction, up}) rechnet
+// intern in Euler-Winkel um und wieder zurück - nahe Pitch = ±90° (mitten im
+// Looping) ist das numerisch ungenau (Gimbal) und erzeugte kleine Ruckler,
+// teils sogar Fehlalarme der "Kamera von außen geändert"-Erkennung.
+function setCameraPoseDirect(camera, position, direction, up) {
+  if (!Cesium.Matrix4.equals(camera.transform, Cesium.Matrix4.IDENTITY)) {
+    camera.setView({ destination: position, orientation: { direction, up } });
+    return;
+  }
+  Cesium.Cartesian3.clone(position, camera.position);
+  Cesium.Cartesian3.clone(direction, camera.direction);
+  Cesium.Cartesian3.clone(up, camera.up);
+  Cesium.Cartesian3.cross(camera.direction, camera.up, camera.right);
+}
 const acroRollAxisScratch = new Cesium.Cartesian3();
 const acroRollAxisUpScratch = new Cesium.Cartesian3();
 function rotateAroundBodyAxes(direction, up, rollRate, pitchRate, yawRate, yawAxis, dt, rollAxisTilt = 0) {
@@ -3581,10 +3596,7 @@ viewer.clock.onTick.addEventListener(() => {
       dt,
       cameraTiltOffset * acroRollAxisBlend, // Roll um die Blickachse -> rechter Stick links/rechts = reines Rollen, kein scheinbares Gieren
     );
-    camera.setView({
-      destination: camera.position,
-      orientation: { direction: acroDirection, up: acroUp },
-    });
+    setCameraPoseDirect(camera, camera.position, acroDirection, acroUp);
     // pitch/roll/flightHeading nur noch als abgeleitete Anzeigewerte (HUD,
     // Minimap, Favoriten-Speichern) nachführen - die Steuerung läuft rein
     // über acroFlightDirection/acroFlightUp weiter.
@@ -3739,12 +3751,14 @@ viewer.clock.onTick.addEventListener(() => {
       Cesium.Cartesian3.multiplyByScalar(velocity, dt, new Cesium.Cartesian3()),
       new Cesium.Cartesian3(),
     );
-    camera.setView({
-      destination: newPosition,
-      orientation: fullAcroFlight
-        ? { direction: acroDirection, up: acroUp }
-        : { heading, pitch, roll },
-    });
+    if (fullAcroFlight) {
+      setCameraPoseDirect(camera, newPosition, acroDirection, acroUp);
+    } else {
+      camera.setView({
+        destination: newPosition,
+        orientation: { heading, pitch, roll },
+      });
+    }
   }
 
   // Kamera-Blickwinkel (FPV-Drohnen-Gimbal): erst NACHDEM sich die Position
@@ -3758,10 +3772,7 @@ viewer.clock.onTick.addEventListener(() => {
       const tiltDirection = Cesium.Cartesian3.clone(acroDirection, acroTiltScratchDirection);
       const tiltUp = Cesium.Cartesian3.clone(acroUp, acroTiltScratchUp);
       applyRenderTiltToAxes(tiltDirection, tiltUp, cameraTiltOffset);
-      camera.setView({
-        destination: camera.position,
-        orientation: { direction: tiltDirection, up: tiltUp },
-      });
+      setCameraPoseDirect(camera, camera.position, tiltDirection, tiltUp);
     } else {
       camera.setView({
         destination: camera.position,
