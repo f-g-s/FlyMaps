@@ -698,12 +698,21 @@ async function fetchGeocode(query) {
 // Monaco, Vatikanstadt) lassen sich nicht direkt geocodieren - siehe auch
 // den Klick-Handler in renderSpotList() weiter unten - deshalb hier
 // ebenfalls durch den Ländernamen ersetzen.
+// Alle Spots in einer flachen Liste, damit jeder Eintrag die gleiche
+// Wahrscheinlichkeit hat. Würde man erst ein Land und dann einen Spot darin
+// wählen, kämen Länder mit wenigen Einträgen (z.B. San Marino, Tunesien)
+// viel häufiger dran als Länder mit vielen (z.B. USA).
+let randomSpotPool = null;
+
 function pickRandomSpotQuery() {
-  const countries = Object.keys(spotsByCountry);
-  const country = countries[Math.floor(Math.random() * countries.length)];
-  const names = spotsByCountry[country];
-  const name = names[Math.floor(Math.random() * names.length)];
-  return /^entire country/i.test(name) ? country : name;
+  if (!randomSpotPool) {
+    randomSpotPool = [];
+    for (const [country, names] of Object.entries(spotsByCountry)) {
+      for (const name of names) randomSpotPool.push({ country, name });
+    }
+  }
+  const spot = randomSpotPool[Math.floor(Math.random() * randomSpotPool.length)];
+  return /^entire country/i.test(spot.name) ? spot.country : spot.name;
 }
 
 async function loadGoogleTiles() {
@@ -3021,7 +3030,7 @@ window.addEventListener("blur", () => pressedKeys.clear());
 // Controller wird pro Achse nur dann genutzt, wenn die Tastatur für diese
 // Achse gerade kein Ziel liefert. So kann man jederzeit zwischen beiden
 // Eingabemethoden wechseln, ohne etwas umschalten zu müssen.
-const CONTROLLER_DEADZONE = 0.05; // Achsen-Ausschlag unterhalb dieses Betrags gilt als "Mitte"/kein Eingang
+const CONTROLLER_DEADZONE = 0.08; // Achsen-Ausschlag unterhalb dieses Betrags gilt als "Mitte"/kein Eingang
 
 // Achsen-Zuordnung für den TBS Tango 2 im HID-Modus, per Debug-Overlay
 // ermittelt (weicht von der ursprünglichen Mode-2-Annahme ab):
@@ -3047,11 +3056,31 @@ const CONTROLLER_AXIS = {
 //   center = Empfindlichkeit um die Stick-Mitte (°/s bei linearem Verlauf),
 //   max    = Maximalrate bei Vollausschlag (°/s),
 //   expo   = 0..1, höher = feiner um die Mitte, steiler zum Anschlag.
-const CONTROLLER_RATES = {
-  pitch: { center: 200, max: 500, expo: 0.575 },
-  roll: { center: 200, max: 500, expo: 0.575 },
-  yaw: { center: 200, max: 450, expo: 0.525 },
+// Flugcharakter-Presets (Menü "Flugcharakter"): "sport" = bisheriges
+// Setup, "relaxed" = gemütlicheres Fliegen, "cinematic" = langsame, weiche
+// Kamerafahrten für Erkundungsflüge (niedrige Maximalrate, viel Expo für
+// feines Lenken um die Stick-Mitte).
+const CONTROLLER_RATE_PRESETS = {
+  sport: {
+    pitch: { center: 200, max: 660, expo: 0.575 },
+    roll: { center: 200, max: 660, expo: 0.575 },
+    yaw: { center: 180, max: 620, expo: 0.525 },
+  },
+  relaxed: {
+    pitch: { center: 120, max: 360, expo: 0.5 },
+    roll: { center: 120, max: 360, expo: 0.5 },
+    yaw: { center: 100, max: 300, expo: 0.45 },
+  },
+  cinematic: {
+    pitch: { center: 70, max: 200, expo: 0.65 },
+    roll: { center: 70, max: 200, expo: 0.65 },
+    yaw: { center: 50, max: 180, expo: 0.6 },
+  },
 };
+// Aktive Werte. Wird nur in-place verändert (siehe applyControllerRatePreset),
+// damit alle bestehenden Zugriffe auf CONTROLLER_RATES.pitch/roll/yaw
+// unverändert funktionieren.
+const CONTROLLER_RATES = structuredClone(CONTROLLER_RATE_PRESETS.sport);
 
 // Stick (-1..1, nach Deadzone) -> Drehrate in rad/s.
 // Formel wie Betaflight "Actual Rates": x*center + (max-center)*|x|*(x^5*expo + x*(1-expo))
@@ -3060,6 +3089,35 @@ function controllerRate(x, rates) {
   const curve = abs * (Math.pow(x, 5) * rates.expo + x * (1 - rates.expo));
   const stickMovement = Math.max(0, rates.max - rates.center);
   return Cesium.Math.toRadians(x * rates.center + stickMovement * curve);
+}
+
+// --- Flugcharakter-Schalter (Menü) -----------------------------------------
+const FLIGHT_FEEL_KEY = "flymaps_flight_feel";
+const flightFeelSelect = document.getElementById("flight-feel-select");
+
+function applyControllerRatePreset(name) {
+  const key = name in CONTROLLER_RATE_PRESETS ? name : "sport";
+  for (const axis of Object.keys(CONTROLLER_RATES)) {
+    Object.assign(CONTROLLER_RATES[axis], CONTROLLER_RATE_PRESETS[key][axis]);
+  }
+  flightFeelSelect.value = key;
+}
+
+flightFeelSelect.addEventListener("change", () => {
+  applyControllerRatePreset(flightFeelSelect.value);
+  try {
+    localStorage.setItem(FLIGHT_FEEL_KEY, flightFeelSelect.value);
+  } catch {
+    // localStorage kann z.B. im privaten Modus fehlschlagen - dann eben ohne Persistenz
+  }
+  // Fokus abgeben, sonst ändern die Pfeiltasten die Auswahl statt zu fliegen.
+  flightFeelSelect.blur();
+});
+
+try {
+  applyControllerRatePreset(localStorage.getItem(FLIGHT_FEEL_KEY) ?? "sport");
+} catch {
+  applyControllerRatePreset("sport");
 }
 
 // --- Gimbal-freie Acro-Rotation (schräger Looping etc.) -------------------
