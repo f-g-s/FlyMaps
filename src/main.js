@@ -1648,6 +1648,31 @@ window.addEventListener("keydown", (e) => {
   discovery.setEnabled(!discoveryToggleEl.checked);
 });
 
+// Controller-Schalter (Achse 4): Jeder Wechsel der Schalterstellung schaltet
+// die Sehenswürdigkeiten um (gleiche Wirkung wie Taste C). Die Startstellung
+// beim ersten Auslesen wird nur gemerkt, nicht als Umschaltung gewertet.
+// Hysterese (an > 0.5, aus < 0.2) gegen Flackern; bei einem 3-Stufen-Schalter
+// zählt nur die obere Stellung als "an".
+const DISCOVERY_TOGGLE_AXIS = 4;
+let discoveryAxisActive = null;
+
+function pollDiscoveryAxis() {
+  if (connectedGamepadIndex === null) {
+    discoveryAxisActive = null; // beim erneuten Verbinden neu einlesen
+    return;
+  }
+  const gp = navigator.getGamepads()[connectedGamepadIndex];
+  if (!gp || !gp.axes || gp.axes.length <= DISCOVERY_TOGGLE_AXIS) return;
+  const v = gp.axes[DISCOVERY_TOGGLE_AXIS];
+  let active = discoveryAxisActive === null ? v > 0.5 : discoveryAxisActive;
+  if (!active && v > 0.5) active = true;
+  else if (active && v < 0.2) active = false;
+  if (discoveryAxisActive !== null && active !== discoveryAxisActive) {
+    discovery.setEnabled(!discoveryToggleEl.checked);
+  }
+  discoveryAxisActive = active;
+}
+
 async function loadPlaneModel() {
   try {
     planeModel = await Cesium.Model.fromGltfAsync({
@@ -3212,7 +3237,10 @@ function updateControllerDebugOverlay() {
   const axesText = gp.axes
     .map((v, i) => `  Achse ${i}: ${v.toFixed(2)}`)
     .join("\n");
-  controllerDebugEl.textContent = `Controller: ${gp.id}\n${axesText}`;
+  const buttonsText = gp.buttons
+    .map((b, i) => `  Button ${i}: ${b.pressed ? "AN" : "aus"} (${b.value.toFixed(2)})`)
+    .join("\n");
+  controllerDebugEl.textContent = `Controller: ${gp.id}\n${axesText}\n${buttonsText}`;
 }
 
 // --- Stick-Overlay ----------------------------------------------------------
@@ -3255,6 +3283,94 @@ function updateStickOverlay() {
     getControllerAxisRaw(CONTROLLER_AXIS.roll, gp),
     -getControllerAxisRaw(CONTROLLER_AXIS.pitch, gp), // Pitch im Overlay invertiert
   );
+}
+
+// Controller-Schalter (Achse 6): Zwei-/Dreistufenschalter mit -1 / +1.
+// +1 = "Stick-Overlay" und "Anzeigen | HUD" gemeinsam an, -1 = beide aus.
+// Eine Mittelstellung (3-Stufen-Schalter) lässt den Zustand unverändert.
+// Die Startstellung wird nur gemerkt, nicht als Umschaltung gewertet.
+// Soll die Richtung umgekehrt sein: SCREEN_UI_AXIS_ON_SIGN auf -1 setzen.
+const SCREEN_UI_TOGGLE_AXIS = 6;
+const SCREEN_UI_AXIS_ON_SIGN = 1;
+let screenUiAxisActive = null;
+
+function pollScreenUiAxis() {
+  if (connectedGamepadIndex === null) {
+    screenUiAxisActive = null; // beim erneuten Verbinden neu einlesen
+    return;
+  }
+  const gp = navigator.getGamepads()[connectedGamepadIndex];
+  if (!gp || !gp.axes || gp.axes.length <= SCREEN_UI_TOGGLE_AXIS) return;
+  const v = gp.axes[SCREEN_UI_TOGGLE_AXIS] * SCREEN_UI_AXIS_ON_SIGN;
+  let active = screenUiAxisActive;
+  if (v > 0.5) active = true;
+  else if (v < -0.5) active = false;
+  if (active === null) return; // Mittelstellung beim ersten Auslesen
+  if (screenUiAxisActive !== null && active !== screenUiAxisActive) {
+    stickOverlayToggle.checked = active;
+    updateStickOverlay();
+    applyHudHidden(!active);
+    saveCameraState();
+  }
+  screenUiAxisActive = active;
+}
+
+// Controller-Knöpfe (TBS Tango 2, hinten): E = Button 0, F = Button 1.
+// E = vorherige, F = nächste Sehenswürdigkeit (wie Taste Z / X). Ausgelöst
+// wird nur beim Drücken (steigende Flanke), nicht beim Halten.
+const CONTROLLER_BUTTON_PREV_SPOT = 0; // E
+const CONTROLLER_BUTTON_NEXT_SPOT = 1; // F
+let lastControllerButtons = null;
+
+function pollControllerButtons() {
+  if (connectedGamepadIndex === null) {
+    lastControllerButtons = null; // beim erneuten Verbinden neu einlesen
+    return;
+  }
+  const gp = navigator.getGamepads()[connectedGamepadIndex];
+  if (!gp || !gp.buttons) return;
+  const pressed = gp.buttons.map((b) => b.pressed);
+  if (lastControllerButtons !== null && !controlsPanel.classList.contains("visible")) {
+    const justPressed = (i) => pressed[i] && !lastControllerButtons[i];
+    if (justPressed(CONTROLLER_BUTTON_PREV_SPOT)) discovery.cycleTarget(-1);
+    if (justPressed(CONTROLLER_BUTTON_NEXT_SPOT)) discovery.cycleTarget(1);
+  }
+  lastControllerButtons = pressed;
+}
+
+// Controller-Schalter (Achse 5): Pause und zufälliger Ort.
+// -1 = Ruhe-Pause (wie Taste P) solange der Schalter unten steht, beim
+// Verlassen läuft der Flug weiter. +1 = zufälligen Ort anfliegen (wie Taste R),
+// einmal beim Umlegen. Mittelstellung = nichts. Die Startstellung wird nur
+// gemerkt. Bei geöffnetem Pausenmenü wird der Schalter ignoriert.
+const FLIGHT_SWITCH_AXIS = 5;
+let flightSwitchPos = null;
+
+function pollFlightSwitchAxis() {
+  if (connectedGamepadIndex === null) {
+    flightSwitchPos = null; // beim erneuten Verbinden neu einlesen
+    return;
+  }
+  const gp = navigator.getGamepads()[connectedGamepadIndex];
+  if (!gp || !gp.axes || gp.axes.length <= FLIGHT_SWITCH_AXIS) return;
+  const v = gp.axes[FLIGHT_SWITCH_AXIS];
+  const pos = v > 0.5 ? 1 : v < -0.5 ? -1 : 0;
+  if (flightSwitchPos === null) {
+    flightSwitchPos = pos;
+    return;
+  }
+  if (pos === flightSwitchPos) return;
+  const prev = flightSwitchPos;
+  flightSwitchPos = pos;
+  if (isPaused || controlsPanel.classList.contains("visible")) return;
+  if (pos === -1) {
+    isViewPaused = true;
+    pressedKeys.clear();
+  } else if (prev === -1) {
+    isViewPaused = false;
+    pressedKeys.clear();
+  }
+  if (pos === 1) flyToRandomSpot();
 }
 
 let lastTime = performance.now();
@@ -3309,6 +3425,9 @@ viewer.clock.onTick.addEventListener(() => {
   const now = performance.now();
   const dt = Math.min((now - lastTime) / 1000, 0.1); // Cap gegen Tab-Wechsel-Sprünge
   lastTime = now;
+
+  // Muss vor dem Pause-Return laufen, sonst kann der Schalter die Ruhe-Pause nicht beenden.
+  pollFlightSwitchAxis();
 
   // Pausiert: keine Bewegung/Steuerungsänderung, Frame einfach überspringen
   // (lastTime wurde oben schon aktualisiert, damit es beim Fortsetzen keinen dt-Sprung gibt)
@@ -3878,6 +3997,9 @@ viewer.clock.onTick.addEventListener(() => {
   updateStickOverlay();
   updateLocationBanner(now);
   updateDiscovery(now);
+  pollDiscoveryAxis();
+  pollScreenUiAxis();
+  pollControllerButtons();
 
   // Position/Lage regelmäßig für den Reload-Fall sichern (siehe oben)
   if (now - lastSaveTime > SAVE_INTERVAL_MS) {
