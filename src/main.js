@@ -3021,7 +3021,7 @@ window.addEventListener("blur", () => pressedKeys.clear());
 // Controller wird pro Achse nur dann genutzt, wenn die Tastatur für diese
 // Achse gerade kein Ziel liefert. So kann man jederzeit zwischen beiden
 // Eingabemethoden wechseln, ohne etwas umschalten zu müssen.
-const CONTROLLER_DEADZONE = 0.08; // Achsen-Ausschlag unterhalb dieses Betrags gilt als "Mitte"/kein Eingang
+const CONTROLLER_DEADZONE = 0.05; // Achsen-Ausschlag unterhalb dieses Betrags gilt als "Mitte"/kein Eingang
 
 // Achsen-Zuordnung für den TBS Tango 2 im HID-Modus, per Debug-Overlay
 // ermittelt (weicht von der ursprünglichen Mode-2-Annahme ab):
@@ -3043,9 +3043,24 @@ const CONTROLLER_AXIS = {
 // (Loopings/Rolls möglich) statt auf ein Attitude-Maximum begrenzt. Das
 // hält beide Steuerungsarten unabhängig voneinander einstellbar:
 // Tastatur-Feintuning wirkt sich nie auf den Controller aus und umgekehrt.
-const CONTROLLER_PITCH_RATE = Cesium.Math.toRadians(200); // rad/s bei Vollausschlag
-const CONTROLLER_ROLL_RATE = Cesium.Math.toRadians(250); // rad/s bei Vollausschlag
-const CONTROLLER_YAW_RATE = Cesium.Math.toRadians(200); // rad/s bei Vollausschlag
+// Rates im Betaflight-"Actual"-Stil pro Achse:
+//   center = Empfindlichkeit um die Stick-Mitte (°/s bei linearem Verlauf),
+//   max    = Maximalrate bei Vollausschlag (°/s),
+//   expo   = 0..1, höher = feiner um die Mitte, steiler zum Anschlag.
+const CONTROLLER_RATES = {
+  pitch: { center: 200, max: 500, expo: 0.575 },
+  roll: { center: 200, max: 500, expo: 0.575 },
+  yaw: { center: 200, max: 450, expo: 0.525 },
+};
+
+// Stick (-1..1, nach Deadzone) -> Drehrate in rad/s.
+// Formel wie Betaflight "Actual Rates": x*center + (max-center)*|x|*(x^5*expo + x*(1-expo))
+function controllerRate(x, rates) {
+  const abs = Math.abs(x);
+  const curve = abs * (Math.pow(x, 5) * rates.expo + x * (1 - rates.expo));
+  const stickMovement = Math.max(0, rates.max - rates.center);
+  return Cesium.Math.toRadians(x * rates.center + stickMovement * curve);
+}
 
 // --- Gimbal-freie Acro-Rotation (schräger Looping etc.) -------------------
 // Bug: Wenn Pitch UND Roll gleichzeitig vom Controller kommen (z.B.
@@ -3077,13 +3092,14 @@ const acroRotScratchMatrix = new Cesium.Matrix3();
 // (45° pro Frame -> Kamera taumelt/springt).
 const acroFlightDirection = new Cesium.Cartesian3();
 const acroFlightUp = new Cesium.Cartesian3();
-const acroYawAxisScratch = new Cesium.Cartesian3();
 const acroTiltScratchDirection = new Cesium.Cartesian3();
 const acroTiltScratchUp = new Cesium.Cartesian3();
 let acroFlightValid = false;
-// Gieren (yawRate) dreht um yawAxis (Welt-Vektor, = lokale Senkrechte), also
-// immer in der horizontalen Ebene - unabhängig von Pitch/Roll. Rollen dreht
-// um die Flugrichtung, Pitch um die Körper-Rechts-Achse.
+// Gieren (yawRate) dreht um yawAxis = Körper-Hochachse der Drohne (wie die
+// Flight Control einer echten FPV-Drohne, die nicht weiß, wo "oben" auf der
+// Erde ist) - die Bildschirm-Richtung bleibt dadurch in jeder Fluglage gleich,
+// auch im Rückenflug. Rollen dreht um die Flugrichtung, Pitch um die
+// Körper-Rechts-Achse.
 // Test-Regler: Wie stark die Roll-Achse vom Körper-Vorwärtsvektor (0 = wie bei
 // einer echten Drohne mit starrer Kamera, Roll wirkt bei Kamera-Tilt auf dem
 // Bild auch als Gieren) zur Blickachse (1 = reines Bild-Rollen) wandert.
@@ -3486,7 +3502,7 @@ viewer.clock.onTick.addEventListener(() => {
     // Stick-Ausschlag = Rotationsrate, 1:1 ohne Glättung/Verzögerung, Winkel
     // wächst unbegrenzt (Loopings möglich) statt auf PITCH_MAX gedeckelt zu
     // werden. Komplett unabhängig von der Tastatur-Pipeline unten.
-    const pitchRateGamepad = pitchTargetGamepad * CONTROLLER_PITCH_RATE;
+    const pitchRateGamepad = controllerRate(pitchTargetGamepad, CONTROLLER_RATES.pitch);
     pitch = wrapAngle(pitch + pitchRateGamepad * dt);
     pitchRate = 0;
     // pitchRaw synchron halten, damit bei Rückwechsel auf Tastatur kein
@@ -3579,7 +3595,7 @@ viewer.clock.onTick.addEventListener(() => {
     // wächst unbegrenzt (volle Rolls möglich) statt auf ROLL_MAX gedeckelt
     // zu werden. Kein Auto-Level nötig/gewünscht - das ist reines
     // Tastatur-Feintuning für den Attitude-Modus.
-    const rollRateGamepad = rollTargetGamepad * CONTROLLER_ROLL_RATE;
+    const rollRateGamepad = controllerRate(rollTargetGamepad, CONTROLLER_RATES.roll);
     roll = wrapAngle(roll + rollRateGamepad * dt);
     rollRate = 0;
     rollLevelBlend = 0;
@@ -3694,14 +3710,14 @@ viewer.clock.onTick.addEventListener(() => {
     : pressedKeys.has("KeyD")
       ? RUDDER_YAW_RATE
       : 0;
-  const yawTargetGamepad = getControllerAxis(CONTROLLER_AXIS.yaw) * CONTROLLER_YAW_RATE;
+  const yawTargetGamepad = controllerRate(getControllerAxis(CONTROLLER_AXIS.yaw), CONTROLLER_RATES.yaw);
   if (yawTargetKeyboard !== 0) {
     yawControlSource = "keyboard";
   } else if (yawTargetGamepad !== 0) {
     yawControlSource = "controller";
   }
   // Eigene Quelle pro Achse: Tastatur behält ihre Glättung (YAW_SMOOTH_TIME),
-  // Controller reagiert instant/ohne Verzögerung (siehe CONTROLLER_YAW_RATE).
+  // Controller reagiert instant/ohne Verzögerung (siehe CONTROLLER_RATES.yaw).
   const yawTarget =
     yawControlSource === "controller" ? yawTargetGamepad : yawTargetKeyboard;
   if (yawControlSource === "controller") {
@@ -3771,15 +3787,12 @@ viewer.clock.onTick.addEventListener(() => {
     rotateAroundBodyAxes(
       acroDirection,
       acroUp,
-      rollTargetGamepad * CONTROLLER_ROLL_RATE,
-      pitchTargetGamepad * CONTROLLER_PITCH_RATE,
+      controllerRate(rollTargetGamepad, CONTROLLER_RATES.roll),
+      controllerRate(pitchTargetGamepad, CONTROLLER_RATES.pitch),
       // Minus: Cesium-Heading zählt positiv im Uhrzeigersinn (Rechtskurve),
       // die Rechte-Hand-Rotation um die Senkrechte dreht dagegen nach links.
-      -yawTargetGamepad, // enthält CONTROLLER_YAW_RATE bereits (siehe oben)
-      Cesium.Ellipsoid.WGS84.geodeticSurfaceNormal(
-        camera.positionWC,
-        acroYawAxisScratch,
-      ),
+      -yawTargetGamepad, // enthält die Yaw-Rate bereits (siehe oben)
+      acroUp, // Körper-Hochachse statt Welt-Senkrechte (siehe Kommentar oben)
       dt,
       cameraTiltOffset * acroRollAxisBlend, // Roll um die Blickachse -> rechter Stick links/rechts = reines Rollen, kein scheinbares Gieren
     );
