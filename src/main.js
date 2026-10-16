@@ -5,6 +5,7 @@ import { initDiscovery } from "./discover.js";
 import { getApiKey, requestApiKey } from "./apikey.js";
 import { geocode } from "./geocode.js";
 import { setSoundsEnabled, setSoundsVolume, updateFlightAudio } from "./audio.js";
+import { initCrashLog } from "./crashlog.js";
 
 // --- API-Key -----------------------------------------------------------------
 // Jeder Spieler nutzt seinen eigenen Google-API-Key (Eingabe-Dialog beim
@@ -95,11 +96,18 @@ const viewer = new Cesium.Viewer("cesiumContainer", {
 // Seite automatisch neu - die zuletzt gespeicherte Kameraposition (siehe
 // saveCameraState/sessionStorage) sorgt dafür, dass der Flug nahtlos an
 // (fast) derselben Stelle weitergeht.
+// Wird gesetzt, sobald wir die Cesium-Instanzen selbst abbauen (pagehide,
+// Vite-HMR-Dispose). Der dabei absichtlich ausgelöste Context-Verlust ist
+// kein Absturz und darf weder geloggt noch einen Reload auslösen.
+let isTearingDown = false;
+
 function recoverFromFatalRenderError(source, error) {
+  if (isTearingDown) return;
   console.error(
     `Fataler Render-/WebGL-Context-Fehler (${source}) - lade Seite neu, um den Flug fortzusetzen.`,
     error,
   );
+  crashLog.recordCrash(source, error);
   saveCameraState();
   window.location.reload();
 }
@@ -113,6 +121,60 @@ function attachRenderErrorRecovery(cesiumInstance, source) {
     recoverFromFatalRenderError(source, event);
   });
 }
+
+// Absturz-Log (siehe crashlog.js): getSnapshot wird bei Absturz-Einträgen und
+// alle paar Sekunden für den Heartbeat aufgerufen und liefert den
+// Momentzustand von Tiles, Effekten und Kamera.
+function crashSnapshot() {
+  const stats = tileset?.statistics;
+  const mb = (bytes) => (Number.isFinite(bytes) ? Math.round(bytes / 1048576) : null);
+  const cartographic = Cesium.Cartographic.fromCartesian(viewer.camera.positionWC);
+  return {
+    position: {
+      lat: Cesium.Math.toDegrees(cartographic.latitude).toFixed(5),
+      lon: Cesium.Math.toDegrees(cartographic.longitude).toFixed(5),
+      heightM: Math.round(cartographic.height),
+    },
+    speed: speedEl.textContent,
+    tiles: tileset
+      ? {
+          loaded: stats?.numberOfLoadedTilesTotal,
+          ready: stats?.numberOfTilesWithContentReady,
+          pending: stats?.numberOfPendingRequests,
+          processing: stats?.numberOfTilesProcessing,
+          memoryMb: mb(tileset.totalMemoryUsageInBytes),
+          geometryMb: mb(stats?.geometryByteLength),
+          texturesMb: mb(stats?.texturesByteLength),
+        }
+      : null,
+    tileDetail: tileset
+      ? {
+          maximumScreenSpaceError: tileset.maximumScreenSpaceError,
+          cacheMb: mb(tileset.cacheBytes),
+          overflowMb: mb(tileset.maximumCacheOverflowBytes),
+        }
+      : null,
+    drawingBuffer: {
+      w: viewer.scene.drawingBufferWidth,
+      h: viewer.scene.drawingBufferHeight,
+      resolutionScale: viewer.resolutionScale,
+    },
+    minimapAlive: !!minimapWidget && !minimapWidget.isDestroyed(),
+    effects: {
+      miniatur: dofSettings.enabled,
+      nacht: nightMode,
+      horizontGlow: horizonGlowEnabled,
+      flugzeugSichtbar: planeVisible,
+      fovDeg: Math.round(Cesium.Math.toDegrees(viewer.camera.frustum.fov)),
+      grainPct: Math.round((colorGradeSettings.grainAmount / GRAIN_MAX_INTENSITY) * 100),
+      blurPct: Math.round(colorGradeSettings.blurAmount * 100),
+      vignettePct: Math.round(colorGradeSettings.vignetteAmount * 100),
+      pausiert: isPaused || isViewPaused,
+    },
+  };
+}
+
+const crashLog = initCrashLog({ viewer, getSnapshot: crashSnapshot });
 
 attachRenderErrorRecovery(viewer, "viewer");
 
@@ -128,6 +190,7 @@ function destroyCesiumInstance(instance) {
 }
 
 function destroyCesiumInstances() {
+  isTearingDown = true;
   destroyCesiumInstance(minimapWidget);
   destroyCesiumInstance(viewer);
 }
@@ -719,6 +782,13 @@ async function loadGoogleTiles() {
   try {
     tileset = await Cesium.createGooglePhotorealistic3DTileset();
     viewer.scene.primitives.add(tileset);
+    // Zur Absturzsuche zur Laufzeit in der Konsole einstellbar:
+    // setTileDetail(24). Höherer Wert = gröbere Tiles, weniger Textur-/GPU-
+    // Speicher (Cesium-Standard: 16).
+    window.setTileDetail = (sse) => {
+      tileset.maximumScreenSpaceError = Number(sse);
+      return tileset.maximumScreenSpaceError;
+    };
     setupCinematicFilters();
 
     const savedState = loadCameraState();
@@ -2960,12 +3030,50 @@ const COLLISION_SAFETY_MARGIN = 4; // Meter Abstand, der zum Hindernis stehen bl
 const COLLISION_LOOKAHEAD_MIN = 8; // Meter Mindest-Prüfreichweite (auch bei niedriger Geschwindigkeit)
 const COLLISION_BRAKE_DECEL = 200; // m/s^2 - deutlich stärker als THRUST_MAX_ACCEL, aber kein harter Ruck
 
-function checkCollisionAhead(origin, direction, maxDistance) {
+// pickFromRay rendert intern die Szene erneut (Pick-Pass) und liest das Ergebnis
+// synchron von der GPU zurück (ReadPixels/GetBufferSubData). Pro Frame aufgerufen
+// war das im Firefox-Profil ~31 % der Main-Thread-Zeit und ~4 Rücklesungen pro
+// Frame. Deshalb wird nur alle COLLISION_CHECK_INTERVAL_MS wirklich gepickt; in den
+// Frames dazwischen wird der Abstand zum zuletzt gefundenen Trefferpunkt
+// nachgerechnet (billig, nur Vektor-Mathe).
+const COLLISION_CHECK_INTERVAL_MS = 100; // bei Bedarf 150-200 testen
+let lastCollisionCheckMs = -Infinity;
+let cachedCollisionHit = null; // Cartesian3 (Weltkoordinaten) oder null
+const collisionRay = new Cesium.Ray();
+const collisionToHitScratch = new Cesium.Cartesian3();
+
+function checkCollisionAhead(origin, direction, maxDistance, speed) {
   if (maxDistance <= 0) return null;
-  const ray = new Cesium.Ray(origin, direction);
-  const result = viewer.scene.pickFromRay(ray, []);
-  if (!result || !result.position) return null;
-  const distance = Cesium.Cartesian3.distance(origin, result.position);
+  const now = performance.now();
+  if (now - lastCollisionCheckMs >= COLLISION_CHECK_INTERVAL_MS) {
+    lastCollisionCheckMs = now;
+    // Reichweite muss die Strecke bis zur nächsten echten Prüfung abdecken
+    // (plus Puffer), sonst könnte man zwischen zwei Prüfungen durch dünne
+    // Geometrie fliegen.
+    const reach = Math.max(
+      speed * (COLLISION_CHECK_INTERVAL_MS / 1000) * 1.5 +
+        COLLISION_SAFETY_MARGIN,
+      COLLISION_LOOKAHEAD_MIN,
+      maxDistance,
+    );
+    Cesium.Cartesian3.clone(origin, collisionRay.origin);
+    Cesium.Cartesian3.clone(direction, collisionRay.direction);
+    const result = viewer.scene.pickFromRay(collisionRay, []);
+    cachedCollisionHit =
+      result &&
+      result.position &&
+      Cesium.Cartesian3.distance(origin, result.position) <= reach
+        ? Cesium.Cartesian3.clone(result.position)
+        : null;
+  }
+  if (!cachedCollisionHit) return null;
+  // Abstand entlang der aktuellen Bewegungsrichtung zum gemerkten Treffer.
+  const toHit = Cesium.Cartesian3.subtract(
+    cachedCollisionHit,
+    origin,
+    collisionToHitScratch,
+  );
+  const distance = Math.max(Cesium.Cartesian3.dot(toHit, direction), 0);
   if (distance > maxDistance) return null;
   return distance;
 }
@@ -3064,7 +3172,7 @@ const CONTROLLER_RATE_PRESETS = {
   sport: {
     pitch: { center: 200, max: 660, expo: 0.575 },
     roll: { center: 200, max: 660, expo: 0.575 },
-    yaw: { center: 180, max: 620, expo: 0.525 },
+    yaw: { center: 200, max: 620, expo: 0.525 },
   },
   relaxed: {
     pitch: { center: 120, max: 360, expo: 0.5 },
@@ -3072,9 +3180,9 @@ const CONTROLLER_RATE_PRESETS = {
     yaw: { center: 100, max: 300, expo: 0.45 },
   },
   cinematic: {
-    pitch: { center: 70, max: 200, expo: 0.65 },
-    roll: { center: 70, max: 200, expo: 0.65 },
-    yaw: { center: 50, max: 180, expo: 0.6 },
+    pitch: { center: 50, max: 150, expo: 0.65 },
+    roll: { center: 50, max: 150, expo: 0.65 },
+    yaw: { center: 40, max: 120, expo: 0.6 },
   },
 };
 // Aktive Werte. Wird nur in-place verändert (siehe applyControllerRatePreset),
@@ -3973,6 +4081,7 @@ viewer.clock.onTick.addEventListener(() => {
       camera.positionWC,
       moveDirection,
       lookahead,
+      speed,
     );
 
     if (hitDistance !== null) {

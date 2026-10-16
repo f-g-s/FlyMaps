@@ -492,6 +492,19 @@
               <span class="switch-slider"></span>
             </label>
           </div>
+          <hr class="setting-divider" />
+          <div id="crash-log-row" class="setting-row">
+            <label for="crash-log-toggle">Absturz-Log <span id="crash-log-count"></span></label>
+            <button id="crash-log-toggle" type="button">Anzeigen</button>
+          </div>
+          <div id="crash-log-panel" hidden>
+            <pre
+              id="crash-log-output"
+              style="max-height: 240px; overflow: auto; font-size: 12px; white-space: pre-wrap; margin: 8px 0"
+            ></pre>
+            <button id="crash-log-copy" type="button">Kopieren</button>
+            <button id="crash-log-clear" type="button">Löschen</button>
+          </div>
         </div>
         <div class="container">
           <div id="filters-heading">
