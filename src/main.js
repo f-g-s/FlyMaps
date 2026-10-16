@@ -1466,19 +1466,19 @@ planeVisibleToggle.addEventListener("change", () => {
 });
 applyPlaneVisible(planeVisible); // Initialzustand (Regler-Sichtbarkeit + Tilt)
 
-// "Nur Landschaft"-Schalter - blendet HUD, Speed/Höhe, Minimap, Horizont
-// und die Google-Attribution aus (siehe body.hide-hud-Regel in style.css).
+// "Anzeigen"-Schalter - an = HUD, Speed/Höhe, Minimap, Horizont und
+// Google-Attribution sichtbar; aus = "Nur Landschaft" (siehe body.hide-hud-Regel in style.css).
 let hudHidden = false;
 const hideHudToggle = document.getElementById("hide-hud-toggle");
 
 function applyHudHidden(hidden) {
   hudHidden = hidden;
-  hideHudToggle.checked = hidden;
+  hideHudToggle.checked = !hidden; // Checkbox = "Anzeigen" -> invertiert
   document.body.classList.toggle("hide-hud", hidden);
 }
 
 hideHudToggle.addEventListener("change", () => {
-  applyHudHidden(hideHudToggle.checked);
+  applyHudHidden(!hideHudToggle.checked);
   saveCameraState();
 });
 applyHudHidden(hudHidden);

@@ -1707,3 +1707,12 @@ body.pause-mode #fullscreen-toggle-button {
   background: rgba(255, 255, 255, 0.08);
   outline: none;
 }
+
+.setting-divider {
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.visually-hidden {
+  display: none;
+}

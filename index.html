@@ -13,31 +13,41 @@
         <h1>Google-API-Key benötigt</h1>
         <p>
           FlyMaps zeigt Googles Photorealistic 3D Tiles und nutzt die Geocoding
-          API für Ortssuche und Standort-Banner. Dafür brauchst du einen
-          eigenen API-Key. Er wird nur in deinem Browser gespeichert und direkt
-          an Google gesendet.
+          API für Ortssuche und Standort-Banner. Dafür brauchst du einen eigenen
+          API-Key. Er wird nur in deinem Browser gespeichert und direkt an
+          Google gesendet.
         </p>
         <ol>
           <li>
             In der
-            <a href="https://console.cloud.google.com/apis/library" target="_blank" rel="noopener">Google Cloud Console</a>
+            <a
+              href="https://console.cloud.google.com/apis/library"
+              target="_blank"
+              rel="noopener"
+              >Google Cloud Console</a
+            >
             ein Projekt anlegen oder auswählen.
           </li>
           <li>
-            Abrechnung aktivieren (ein Zahlungsmittel ist nötig). Google
-            gewährt je API ein monatliches Gratis-Kontingent, die aktuellen
-            Preise stehen in Googles Preisliste.
+            Abrechnung aktivieren (ein Zahlungsmittel ist nötig). Google gewährt
+            je API ein monatliches Gratis-Kontingent, die aktuellen Preise
+            stehen in Googles Preisliste.
           </li>
           <li>
-            Unter „APIs &amp; Dienste → Bibliothek“ die <b>Map Tiles API</b>
-            und die <b>Geocoding API</b> aktivieren.
+            Unter „APIs &amp; Dienste → Bibliothek“ die <b>Map Tiles API</b> und
+            die <b>Geocoding API</b> aktivieren.
           </li>
           <li>
             Unter
-            <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">„Anmeldedaten“</a>
+            <a
+              href="https://console.cloud.google.com/apis/credentials"
+              target="_blank"
+              rel="noopener"
+              >„Anmeldedaten“</a
+            >
             einen API-Key erstellen und ihn auf genau diese beiden APIs
-            beschränken. Keine HTTP-Referrer-Beschränkung setzen, die
-            Geocoding API unterstützt sie nicht.
+            beschränken. Keine HTTP-Referrer-Beschränkung setzen, die Geocoding
+            API unterstützt sie nicht.
           </li>
           <li>
             Empfohlen: In der Console für die Map Tiles API ein Tageslimit
@@ -59,7 +69,9 @@
         <p id="api-key-error" role="alert" hidden></p>
         <div class="api-key-actions">
           <button id="api-key-cancel" type="button" hidden>Abbrechen</button>
-          <button id="api-key-submit" type="submit">Speichern und starten</button>
+          <button id="api-key-submit" type="submit">
+            Speichern und starten
+          </button>
         </div>
       </form>
     </div>
@@ -107,9 +119,13 @@
         </div>
       </div>
     </div>
-    <div id="discovery-announcer" class="discovery-sr-only" aria-live="polite"></div>
+    <div
+      id="discovery-announcer"
+      class="discovery-sr-only"
+      aria-live="polite"
+    ></div>
     <div id="collision-flash"></div>
-    <div id="controller-debug" hidden></div>
+    <div id="controller-debug"></div>
     <div id="stick-overlay" hidden aria-hidden="true">
       <div class="stick-box" id="stick-left">
         <div class="stick-gate">
@@ -207,18 +223,55 @@
         aria-haspopup="true"
         aria-expanded="false"
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="3"></circle>
+          <path
+            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+          ></path>
+        </svg>
       </button>
       <div id="settings-menu" role="menu" hidden>
         <button id="settings-api-key-item" type="button" role="menuitem">
           Google-API-Key ändern
         </button>
       </div>
-      <button id="controls-help-button" type="button" aria-label="Steuerung anzeigen">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.5 9a2.5 2.5 0 1 1 3.4 2.3c-.9.4-1.4 1.1-1.4 2"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+      <button
+        id="controls-help-button"
+        type="button"
+        aria-label="Steuerung anzeigen"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M9.5 9a2.5 2.5 0 1 1 3.4 2.3c-.9.4-1.4 1.1-1.4 2"></path>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
       </button>
       <button id="search-panel-close" type="button" aria-label="Menü schließen">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
       </button>
       <div id="search-status"></div>
       <div id="search-panel-content">
@@ -233,20 +286,72 @@
               aria-label="In Google Maps öffnen"
               hidden
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
             </a>
           </div>
           <div id="search-tabs">
             <button id="tab-search-btn" class="search-tab" type="button">
-              <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <svg
+                class="tab-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="11" cy="11" r="7"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
               Suche
             </button>
             <button id="tab-spots-btn" class="search-tab" type="button">
-              <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+              <svg
+                class="tab-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+              </svg>
               Liste
             </button>
-            <button id="tab-favorites-btn" class="search-tab active" type="button">
-              <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            <button
+              id="tab-favorites-btn"
+              class="search-tab active"
+              type="button"
+            >
+              <svg
+                class="tab-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polygon
+                  points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                ></polygon>
+              </svg>
               Favoriten
             </button>
           </div>
@@ -259,9 +364,7 @@
               autocomplete="off"
             />
             <button id="search-button">Suchen</button>
-            <button id="random-spot-button" type="button">
-              🎲 Zufällig
-            </button>
+            <button id="random-spot-button" type="button">🎲 Zufällig</button>
           </div>
 
           <div id="tab-spots">
@@ -294,15 +397,10 @@
         </div>
         <div class="container">
           <h2>Ansicht</h2>
-          <div id="fov-row" class="setting-row">
-            <label for="fov-slider">Sichtfeld (FOV)</label>
-            <input id="fov-slider" type="range" min="30" max="100" step="1" />
-            <span id="fov-value"></span>
-          </div>
           <div id="aspect-row" class="setting-row">
             <label for="aspect-select">Bildformat</label>
             <select id="aspect-select">
-              <option value="auto">Vollbild</option>
+              <option value="auto">Vollbild</option>    <div id="controller-debug" hidden></div>
               <option value="16/9">16:9</option>
               <option value="3/2">3:2</option>
               <option value="4/3">4:3</option>
@@ -311,7 +409,7 @@
             </select>
           </div>
           <div id="camera-tilt-row" class="setting-row">
-            <label for="camera-tilt-slider">Kamera-Blickwinkel</label>
+            <label for="camera-tilt-slider">Kamerawinkel</label>
             <input
               id="camera-tilt-slider"
               type="range"
@@ -321,13 +419,54 @@
             />
             <span id="camera-tilt-value"></span>
           </div>
-          <div id="minimap-labels-row" class="setting-row">
+          <div id="fov-row" class="setting-row">
+            <label for="fov-slider">Sichtfeld (FOV)</label>
+            <input id="fov-slider" type="range" min="30" max="100" step="1" />
+            <span id="fov-value"></span>
+          </div>
+          <div id="stick-overlay-row" class="setting-row">
+            <label for="stick-overlay-toggle">Stick-Overlay</label>
+            <label class="switch">
+              <input id="stick-overlay-toggle" type="checkbox" checked />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          <div id="hide-hud-row" class="setting-row">
+            <label for="hide-hud-toggle">Anzeigen | HUD</label>
+            <label class="switch">
+              <input id="hide-hud-toggle" type="checkbox" />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          <div id="discovery-row" class="setting-row">
+            <label for="discovery-toggle">Sehenswürdigkeiten</label>
+            <label class="switch">
+              <input id="discovery-toggle" type="checkbox" checked />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          <div id="location-banner-row" class="setting-row">
+            <label for="location-banner-toggle">Name der Stadt</label>
+            <label class="switch">
+              <input id="location-banner-toggle" type="checkbox" checked />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          <div id="plane-visible-row" class="setting-row visually-hidden">
+            <label for="plane-visible-toggle">Flugzeug anzeigen</label>
+            <label class="switch">
+              <input id="plane-visible-toggle" type="checkbox" />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          <div id="minimap-labels-row" class="setting-row visually-hidden">
             <label for="minimap-labels-toggle">Kartenbeschriftungen</label>
             <label class="switch">
               <input id="minimap-labels-toggle" type="checkbox" checked />
               <span class="switch-slider"></span>
             </label>
           </div>
+          <hr class="setting-divider" />
           <div id="sounds-row" class="setting-row">
             <label for="sounds-toggle">Sounds</label>
             <input
@@ -345,43 +484,6 @@
               <span class="switch-slider"></span>
             </label>
           </div>
-          <div id="plane-visible-row" class="setting-row">
-            <label for="plane-visible-toggle">Flugzeug anzeigen</label>
-            <label class="switch">
-              <input id="plane-visible-toggle" type="checkbox" />
-              <span class="switch-slider"></span>
-            </label>
-          </div>
-          <div id="location-banner-row" class="setting-row">
-            <label for="location-banner-toggle">Ort beim Überfliegen anzeigen</label>
-            <label class="switch">
-              <input id="location-banner-toggle" type="checkbox" checked />
-              <span class="switch-slider"></span>
-            </label>
-          </div>
-          <div id="discovery-row" class="setting-row">
-            <label for="discovery-toggle">Sehenswürdigkeiten in der Nähe</label>
-            <label class="switch">
-              <input id="discovery-toggle" type="checkbox" checked />
-              <span class="switch-slider"></span>
-            </label>
-          </div>
-          <div id="hide-hud-row" class="setting-row">
-            <label for="hide-hud-toggle"
-              >Anzeigen ausblenden</label
-            >
-            <label class="switch">
-              <input id="hide-hud-toggle" type="checkbox" />
-              <span class="switch-slider"></span>
-            </label>
-          </div>
-          <div id="stick-overlay-row" class="setting-row">
-            <label for="stick-overlay-toggle">Stick-Overlay</label>
-            <label class="switch">
-              <input id="stick-overlay-toggle" type="checkbox" checked />
-              <span class="switch-slider"></span>
-            </label>
-          </div>
         </div>
         <div class="container">
           <div id="filters-heading">
@@ -390,13 +492,6 @@
               Zurücksetzen
             </button>
           </div>
-          <div id="night-mode-row" class="setting-row">
-            <label for="night-mode-toggle">Nacht-Modus</label>
-            <label class="switch">
-              <input id="night-mode-toggle" type="checkbox" />
-              <span class="switch-slider"></span>
-            </label>
-          </div>
           <div id="horizon-glow-row" class="setting-row">
             <label for="horizon-glow-toggle">Horizontglühen</label>
             <label class="switch">
@@ -404,6 +499,14 @@
               <span class="switch-slider"></span>
             </label>
           </div>
+          <div id="night-mode-row" class="setting-row">
+            <label for="night-mode-toggle">Nacht-Modus</label>
+            <label class="switch">
+              <input id="night-mode-toggle" type="checkbox" />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+
           <div
             id="star-brightness-row"
             class="setting-row"
@@ -492,20 +595,46 @@
           </div>
           <div id="dof-strength-row" class="setting-row" hidden>
             <label for="dof-strength-slider">Stärke</label>
-            <input id="dof-strength-slider" type="range" min="0" max="100" step="1" />
+            <input
+              id="dof-strength-slider"
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+            />
             <span id="dof-strength-value"></span>
           </div>
           <div id="dof-focus-row" class="setting-row" hidden>
             <label for="dof-focus-slider">Fokusdistanz</label>
-            <input id="dof-focus-slider" type="range" min="0" max="100" step="1" />
+            <input
+              id="dof-focus-slider"
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+            />
             <span id="dof-focus-value"></span>
           </div>
         </div>
       </div>
     </div>
     <div id="controls-panel">
-      <button id="controls-panel-close" type="button" aria-label="Menü schließen">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <button
+        id="controls-panel-close"
+        type="button"
+        aria-label="Menü schließen"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
       </button>
       <div class="container">
         <h2>Steuerung</h2>
@@ -536,7 +665,9 @@
           </li>
           <li>
             <span class="key-badge">P</span>
-            <span class="control-desc">Pause ohne Menü (Landschaft ansehen)</span>
+            <span class="control-desc"
+              >Pause ohne Menü (Landschaft ansehen)</span
+            >
           </li>
           <li>
             <span class="key-badge">R</span>
@@ -545,11 +676,15 @@
           <li>
             <span class="key-badge">Y</span>
             <span class="key-badge">X</span>
-            <span class="control-desc">Vorherige / nächste Sehenswürdigkeit in der Nähe</span>
+            <span class="control-desc"
+              >Vorherige / nächste Sehenswürdigkeit in der Nähe</span
+            >
           </li>
           <li>
             <span class="key-badge">C</span>
-            <span class="control-desc">Sehenswürdigkeiten ein- / ausschalten</span>
+            <span class="control-desc"
+              >Sehenswürdigkeiten ein- / ausschalten</span
+            >
           </li>
         </ul>
         <button id="controls-panel-start-button" type="button">
