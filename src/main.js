@@ -3,7 +3,7 @@ import "cesium/Build/Cesium/Widgets/widgets.css";
 import spotsByCountry from "./google_earth_3d_locations_by_country.json";
 import { initDiscovery } from "./discover.js";
 import { getApiKey, requestApiKey } from "./apikey.js";
-import { geocode } from "./geocode.js";
+import { geocode, setGeocodingPaused, isGeocodingPaused } from "./geocode.js";
 import { setSoundsEnabled, setSoundsVolume, updateFlightAudio } from "./audio.js";
 import { initCrashLog } from "./crashlog.js";
 
@@ -246,6 +246,7 @@ function saveCameraState() {
         planeVisible,
         hudHidden,
         locationBannerEnabled,
+        geocodingEnabled,
         contrastPct: colorGradeSettings.contrastAmount * 100,
         saturationPct: colorGradeSettings.saturationAmount * 100,
         brightnessPct: colorGradeSettings.brightnessAmount * 100,
@@ -748,6 +749,35 @@ function waitForTilesReady(tileset, { timeoutMs = 8000, quietMs = 600 } = {}) {
 // geladenen Kacheln der neuen Position warten kann.
 let tileset;
 
+// Typische Zugriffsfehler der Geocoding API verständlich machen. Tritt vor
+// allem bei neuen Spielern auf, deren Key die "Geocoding API" noch nicht
+// freigeschaltet hat (3D Tiles funktionieren dann trotzdem).
+const GEOCODE_ACCESS_ERRORS = {
+  REQUEST_DENIED: {
+    short: "Geocoding API für den Key aktivieren",
+    long: 'Geocoding nicht erlaubt: Bitte die "Geocoding API" im Google-Cloud-Projekt des API-Keys aktivieren (und den Key ggf. darauf erlauben).',
+  },
+  OVER_QUERY_LIMIT: {
+    short: "Geocoding-Limit erreicht",
+    long: "Geocoding-Limit erreicht: Tages-/Budgetlimit in der Google Cloud Console prüfen.",
+  },
+  OVER_DAILY_LIMIT: {
+    short: "Geocoding-Limit erreicht",
+    long: "Geocoding-Limit erreicht: Tages-/Budgetlimit in der Google Cloud Console prüfen.",
+  },
+};
+
+function geocodeErrorText(data, short = false) {
+  if (data?.status === "PAUSED") {
+    return short
+      ? "Geocoding pausiert"
+      : 'Geocoding ist pausiert (Einstellungen: "Geocoding (Google)" einschalten).';
+  }
+  const entry = GEOCODE_ACCESS_ERRORS[data?.status];
+  if (entry) return short ? entry.short : entry.long;
+  return data?.status === "NO_KEY" ? "Kein API-Key hinterlegt." : null;
+}
+
 // Kleiner Wrapper um geocode() (siehe geocode.js, nutzt den Key des Spielers) -
 // wird sowohl von der Ortssuche (geocodeAndFlyTo) als auch vom zufälligen
 // Startort (loadGoogleTiles) genutzt.
@@ -827,6 +857,8 @@ async function loadGoogleTiles() {
         applyHudHidden(usableSavedState.hudHidden);
       if (typeof usableSavedState.locationBannerEnabled === "boolean")
         applyLocationBannerEnabled(usableSavedState.locationBannerEnabled);
+      if (typeof usableSavedState.geocodingEnabled === "boolean")
+        applyGeocodingEnabled(usableSavedState.geocodingEnabled);
       if (Number.isFinite(usableSavedState.contrastPct))
         applyContrast(usableSavedState.contrastPct);
       if (Number.isFinite(usableSavedState.saturationPct))
@@ -1269,6 +1301,44 @@ try {
   applyViewAspect("auto");
 }
 
+// --- Menü-Layout: zentriert <-> Sidebar -----------------------------------
+// Button im Panel-Header (#layout-toggle-button) schaltet das Pausenmenü
+// zwischen zentriertem Dialog und linker Sidebar um (CSS: .sidebar auf
+// #search-panel). Die Wahl bleibt per localStorage erhalten.
+const MENU_LAYOUT_KEY = "flymaps_menu_layout";
+const layoutToggleButton = document.getElementById("layout-toggle-button");
+
+function applyMenuLayout(layout) {
+  const sidebar = layout === "sidebar";
+  searchPanel.classList.toggle("sidebar", sidebar);
+  const label = sidebar
+    ? "Menü zentriert anzeigen"
+    : "Menü als Sidebar anzeigen";
+  layoutToggleButton.setAttribute("aria-pressed", String(sidebar));
+  layoutToggleButton.setAttribute("aria-label", label);
+  layoutToggleButton.title = label;
+}
+
+layoutToggleButton.addEventListener("click", () => {
+  const next = searchPanel.classList.contains("sidebar")
+    ? "centered"
+    : "sidebar";
+  applyMenuLayout(next);
+  try {
+    localStorage.setItem(MENU_LAYOUT_KEY, next);
+  } catch {
+    // localStorage kann z.B. im privaten Modus fehlschlagen - dann eben ohne Persistenz
+  }
+  // Fokus abgeben, sonst würde die Leertaste den Button statt Pause auslösen.
+  layoutToggleButton.blur();
+});
+
+try {
+  applyMenuLayout(localStorage.getItem(MENU_LAYOUT_KEY) ?? "centered");
+} catch {
+  applyMenuLayout("centered");
+}
+
 fovSlider.addEventListener("input", () => {
   applyFov(Number(fovSlider.value));
   saveCameraState();
@@ -1568,10 +1638,47 @@ applyHudHidden(hudHidden);
 // Geocoding (geocode.js) wie die Ortssuche und "Aktueller Ort" im Pausenmenü,
 // hier aber mit latlng und den zusätzlichen place/country-Feldern (siehe
 // geocode.js). Per Schalter im Menü optional abschaltbar.
-let locationBannerEnabled = true;
+// Standardmäßig aus: sie braucht die kostenpflichtige Geocoding API (siehe
+// geocode.js). Wer sie nutzen will, schaltet sie im Menü ein; der Zustand
+// wird mit dem Spielstand gespeichert und wiederhergestellt.
+let locationBannerEnabled = false;
 const locationBannerToggle = document.getElementById(
   "location-banner-toggle",
 );
+
+// --- Geocoding-Schalter (pausiert ALLE Google-Geocoding-Abfragen) ---------
+// Die eigentliche Sperre sitzt zentral in geocode.js (setGeocodingPaused).
+// Hier nur Menü-Schalter, Speichern und Ausgrauen der Bauchbinden-Zeile.
+// Ohne Geocoding bleiben Fliegen, 3D-Tiles, Minimap und Sehenswürdigkeiten
+// (Wikidata) nutzbar; Ortssuche, 3D-Spots, Zufallsspot, "Aktueller Ort" und
+// Bauchbinde zeigen stattdessen einen Hinweis bzw. ruhen.
+let geocodingEnabled = true;
+const geocodingToggle = document.getElementById("geocoding-toggle");
+const locationBannerRow = document.getElementById("location-banner-row");
+// Wird weiter unten (Tabs/Spots, nach switchSearchTab) gesetzt: sperrt dort
+// alle Menü-Elemente, die ohne Geocoding nicht funktionieren (Tabs Suche und
+// Liste, Zufällig). Als Hook, weil deren Elemente an dieser Stelle noch nicht
+// initialisiert sind (const/TDZ).
+let onGeocodingEnabledChange = null;
+
+function applyGeocodingEnabled(enabled) {
+  geocodingEnabled = enabled;
+  setGeocodingPaused(!enabled);
+  geocodingToggle.checked = enabled;
+  // Bauchbinde ausgrauen/sperren; ihre eigene Einstellung bleibt erhalten und
+  // gilt wieder, sobald Geocoding eingeschaltet wird.
+  locationBannerToggle.disabled = !enabled;
+  locationBannerRow.classList.toggle("disabled", !enabled);
+  if (!enabled) hideLocationBanner();
+  onGeocodingEnabledChange?.(enabled);
+}
+
+geocodingToggle.addEventListener("change", () => {
+  applyGeocodingEnabled(geocodingToggle.checked);
+  saveCameraState();
+  // Fokus von der Checkbox nehmen, damit die Tastatursteuerung nicht hängt.
+  geocodingToggle.blur();
+});
 const locationBannerEl = document.getElementById("location-banner");
 const locationBannerPlaceEl = document.getElementById(
   "location-banner-place",
@@ -1582,6 +1689,10 @@ const locationBannerDistrictEl = document.getElementById(
 const locationBannerCountryEl = document.getElementById(
   "location-banner-country",
 );
+
+// Muss VOR applyLocationBannerEnabled() stehen: der erste Aufruf unten (Standard
+// "aus") ruft hideLocationBanner() auf, das diese Variable braucht.
+let locationBannerHideTimeout = null;
 
 function applyLocationBannerEnabled(enabled) {
   locationBannerEnabled = enabled;
@@ -1594,6 +1705,7 @@ locationBannerToggle.addEventListener("change", () => {
   saveCameraState();
 });
 applyLocationBannerEnabled(locationBannerEnabled);
+applyGeocodingEnabled(geocodingEnabled);
 
 // Nur die zuletzt angezeigte Region merken (nicht jede Zwischenanfrage) -
 // so wird die Bauchbinde nur beim tatsächlichen Wechsel neu eingeblendet,
@@ -1606,7 +1718,6 @@ let lastShownLocationKey = null;
 // hintereinander mehrere unterschiedliche Namen aufblitzen.
 let pendingLocationKey = null;
 let pendingLocationConfirmCount = 0;
-let locationBannerHideTimeout = null;
 let locationBannerRequestId = 0;
 // Throttling: sowohl Mindestabstand in Zeit als auch in Distanz seit der
 // letzten Anfrage, damit im Reiseflug (kaum Kursänderung über mehrere
@@ -1617,6 +1728,17 @@ const LOCATION_BANNER_CHECK_MIN_DISTANCE_M = 800;
 const LOCATION_BANNER_VISIBLE_MS = 9000;
 let lastLocationCheckTime = 0;
 let lastLocationCheckPosition = null;
+// Cache: pro Rasterzelle (ca. 400-550 m) nur einmal bei Google nachfragen.
+// Wiederholtes Überfliegen derselben Gegend (oder ein Reload nach Absturz)
+// kostet dadurch keine weiteren Geocoding-Abrufe. Nur im Speicher, nur
+// erfolgreiche Treffer; einfacher LRU mit Obergrenze.
+const LOCATION_CACHE_CELL_DEG = 0.005;
+const LOCATION_CACHE_MAX_ENTRIES = 500;
+const locationCache = new Map();
+
+function locationCacheKey(lat, lon) {
+  return `${Math.round(lat / LOCATION_CACHE_CELL_DEG)},${Math.round(lon / LOCATION_CACHE_CELL_DEG)}`;
+}
 
 function showLocationBanner(place, district, country) {
   locationBannerPlaceEl.textContent = place;
@@ -1640,14 +1762,17 @@ function hideLocationBanner() {
 }
 
 async function updateLocationBanner(now) {
-  if (!locationBannerEnabled) return;
+  if (!locationBannerEnabled || isGeocodingPaused()) return;
 
   const cameraPosition = viewer.camera.positionWC;
+  // Zeit UND Distanz müssen beide erreicht sein, bevor erneut abgefragt wird
+  // (frühere Fassung mit && hat schon bei einer der beiden Bedingungen
+  // abgefragt - im Reiseflug dadurch ca. alle 5 s, siehe Google-Abrechnung).
   if (
     lastLocationCheckPosition &&
-    now - lastLocationCheckTime < LOCATION_BANNER_CHECK_INTERVAL_MS &&
-    Cesium.Cartesian3.distance(cameraPosition, lastLocationCheckPosition) <
-      LOCATION_BANNER_CHECK_MIN_DISTANCE_M
+    (now - lastLocationCheckTime < LOCATION_BANNER_CHECK_INTERVAL_MS ||
+      Cesium.Cartesian3.distance(cameraPosition, lastLocationCheckPosition) <
+        LOCATION_BANNER_CHECK_MIN_DISTANCE_M)
   ) {
     return;
   }
@@ -1659,10 +1784,38 @@ async function updateLocationBanner(now) {
   const lon = Cesium.Math.toDegrees(carto.longitude);
 
   const requestId = ++locationBannerRequestId;
+  const cacheKey = locationCacheKey(lat, lon);
   try {
-    const data = await geocode({ latlng: `${lat},${lon}` });
-    if (requestId !== locationBannerRequestId) return; // veraltete Antwort
-    if (data.status !== "OK" || !data.place) return;
+    let data = locationCache.get(cacheKey);
+    if (data) {
+      // Treffer: als zuletzt benutzt markieren (LRU), kein API-Abruf.
+      locationCache.delete(cacheKey);
+      locationCache.set(cacheKey, data);
+    } else {
+      data = await geocode({ latlng: `${lat},${lon}` });
+      if (requestId !== locationBannerRequestId) return; // veraltete Antwort
+      if (data.status === "OK" && data.place) {
+        locationCache.set(cacheKey, data);
+        if (locationCache.size > LOCATION_CACHE_MAX_ENTRIES) {
+          locationCache.delete(locationCache.keys().next().value);
+        }
+      }
+    }
+    if (data.status !== "OK" || !data.place) {
+      // Zugriffsfehler (Geocoding API nicht aktiviert / Limit erreicht): die
+      // Bauchbinde abschalten, statt alle paar Sekunden weiter fehlzuschlagen,
+      // und den Grund kurz einblenden. Wieder einschalten geht im Menü.
+      if (GEOCODE_ACCESS_ERRORS[data.status]) {
+        applyLocationBannerEnabled(false);
+        saveCameraState();
+        showLocationBanner(
+          "Standort-Bauchbinde ausgeschaltet",
+          geocodeErrorText(data, true),
+          null,
+        );
+      }
+      return;
+    }
 
     // Viertel gehört zum Schlüssel: auch ein Wechsel innerhalb derselben
     // Stadt (z.B. Nördliche Innenstadt -> Paulusviertel) blendet die
@@ -2186,8 +2339,9 @@ async function geocodeAndFlyTo(query) {
 
     if (data.status !== "OK") {
       searchStatusEl.textContent =
+        geocodeErrorText(data) ??
         `Kein Ergebnis gefunden (${data.status}).` +
-        (data.error ? ` ${data.error}` : "");
+          (data.error ? ` ${data.error}` : "");
       searchPanel.classList.remove("searching"); // erneute Eingabe erlauben
       return;
     }
@@ -2349,6 +2503,30 @@ function switchSearchTab(tab, focusInput = true) {
 tabSearchBtn.addEventListener("click", () => switchSearchTab("search"));
 tabSpotsBtn.addEventListener("click", () => switchSearchTab("spots"));
 tabFavoritesBtn.addEventListener("click", () => switchSearchTab("favorites"));
+
+// Ohne Geocoding (Schalter in den Einstellungen) funktionieren Ortssuche,
+// 3D-Spots-Liste und Zufallsspot nicht - alle gehen über geocodeAndFlyTo().
+// Favoriten fliegen dagegen direkt per gespeicherter Kameraposition und
+// bleiben nutzbar. Aktiver Tab wird bei Bedarf auf Favoriten umgestellt.
+const GEOCODING_OFF_HINT = "Nicht verfügbar: Geocoding ist ausgeschaltet";
+onGeocodingEnabledChange = (enabled) => {
+  const dependentControls = [
+    tabSearchBtn,
+    tabSpotsBtn,
+    searchInput,
+    searchButton,
+    randomSpotButton,
+    spotCountrySelect,
+    spotFilterInput,
+  ];
+  for (const el of dependentControls) el.disabled = !enabled;
+  for (const el of [tabSearchBtn, tabSpotsBtn, randomSpotButton]) {
+    if (enabled) el.removeAttribute("title");
+    else el.title = GEOCODING_OFF_HINT;
+  }
+  if (!enabled && tabFavoritesPanel.hidden) switchSearchTab("favorites", false);
+};
+onGeocodingEnabledChange(geocodingEnabled);
 searchPanelCloseBtn.addEventListener("click", () => {
   if (isPaused) togglePause();
 });
@@ -2416,6 +2594,8 @@ spotFilterInput.addEventListener("input", renderSpotList);
 let isRandomSpotFlightActive = false;
 
 async function flyToRandomSpot() {
+  // Zufallsspot braucht Geocoding (Taste R und Button).
+  if (!geocodingEnabled) return;
   // Doppelauslösung verhindern (z.B. R mehrfach gedrückt, solange der
   // Anflug bzw. das Kachel-Laden noch läuft).
   if (isRandomSpotFlightActive) return;
@@ -2790,7 +2970,8 @@ async function updateCurrentLocation() {
     if (data.status === "OK") {
       currentLocationEl.textContent = data.formatted_address;
     } else {
-      currentLocationEl.textContent = "Ort konnte nicht ermittelt werden.";
+      currentLocationEl.textContent =
+        geocodeErrorText(data, true) ?? "Ort konnte nicht ermittelt werden.";
     }
   } catch (err) {
     if (requestId !== currentLocationRequestId) return;
@@ -2820,7 +3001,7 @@ function togglePause() {
     updateCurrentLocation();
     searchStatusEl.textContent = "";
     searchInput.value = "";
-    switchSearchTab("search", false);
+    switchSearchTab(geocodingEnabled ? "search" : "favorites", false);
     searchPanelCloseBtn.focus();
   } else {
     statusEl.textContent = baseStatusText;

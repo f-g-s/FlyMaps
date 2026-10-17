@@ -9,7 +9,24 @@ import { getApiKey, hasStoredApiKey } from "./apikey.js";
 
 const GEOCODE_ENDPOINT = "https://maps.googleapis.com/maps/api/geocode/json";
 
+// Zentrale Sperre: Ist das Geocoding pausiert (Schalter im Einstellungsmenü),
+// geht von hier aus keine Anfrage mehr raus - egal welche Funktion geocode()
+// aufruft (Bauchbinde, Ortssuche, Spots, Aktueller Ort, Zufallsstart).
+let geocodingPaused = false;
+
+export function setGeocodingPaused(paused) {
+  geocodingPaused = Boolean(paused);
+}
+
+export function isGeocodingPaused() {
+  return geocodingPaused;
+}
+
 export async function geocode({ q, latlng }, keyOverride) {
+  if (geocodingPaused) {
+    return { status: "PAUSED", error: "Geocoding ist pausiert." };
+  }
+
   // Nur lokale Entwicklung (vite dev) ohne im Dialog eingegebenen Key: wie
   // bisher über die lokale /api/geocode-Function (functions/api/geocode.js)
   // mit dem eigenen Geocoding-Key. Im Produktions-Build gibt es diesen Weg nicht.

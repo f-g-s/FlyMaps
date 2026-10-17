@@ -452,10 +452,41 @@ body.pause-mode #fullscreen-toggle-button {
   max-height: calc(100vh - 82px);
 }
 
+/* Sidebar-Variante des Pausenmenüs (Umschalter #layout-toggle-button, siehe
+   main.js): Panel dockt links über die volle Höhe an (rechts oben liegt
+   #fullscreen-toggle-button) und die Cards (Suche/Ansicht/Filter) stehen
+   untereinander statt nebeneinander. padding-top schafft oben einen freien
+   Streifen für die Icon-Buttons. Während der Suche (.searching) gilt
+   bewusst wieder das zentrierte Layout, damit die Lade-Info wie gewohnt
+   mittig erscheint. */
+#search-panel.visible.sidebar:not(.searching) {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  transform: none;
+  box-sizing: border-box;
+  width: 420px;
+  max-width: 100vw;
+  max-height: none;
+  padding-top: 68px;
+  border-radius: 0 14px 14px 0;
+}
+
+#search-panel.sidebar:not(.searching) #search-panel-content {
+  flex: 1 1 auto;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+
+#search-panel.sidebar:not(.searching) #search-panel-content .container {
+  flex: 0 0 auto;
+}
+
 #search-panel-close,
 #controls-panel-close,
 #controls-help-button,
-#settings-menu-button {
+#settings-menu-button,
+#layout-toggle-button {
   position: absolute;
   top: 28px;
   right: 28px;
@@ -482,10 +513,16 @@ body.pause-mode #fullscreen-toggle-button {
   /* links neben dem Hilfe-Button */
 }
 
+#layout-toggle-button {
+  right: 148px;
+  /* links neben dem Einstellungen-Button */
+}
+
 #search-panel-close svg,
 #controls-panel-close svg,
 #controls-help-button svg,
-#settings-menu-button svg {
+#settings-menu-button svg,
+#layout-toggle-button svg {
   width: 18px;
   height: 18px;
 }
@@ -494,6 +531,8 @@ body.pause-mode #fullscreen-toggle-button {
 #controls-panel-close:hover,
 #controls-help-button:hover,
 #settings-menu-button:hover,
+#layout-toggle-button:hover,
+#layout-toggle-button[aria-pressed="true"],
 #settings-menu-button[aria-expanded="true"] {
   background: rgba(255, 255, 255, 0.08);
   color: #fff;
@@ -502,7 +541,8 @@ body.pause-mode #fullscreen-toggle-button {
 #search-panel-close:focus-visible,
 #controls-panel-close:focus-visible,
 #controls-help-button:focus-visible,
-#settings-menu-button:focus-visible {
+#settings-menu-button:focus-visible,
+#layout-toggle-button:focus-visible {
   outline: 2px solid #2a6df4;
   outline-offset: 2px;
 }
@@ -572,6 +612,7 @@ body.pause-mode #fullscreen-toggle-button {
 #search-panel.searching #search-panel-close,
 #search-panel.searching #controls-help-button,
 #search-panel.searching #settings-menu-button,
+#search-panel.searching #layout-toggle-button,
 #search-panel.searching #settings-menu {
   display: none;
 }
@@ -863,7 +904,7 @@ body.pause-mode #fullscreen-toggle-button {
   outline-offset: 2px;
 }
 
-#search-panel button:not(.search-tab):not(#search-panel-close):not(#controls-help-button):not(#settings-menu-button):not(#settings-api-key-item):not(.favorite-item-delete) {
+#search-panel button:not(.search-tab):not(#search-panel-close):not(#controls-help-button):not(#settings-menu-button):not(#layout-toggle-button):not(#settings-api-key-item):not(.favorite-item-delete) {
   padding: 9px 12px;
   border-radius: 7px;
   border: none;
@@ -875,7 +916,7 @@ body.pause-mode #fullscreen-toggle-button {
   transition: background 0.15s ease;
 }
 
-#search-panel button:not(.search-tab):not(#search-panel-close):not(#controls-help-button):not(#settings-menu-button):not(#settings-api-key-item):not(.favorite-item-delete):hover {
+#search-panel button:not(.search-tab):not(#search-panel-close):not(#controls-help-button):not(#settings-menu-button):not(#layout-toggle-button):not(#settings-api-key-item):not(.favorite-item-delete):hover {
   background: #1d55c4;
 }
 
@@ -990,6 +1031,30 @@ body.pause-mode #fullscreen-toggle-button {
   height: 20px;
   margin-left: auto;
   flex-shrink: 0;
+}
+
+/* Gesperrte Bedienelemente im Pausenmenü (z.B. Tabs Suche/Liste und
+   Zufällig, solange Geocoding ausgeschaltet ist). !important, weil die
+   generischen Button-Regeln oben sehr spezifisch sind. */
+#search-panel button:disabled,
+#search-panel input:disabled,
+#search-panel select:disabled {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+}
+
+.search-tab:disabled:hover {
+  color: #9aa0aa;
+}
+
+/* Ausgegraute Zeile (z.B. Stadtname, solange Geocoding pausiert ist) */
+.setting-row.disabled {
+  opacity: 0.45;
+}
+
+.setting-row.disabled label,
+.setting-row.disabled .switch-slider {
+  cursor: not-allowed;
 }
 
 .switch input {
