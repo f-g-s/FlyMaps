@@ -1,0 +1,10370 @@
+{
+ "Albania|Durrës": [
+  41.32355,
+  19.45469
+ ],
+ "Albania|Elbasan": [
+  41.11138,
+  20.08224
+ ],
+ "Albania|Fier": [
+  40.7251,
+  19.55823
+ ],
+ "Albania|Mbrostar": [
+  40.75495,
+  19.60251
+ ],
+ "Albania|Shkodër": [
+  42.06828,
+  19.51258
+ ],
+ "Albania|Tirana": [
+  41.32744,
+  19.81866
+ ],
+ "Albania|Vlorë": [
+  40.4696,
+  19.48379
+ ],
+ "Argentina|Buenos Aires": [
+  -34.61315,
+  -58.37723
+ ],
+ "Argentina|Cerro de Las Rosas": [
+  -44.80978,
+  -71.85608
+ ],
+ "Argentina|Cordoba (East: Yofre Norte": [
+  -31.40648,
+  -64.18853
+ ],
+ "Argentina|Cordoba (West: Arguello": [
+  -31.40648,
+  -64.18853
+ ],
+ "Argentina|La Plata": [
+  -34.92126,
+  -57.95442
+ ],
+ "Argentina|Mar del Plata": [
+  -38.00042,
+  -57.5562
+ ],
+ "Argentina|Rosario": [
+  -32.94682,
+  -60.63932
+ ],
+ "Argentina|Salta": [
+  -24.80645,
+  -65.41999
+ ],
+ "Argentina|San Juan": [
+  -31.53726,
+  -68.52568
+ ],
+ "Argentina|San Miguel de Tucumán": [
+  -26.81601,
+  -65.21051
+ ],
+ "Argentina|Santa Fe": [
+  -31.64881,
+  -60.70868
+ ],
+ "Argentina|Santo Tomé": [
+  -28.55104,
+  -56.04125
+ ],
+ "Argentina|Villa Allende": [
+  -31.29368,
+  -64.2977
+ ],
+ "Australia|Adelaide": [
+  -34.92866,
+  138.59863
+ ],
+ "Australia|Albury Areas bordering North ACT Armidale Ballina Bathurst Bowral Buronga Casino Coffs Harbour": [
+  -36.07482,
+  146.92401
+ ],
+ "Australia|Alice River": [
+  -19.33437,
+  146.6139
+ ],
+ "Australia|Bargara Cairns Gold Coast Hervey Bay": [
+  -24.81476,
+  152.46257
+ ],
+ "Australia|Beerwah Toowoomba": [
+  -26.85881,
+  152.96144
+ ],
+ "Australia|Bendigo": [
+  -36.75818,
+  144.28024
+ ],
+ "Australia|Binningup Perth Rottnest Island": [
+  -33.1483,
+  115.69519
+ ],
+ "Australia|Brisbane": [
+  -27.46794,
+  153.02809
+ ],
+ "Australia|Bunbury": [
+  -33.32711,
+  115.64137
+ ],
+ "Australia|Burrum Heads Mackay": [
+  -25.18457,
+  152.61263
+ ],
+ "Australia|Bushland Beach": [
+  -19.19134,
+  146.67682
+ ],
+ "Australia|Canberra": [
+  -35.28346,
+  149.12807
+ ],
+ "Australia|Cessnock": [
+  -32.83211,
+  151.35623
+ ],
+ "Australia|Dareton Wollongong": [
+  -34.09468,
+  142.03966
+ ],
+ "Australia|Darwin": [
+  -12.46113,
+  130.84184
+ ],
+ "Australia|Forest Hill": [
+  -27.59262,
+  152.35568
+ ],
+ "Australia|Galston": [
+  -33.65297,
+  151.04713
+ ],
+ "Australia|Gawler": [
+  -34.60251,
+  138.74902
+ ],
+ "Australia|Gracemere": [
+  -23.43792,
+  150.45749
+ ],
+ "Australia|Hadspen": [
+  -41.50059,
+  147.0736
+ ],
+ "Australia|Helensburgh Yass Young": [
+  -34.17836,
+  150.99522
+ ],
+ "Australia|Highfields": [
+  -27.46343,
+  151.95386
+ ],
+ "Australia|Highvale Bundaberg": [
+  -27.37227,
+  152.80196
+ ],
+ "Australia|Hobart": [
+  -42.87936,
+  147.3294
+ ],
+ "Australia|Humpty Doo": [
+  -12.575,
+  131.103
+ ],
+ "Australia|Kiama": [
+  -34.66828,
+  150.85219
+ ],
+ "Australia|Kurrajong Sydney Tamworth Tweed Heads Wagga Wagga": [
+  -33.55528,
+  150.66998
+ ],
+ "Australia|Legana": [
+  -41.36572,
+  147.04584
+ ],
+ "Australia|Maitland Orange Parkes Queanbeyan Richmond": [
+  -32.73308,
+  151.5574
+ ],
+ "Australia|Maryborough": [
+  -25.54073,
+  152.70493
+ ],
+ "Australia|Merbein": [
+  -34.16802,
+  142.066
+ ],
+ "Australia|Pine Mountain": [
+  -27.55,
+  152.7
+ ],
+ "Australia|Red Cliffs Shepparton": [
+  -34.30942,
+  142.18971
+ ],
+ "Australia|Shoal Point Rockhampton": [
+  -33.66454,
+  137.18127
+ ],
+ "Australia|Snug Launceston": [
+  -43.06669,
+  147.25468
+ ],
+ "Australia|Strathfieldsaye Geelong Melbourne Mildura": [
+  -36.80667,
+  144.35487
+ ],
+ "Australia|Swansea": [
+  -42.12284,
+  148.07434
+ ],
+ "Australia|Tatura Wodonga": [
+  -36.43962,
+  145.22993
+ ],
+ "Australia|Toormina Forbes Forster Goulburn Lismore Moss Vale Newcastle": [
+  -30.35384,
+  153.08842
+ ],
+ "Australia|Uranquinty Wentworth": [
+  -35.19351,
+  147.246
+ ],
+ "Australia|Walkerston": [
+  -21.16097,
+  149.05814
+ ],
+ "Australia|Westbrook Townsville": [
+  -27.61667,
+  151.86667
+ ],
+ "Austria|Areas East of Bad Radkersburg": [
+  46.68806,
+  15.98806
+ ],
+ "Austria|Areas Northeast of Kittsee": [
+  48.0925,
+  17.06389
+ ],
+ "Austria|Areas Southeast of Leutschach": [
+  46.66722,
+  15.46889
+ ],
+ "Austria|Bad Ischl": [
+  47.71109,
+  13.61893
+ ],
+ "Austria|Braunau am Inn": [
+  48.25628,
+  13.04343
+ ],
+ "Austria|Bregenz": [
+  47.50311,
+  9.7471
+ ],
+ "Austria|Dornbirn": [
+  47.41427,
+  9.74195
+ ],
+ "Austria|Drasenhofen": [
+  48.75,
+  16.65
+ ],
+ "Austria|Freinberg": [
+  48.56627,
+  13.5137
+ ],
+ "Austria|Graz": [
+  47.06733,
+  15.44197
+ ],
+ "Austria|Hallstatt": [
+  47.56231,
+  13.64912
+ ],
+ "Austria|Herrnbaumgarten": [
+  48.69606,
+  16.68283
+ ],
+ "Austria|Hinterglemm": [
+  47.37685,
+  12.59583
+ ],
+ "Austria|Hirschegg": [
+  47.34813,
+  10.17137
+ ],
+ "Austria|Innsbruck": [
+  47.26266,
+  11.39454
+ ],
+ "Austria|Kaprun": [
+  47.27239,
+  12.75985
+ ],
+ "Austria|Klagenfurt am Wörthersee": [
+  46.62472,
+  14.30528
+ ],
+ "Austria|Linz": [
+  48.30639,
+  14.28611
+ ],
+ "Austria|Lustenau": [
+  47.42642,
+  9.65851
+ ],
+ "Austria|Saalfelden am Steinernen Meer": [
+  47.42681,
+  12.848
+ ],
+ "Austria|Salzburg": [
+  47.79941,
+  13.04399
+ ],
+ "Austria|Sankt Paul im Lavanttal": [
+  46.70056,
+  14.87556
+ ],
+ "Austria|Schärding": [
+  48.45294,
+  13.43722
+ ],
+ "Austria|Sierning": [
+  48.04343,
+  14.30935
+ ],
+ "Austria|Steyr": [
+  48.04274,
+  14.42127
+ ],
+ "Austria|Vienna": [
+  48.20849,
+  16.37208
+ ],
+ "Austria|Vils": [
+  47.55,
+  10.63333
+ ],
+ "Austria|Warth": [
+  47.65,
+  16.124
+ ],
+ "Austria|Wattens": [
+  47.29419,
+  11.5907
+ ],
+ "Austria|Wels": [
+  48.16667,
+  14.03333
+ ],
+ "Austria|Wiener Neustadt": [
+  47.80485,
+  16.23196
+ ],
+ "Austria|Wolfsberg": [
+  46.84056,
+  14.84417
+ ],
+ "Belgium|Area Northeast of Ében-Émael Bizet Charleroi La Louvière Liège Mons": [
+  50.794,
+  5.66689
+ ],
+ "Belgium|Areas Southeast of Veldwezelt Antwerp Bruges Ghent Kortrijk Leuven Ostend": [
+  50.86805,
+  5.63101
+ ],
+ "Belgium|Blankenberge": [
+  51.31306,
+  3.13227
+ ],
+ "Belgium|Brussels": [
+  50.85045,
+  4.34878
+ ],
+ "Belgium|De Panne Romarin Vilvoorde": [
+  51.09793,
+  2.59368
+ ],
+ "Belgium|Dilbeek": [
+  50.84799,
+  4.25972
+ ],
+ "Belgium|Dour Mouscron": [
+  50.39583,
+  3.77792
+ ],
+ "Belgium|Estaimpuis Namur The Three Country Point NL-BE-DE Verviers Waterloo": [
+  50.70485,
+  3.26785
+ ],
+ "Belgium|Halle": [
+  50.73385,
+  4.23454
+ ],
+ "Belgium|Mechelen": [
+  51.02574,
+  4.47762
+ ],
+ "Belgium|Tervuren": [
+  50.82372,
+  4.51418
+ ],
+ "Bosnia and Herzegovina|Brod (North)": [
+  45.13747,
+  17.98722
+ ],
+ "Brazil|Ananindeua": [
+  -1.36556,
+  -48.37222
+ ],
+ "Brazil|Belem": [
+  -1.45583,
+  -48.50444
+ ],
+ "Brazil|Belo Horizonte": [
+  -19.92083,
+  -43.93778
+ ],
+ "Brazil|Brasília": [
+  -15.77972,
+  -47.92972
+ ],
+ "Brazil|Canoas": [
+  -29.91778,
+  -51.18361
+ ],
+ "Brazil|Cuiabá": [
+  -15.59611,
+  -56.09667
+ ],
+ "Brazil|Curitiba": [
+  -25.42778,
+  -49.27306
+ ],
+ "Brazil|Florianópolis": [
+  -27.59667,
+  -48.54917
+ ],
+ "Brazil|Fortaleza": [
+  -3.71722,
+  -38.54306
+ ],
+ "Brazil|Goiânia": [
+  -16.67861,
+  -49.25389
+ ],
+ "Brazil|Guarujá": [
+  -23.99306,
+  -46.25639
+ ],
+ "Brazil|João Pessoa": [
+  -7.115,
+  -34.86306
+ ],
+ "Brazil|Joinville": [
+  -26.30444,
+  -48.84556
+ ],
+ "Brazil|Maceió": [
+  -9.66583,
+  -35.73528
+ ],
+ "Brazil|Manaus": [
+  -3.10194,
+  -60.025
+ ],
+ "Brazil|Natal": [
+  -5.795,
+  -35.20944
+ ],
+ "Brazil|Olinda": [
+  -8.00889,
+  -34.85528
+ ],
+ "Brazil|Ouro Preto": [
+  -20.39484,
+  -43.50517
+ ],
+ "Brazil|Porto Alegre": [
+  -30.03283,
+  -51.23019
+ ],
+ "Brazil|Praia Grande": [
+  -24.00583,
+  -46.40278
+ ],
+ "Brazil|Recife": [
+  -8.05389,
+  -34.88111
+ ],
+ "Brazil|Rio de Janeiro": [
+  -22.90642,
+  -43.18223
+ ],
+ "Brazil|Salvador": [
+  -12.97563,
+  -38.49096
+ ],
+ "Brazil|Santos": [
+  -23.96083,
+  -46.33361
+ ],
+ "Brazil|São Gonçalo": [
+  -22.82694,
+  -43.05389
+ ],
+ "Brazil|São Luís": [
+  -2.52972,
+  -44.30278
+ ],
+ "Brazil|São Paulo": [
+  -23.5475,
+  -46.63611
+ ],
+ "Brazil|Vila Velha": [
+  -20.32972,
+  -40.2925
+ ],
+ "Brazil|Vitória": [
+  -20.31944,
+  -40.33778
+ ],
+ "Bulgaria|Area Northeast of Tutrakan": [
+  44.04906,
+  26.61206
+ ],
+ "Bulgaria|Blagoevgrad": [
+  42.01457,
+  23.09804
+ ],
+ "Bulgaria|Burgas": [
+  42.50651,
+  27.46886
+ ],
+ "Bulgaria|Dobrich": [
+  43.56491,
+  27.83138
+ ],
+ "Bulgaria|Haskovo": [
+  41.93415,
+  25.55557
+ ],
+ "Bulgaria|Kameno": [
+  42.57084,
+  27.29875
+ ],
+ "Bulgaria|Marten": [
+  43.91667,
+  26.08333
+ ],
+ "Bulgaria|Montana": [
+  43.41285,
+  23.22174
+ ],
+ "Bulgaria|Pernik": [
+  42.59671,
+  23.03318
+ ],
+ "Bulgaria|Pleven": [
+  43.41791,
+  24.61666
+ ],
+ "Bulgaria|Plovdiv": [
+  42.15387,
+  24.75001
+ ],
+ "Bulgaria|Ruse": [
+  43.84872,
+  25.9534
+ ],
+ "Bulgaria|Shumen": [
+  43.27064,
+  26.92286
+ ],
+ "Bulgaria|Sliven": [
+  42.68607,
+  26.32558
+ ],
+ "Bulgaria|Sofia": [
+  42.69751,
+  23.32415
+ ],
+ "Bulgaria|Stara Zagora": [
+  42.43205,
+  25.64262
+ ],
+ "Bulgaria|Varna": [
+  43.21912,
+  27.91024
+ ],
+ "Bulgaria|Yambol": [
+  42.48243,
+  26.50006
+ ],
+ "Canada|Abbotsford Kamloops Kelowna": [
+  49.05798,
+  -122.25257
+ ],
+ "Canada|Airdrie Calgary Edmonton": [
+  51.30011,
+  -114.03528
+ ],
+ "Canada|Amherstburg": [
+  42.10009,
+  -83.09985
+ ],
+ "Canada|Barrie Windsor": [
+  44.40011,
+  -79.66634
+ ],
+ "Canada|Bathurst Fredericton": [
+  47.61814,
+  -65.65112
+ ],
+ "Canada|Beachcomber Bay Nanaimo": [
+  50.24444,
+  -119.37778
+ ],
+ "Canada|Belcarra Victoria": [
+  49.31777,
+  -122.93043
+ ],
+ "Canada|Beloeil Drummondville Gatineau Granby Montréal": [
+  45.56839,
+  -73.20568
+ ],
+ "Canada|Brantford Fort Erie Kingston Kitchener": [
+  43.1334,
+  -80.26636
+ ],
+ "Canada|Burnaby": [
+  49.26636,
+  -122.95263
+ ],
+ "Canada|Cambridge London": [
+  43.3601,
+  -80.31269
+ ],
+ "Canada|Coquitlam": [
+  49.2846,
+  -122.78217
+ ],
+ "Canada|Delta": [
+  49.08917,
+  -123.05322
+ ],
+ "Canada|Esquimalt": [
+  48.43569,
+  -123.41174
+ ],
+ "Canada|Guelph": [
+  43.54594,
+  -80.25599
+ ],
+ "Canada|Halifax": [
+  44.64269,
+  -63.57688
+ ],
+ "Canada|Hamilton": [
+  43.25011,
+  -79.84963
+ ],
+ "Canada|Lake Country": [
+  50.0088,
+  -119.39672
+ ],
+ "Canada|Langford": [
+  48.44963,
+  -123.50261
+ ],
+ "Canada|Langley": [
+  49.10107,
+  -122.65883
+ ],
+ "Canada|Lantzville Port Alberni Vancouver": [
+  49.2454,
+  -124.07547
+ ],
+ "Canada|Laval": [
+  45.56995,
+  -73.692
+ ],
+ "Canada|Leamington": [
+  42.05009,
+  -82.59981
+ ],
+ "Canada|Magog Trois-Rivières": [
+  45.26678,
+  -72.14909
+ ],
+ "Canada|Maple Ridge": [
+  49.21939,
+  -122.60193
+ ],
+ "Canada|Mississauga": [
+  43.5789,
+  -79.6583
+ ],
+ "Canada|New Westminster": [
+  49.20678,
+  -122.91092
+ ],
+ "Canada|North Vancouver": [
+  49.31636,
+  -123.06934
+ ],
+ "Canada|Oak Bay": [
+  48.44964,
+  -123.3026
+ ],
+ "Canada|Oromocto West Moncton Saint John": [
+  45.83747,
+  -66.51498
+ ],
+ "Canada|Oshawa": [
+  43.90012,
+  -78.84957
+ ],
+ "Canada|Pitt Meadows": [
+  49.22119,
+  -122.68965
+ ],
+ "Canada|Port Colborne Ottawa Peterborough Sarnia Sault Ste. Marie Sudbury Thunder Bay Toronto": [
+  42.90012,
+  -79.23288
+ ],
+ "Canada|Port Coquitlam": [
+  49.26637,
+  -122.76932
+ ],
+ "Canada|Port Moody": [
+  49.28124,
+  -122.82457
+ ],
+ "Canada|Quispamsis": [
+  45.42135,
+  -65.95127
+ ],
+ "Canada|Regina Saskatoon": [
+  50.45008,
+  -104.6178
+ ],
+ "Canada|Repentigny": [
+  45.74222,
+  -73.45008
+ ],
+ "Canada|Richmond": [
+  49.17003,
+  -123.13683
+ ],
+ "Canada|Saanich": [
+  48.54964,
+  -123.36931
+ ],
+ "Canada|Saint-Grégoire": [
+  46.27226,
+  -72.51022
+ ],
+ "Canada|Sainte-Anne-de-Beaupré": [
+  47.02389,
+  -70.92833
+ ],
+ "Canada|St. Albert Fort McMurray Grande Prairie Lethbridge Medicine Hat Red Deer": [
+  53.63344,
+  -113.63533
+ ],
+ "Canada|St. Catharines": [
+  43.17126,
+  -79.24267
+ ],
+ "Canada|St. Thomas Niagara Falls": [
+  42.77361,
+  -81.18038
+ ],
+ "Canada|Surrey": [
+  49.10635,
+  -122.82509
+ ],
+ "Canada|Vaudreuil-Dorion Quebec City Saint-Jean-sur-Richelieu Saint-Jerôme Sainte-Marie": [
+  45.40008,
+  -74.03251
+ ],
+ "Canada|View Royal": [
+  48.45793,
+  -123.45261
+ ],
+ "Canada|West Kelowna": [
+  49.8625,
+  -119.58333
+ ],
+ "Canada|West St. Paul": [
+  50.01043,
+  -97.14213
+ ],
+ "Canada|West Vancouver": [
+  49.3286,
+  -123.16019
+ ],
+ "Canada|White Rock": [
+  49.02049,
+  -122.79507
+ ],
+ "Canada|Winnipeg": [
+  49.8844,
+  -97.14704
+ ],
+ "Chile|Concepción": [
+  -36.82699,
+  -73.04977
+ ],
+ "Chile|San Pedro de la Paz": [
+  -36.83897,
+  -73.10028
+ ],
+ "Chile|Santiago": [
+  -33.45694,
+  -70.64827
+ ],
+ "Chile|Temuco": [
+  -38.73628,
+  -72.59738
+ ],
+ "Croatia|Fažana": [
+  44.92742,
+  13.80349
+ ],
+ "Croatia|Medulin": [
+  44.8225,
+  13.935
+ ],
+ "Croatia|Osijek": [
+  45.55066,
+  18.6942
+ ],
+ "Croatia|Petrčane": [
+  44.18556,
+  15.16556
+ ],
+ "Croatia|Pula": [
+  44.86833,
+  13.84806
+ ],
+ "Croatia|Rijeka": [
+  45.32673,
+  14.44241
+ ],
+ "Croatia|Seget Vranjica": [
+  43.50999,
+  16.18704
+ ],
+ "Croatia|Slavonski Brod": [
+  45.16158,
+  18.0163
+ ],
+ "Croatia|Split": [
+  43.50891,
+  16.43915
+ ],
+ "Croatia|Sukošan": [
+  44.05,
+  15.31667
+ ],
+ "Croatia|Zadar": [
+  44.11578,
+  15.22514
+ ],
+ "Croatia|Zagreb": [
+  45.81444,
+  15.97798
+ ],
+ "Czechia|Albrechtice": [
+  49.78645,
+  18.52444
+ ],
+ "Czechia|Benešov": [
+  49.78162,
+  14.68697
+ ],
+ "Czechia|Blansko": [
+  49.36304,
+  16.64446
+ ],
+ "Czechia|Brandýs nad Labem-Stará Boleslav": [
+  50.18709,
+  14.66326
+ ],
+ "Czechia|Břeclav": [
+  48.75897,
+  16.88203
+ ],
+ "Czechia|Brno": [
+  49.19522,
+  16.60796
+ ],
+ "Czechia|České Budějovice": [
+  48.97447,
+  14.47434
+ ],
+ "Czechia|Český Krumlov": [
+  48.81091,
+  14.31521
+ ],
+ "Czechia|Český Těšín": [
+  49.74613,
+  18.62613
+ ],
+ "Czechia|Chomutov": [
+  50.46048,
+  13.41779
+ ],
+ "Czechia|Hať": [
+  49.94644,
+  18.23931
+ ],
+ "Czechia|Havířov": [
+  49.77984,
+  18.43688
+ ],
+ "Czechia|Hlučín": [
+  49.89795,
+  18.19196
+ ],
+ "Czechia|Hnojník": [
+  49.6825,
+  18.54143
+ ],
+ "Czechia|Holasovice": [
+  49.99843,
+  17.80847
+ ],
+ "Czechia|Hradec Králové": [
+  50.20923,
+  15.83277
+ ],
+ "Czechia|Hranice": [
+  49.54796,
+  17.73469
+ ],
+ "Czechia|Jablonec nad Nisou": [
+  50.72431,
+  15.17108
+ ],
+ "Czechia|Kladno": [
+  50.14734,
+  14.10285
+ ],
+ "Czechia|Koloveč": [
+  49.48678,
+  13.10877
+ ],
+ "Czechia|Kralupy nad Vltavou": [
+  50.24107,
+  14.31149
+ ],
+ "Czechia|Lednice": [
+  48.79992,
+  16.80339
+ ],
+ "Czechia|Libavá": [
+  50.1,
+  12.56667
+ ],
+ "Czechia|Liberec": [
+  50.76711,
+  15.05619
+ ],
+ "Czechia|Mikulov": [
+  48.80556,
+  16.6378
+ ],
+ "Czechia|Mníšek pod Brdy": [
+  49.8665,
+  14.26176
+ ],
+ "Czechia|Napajedla": [
+  49.17156,
+  17.51194
+ ],
+ "Czechia|Nový Jičín": [
+  49.59438,
+  18.01028
+ ],
+ "Czechia|Olomouc": [
+  49.59552,
+  17.25175
+ ],
+ "Czechia|Opava": [
+  49.93866,
+  17.90257
+ ],
+ "Czechia|Ostrava": [
+  49.83465,
+  18.28204
+ ],
+ "Czechia|Otrokovice": [
+  49.20934,
+  17.53944
+ ],
+ "Czechia|Pardubice": [
+  50.04075,
+  15.77659
+ ],
+ "Czechia|Plzeň": [
+  49.67517,
+  13.27462
+ ],
+ "Czechia|Podivín": [
+  48.82554,
+  16.84822
+ ],
+ "Czechia|Prague": [
+  50.08804,
+  14.42076
+ ],
+ "Czechia|Přerov": [
+  49.45511,
+  17.4509
+ ],
+ "Czechia|Slavkov u Brna": [
+  49.15325,
+  16.87649
+ ],
+ "Czechia|Slušovice": [
+  49.24782,
+  17.8015
+ ],
+ "Czechia|Štěpánov": [
+  49.68404,
+  17.22041
+ ],
+ "Czechia|Teplice": [
+  50.6404,
+  13.82451
+ ],
+ "Czechia|Tišnov": [
+  49.34872,
+  16.42438
+ ],
+ "Czechia|Týn nad Vltavou": [
+  49.2234,
+  14.42057
+ ],
+ "Czechia|Ústí nad Labem": [
+  50.6607,
+  14.03227
+ ],
+ "Czechia|Valašské Meziříčí": [
+  49.47181,
+  17.97113
+ ],
+ "Czechia|Valtice": [
+  48.74069,
+  16.75499
+ ],
+ "Czechia|Veselí nad Lužnicí": [
+  49.1843,
+  14.69734
+ ],
+ "Czechia|Všeruby": [
+  49.84167,
+  13.22943
+ ],
+ "Czechia|Žabčice": [
+  49.0116,
+  16.60257
+ ],
+ "Czechia|Zlín": [
+  49.22645,
+  17.67065
+ ],
+ "Denmark|Aalborg": [
+  57.048,
+  9.9187
+ ],
+ "Denmark|Aarhus": [
+  56.15674,
+  10.21076
+ ],
+ "Denmark|Area Southwest of Kollund": [
+  56.09598,
+  9.02976
+ ],
+ "Denmark|Copenhagen": [
+  55.67594,
+  12.56553
+ ],
+ "Denmark|Esbjerg": [
+  55.47028,
+  8.45187
+ ],
+ "Denmark|Odense": [
+  55.39594,
+  10.38831
+ ],
+ "Denmark|Vejle": [
+  55.70927,
+  9.5357
+ ],
+ "Finland|Espoo": [
+  60.2052,
+  24.6522
+ ],
+ "Finland|Helsinki": [
+  60.16952,
+  24.93545
+ ],
+ "Finland|Hiltulanlahti": [
+  62.80765,
+  27.61087
+ ],
+ "Finland|Järvenpää": [
+  60.47369,
+  25.08992
+ ],
+ "Finland|Jyväskylä": [
+  62.24147,
+  25.72088
+ ],
+ "Finland|Kauniainen": [
+  60.21209,
+  24.72756
+ ],
+ "Finland|Kerava": [
+  60.40338,
+  25.105
+ ],
+ "Finland|Kirkkonummi": [
+  60.12381,
+  24.43853
+ ],
+ "Finland|Kuohu": [
+  62.26695,
+  25.45717
+ ],
+ "Finland|Kuopio": [
+  62.89238,
+  27.67703
+ ],
+ "Finland|Muuratsalo": [
+  62.09921,
+  25.75394
+ ],
+ "Finland|Nilsiä": [
+  63.20746,
+  28.08222
+ ],
+ "Finland|Oulu": [
+  65.01236,
+  25.46816
+ ],
+ "Finland|Pori": [
+  61.48072,
+  21.78518
+ ],
+ "Finland|Sääskiniemi": [
+  62.64604,
+  23.2887
+ ],
+ "Finland|Sipoo": [
+  60.37752,
+  25.26906
+ ],
+ "Finland|Tampere": [
+  61.49911,
+  23.78712
+ ],
+ "Finland|Tikkakoski": [
+  62.38957,
+  25.64827
+ ],
+ "Finland|Turku": [
+  60.45148,
+  22.26869
+ ],
+ "Finland|Tuusula": [
+  60.40368,
+  25.02638
+ ],
+ "Finland|Ulvila": [
+  61.42844,
+  21.87103
+ ],
+ "Finland|Vantaa": [
+  60.29414,
+  25.04099
+ ],
+ "France|Aiguines": [
+  43.77601,
+  6.24278
+ ],
+ "France|Aix-en-Provence": [
+  43.5283,
+  5.44973
+ ],
+ "France|Ajaccio": [
+  41.91886,
+  8.73812
+ ],
+ "France|Albi Alès Béziers Carcassonne": [
+  43.9298,
+  2.148
+ ],
+ "France|Amboise Area Northwest of Couziers Azay-le-Rideau Blois Bouges-le-Château Bourges Chambord": [
+  47.41249,
+  0.98266
+ ],
+ "France|Amiens Arras Beauvais Boulogne-sur-Mer Calais Dunkirk Lille": [
+  49.9,
+  2.3
+ ],
+ "France|Amnéville Area East of Biederthal Area East of Lauterbourg Area North of Freyming-Merlebach Châlons-en-Champagne Charleville-Mézières": [
+  49.25671,
+  6.13414
+ ],
+ "France|Angers Cholet": [
+  47.47156,
+  -0.55202
+ ],
+ "France|Angoulême Arcachon": [
+  45.64997,
+  0.15345
+ ],
+ "France|Area East of Challex Area Southeast of Saint-Jean-de-Gonville Chambéry Chamonix Clermont-Ferrand": [
+  46.18458,
+  5.97639
+ ],
+ "France|Area Southeast of Villers-le-Lac Auxerre Belfort": [
+  47.06319,
+  6.66699
+ ],
+ "France|Areas East of Sains Quimper Rennes": [
+  50.44512,
+  2.68301
+ ],
+ "France|Arès Area North of Roiffé Area West of Saint-Pierre-des-Échaubrognes Biarritz Bordeaux Brive-la-Gaillarde Hendaye La Rochelle Limoges Niort": [
+  44.76576,
+  -1.13421
+ ],
+ "France|Armentières Maubeuge Saint-Quentin Valenciennes": [
+  50.68568,
+  2.88214
+ ],
+ "France|Autun": [
+  46.95104,
+  4.29869
+ ],
+ "France|Bages Nîmes Perpignan": [
+  42.60603,
+  2.89348
+ ],
+ "France|Bayeux": [
+  49.27732,
+  -0.7039
+ ],
+ "France|Berre-l'Étang Nice": [
+  43.47809,
+  5.17044
+ ],
+ "France|Betton Saint-Malo Vannes": [
+  48.1827,
+  -1.6448
+ ],
+ "France|Biganos": [
+  44.64425,
+  -0.97841
+ ],
+ "France|Caen": [
+  49.18585,
+  -0.35912
+ ],
+ "France|Cannes": [
+  43.55135,
+  7.01275
+ ],
+ "France|Cazilhac Castres Fourques Les Angles Lourdes Montauban Montpellier": [
+  43.18365,
+  2.36241
+ ],
+ "France|Corbeil-Essonnes": [
+  48.60603,
+  2.48757
+ ],
+ "France|Divonne-les-Bains Annemasse": [
+  46.3571,
+  6.13494
+ ],
+ "France|Dompierre-sur-Yon Laval": [
+  46.73861,
+  -1.38785
+ ],
+ "France|Firminy Valence Villefranche-sur-Saone Yvoire": [
+  45.38956,
+  4.2886
+ ],
+ "France|Francueil Chinon Fougères-sur-Bièvre Lassay-sur-Croisne Lémeré Loches Meung-sur-Loire Orléans Sully-sur-Loire Talcy Tours Villandry": [
+  47.31282,
+  1.08399
+ ],
+ "France|Fréjus": [
+  43.43325,
+  6.73555
+ ],
+ "France|Frontignan": [
+  43.44775,
+  3.75524
+ ],
+ "France|Gespunsart Colmar Forbach Metz Mulhouse Nancy Reims Réserve biologique dirigée de Lauterbourg Russange Saint-Louis": [
+  49.82143,
+  4.82926
+ ],
+ "France|Givors Roanne Saint-Étienne": [
+  45.59063,
+  4.76878
+ ],
+ "France|Grenade": [
+  43.77128,
+  1.29282
+ ],
+ "France|Héricourt Besançon Chalon-sur-Saône": [
+  47.57305,
+  6.76139
+ ],
+ "France|Honfleur Évreux Le Havre Mont Saint-Michel": [
+  49.41985,
+  0.23294
+ ],
+ "France|Houlgate": [
+  49.299,
+  -0.08153
+ ],
+ "France|Hyères": [
+  43.12038,
+  6.12857
+ ],
+ "France|L'Île-Rousse Porto-Vecchio": [
+  42.63371,
+  8.93764
+ ],
+ "France|La Palud-sur-Verdon": [
+  43.78333,
+  6.33333
+ ],
+ "France|La Tessoualle Fontevraud-l'Abbaye La Roche-sur-Yon": [
+  47.00466,
+  -0.8511
+ ],
+ "France|Le Hézo": [
+  47.58573,
+  -2.70208
+ ],
+ "France|Les Mureaux": [
+  48.99173,
+  1.90972
+ ],
+ "France|Leucate": [
+  42.91056,
+  3.02944
+ ],
+ "France|Loupian Tarbes Toulouse": [
+  43.44952,
+  3.61333
+ ],
+ "France|Luzy": [
+  46.79011,
+  3.97036
+ ],
+ "France|Maslives Chartres Château de Montpoupon, Céré-la-Ronde Châteaudun Châteauroux Chenonceaux": [
+  47.63345,
+  1.47925
+ ],
+ "France|Maurepas": [
+  48.76486,
+  1.92923
+ ],
+ "France|Menton": [
+  43.77649,
+  7.50435
+ ],
+ "France|Millas Sète": [
+  42.69203,
+  2.69508
+ ],
+ "France|Moncé-en-Belin Nantes Saint-Nazaire": [
+  47.8952,
+  0.19929
+ ],
+ "France|Montbéliard": [
+  47.50957,
+  6.79823
+ ],
+ "France|Montgiscard Narbonne": [
+  43.45801,
+  1.57295
+ ],
+ "France|Neuville-de-Poitou": [
+  46.68505,
+  0.24474
+ ],
+ "France|Ouistreham Deauville": [
+  49.27566,
+  -0.2591
+ ],
+ "France|Ouroux-sur-Saône Dijon Le Creusot": [
+  46.72147,
+  4.95262
+ ],
+ "France|Paris": [
+  48.85341,
+  2.3488
+ ],
+ "France|Parné-sur-Roc Le Mans": [
+  48.00658,
+  -0.66896
+ ],
+ "France|Pietrosella Bastia Biguglia": [
+  41.83576,
+  8.84573
+ ],
+ "France|Ploeren": [
+  47.65619,
+  -2.86592
+ ],
+ "France|Pontorson Rouen": [
+  48.55316,
+  -1.50754
+ ],
+ "France|Riom Saint-Genis-Pouilly": [
+  45.89362,
+  3.11264
+ ],
+ "France|Roubaix": [
+  50.69421,
+  3.17456
+ ],
+ "France|Saint-Chamond": [
+  45.4759,
+  4.51294
+ ],
+ "France|Saint-Julien-en-Genevois Annecy Grenoble Lyon": [
+  46.14434,
+  6.08256
+ ],
+ "France|Saint-Rémy Pau Poitiers": [
+  43.78848,
+  4.83167
+ ],
+ "France|Saint-Tropez": [
+  43.26764,
+  6.64049
+ ],
+ "France|San-Nicolao Bonifacio Calvi": [
+  42.36993,
+  9.51443
+ ],
+ "France|Sotta": [
+  41.54478,
+  9.1963
+ ],
+ "France|Sussargues Muret": [
+  43.7125,
+  4.0031
+ ],
+ "France|Tourcoing": [
+  50.72391,
+  3.16117
+ ],
+ "France|Trigance Arles Avignon Marseille": [
+  43.76142,
+  6.44384
+ ],
+ "France|Vic-la-Gardiole": [
+  43.4908,
+  3.7975
+ ],
+ "France|Vierville-sur-Mer": [
+  49.37237,
+  -0.90709
+ ],
+ "Germany|Achim": [
+  53.01416,
+  9.0263
+ ],
+ "Germany|Ahrensburg": [
+  53.67661,
+  10.23705
+ ],
+ "Germany|Alsdorf Bielefeld Bocholt Cologne": [
+  50.77736,
+  7.88562
+ ],
+ "Germany|Altötting": [
+  48.22533,
+  12.67665
+ ],
+ "Germany|Alzenau": [
+  50.0888,
+  9.06455
+ ],
+ "Germany|Area East of Salzbergen Braunschweig Buxtehude": [
+  52.33333,
+  7.35
+ ],
+ "Germany|Area East of Wolfsbuch Area Northeast of Jestetten Büsingen am Hochrhein Freiburg im Breisgau Göppingen Heilbronn Karlsruhe": [
+  49.41545,
+  10.12025
+ ],
+ "Germany|Area North of Marktschellenberg Aschaffenburg": [
+  47.69657,
+  13.0434
+ ],
+ "Germany|Area Northwest of Ahaus on Dutch border Area Northwest of Kaldenkirchen Area West of Gronau Aachen": [
+  52.07936,
+  7.01344
+ ],
+ "Germany|Area West of Neckarsteinach Frankfurt": [
+  49.40735,
+  8.84342
+ ],
+ "Germany|Backnang Tübingen Ulm": [
+  48.94743,
+  9.43718
+ ],
+ "Germany|Bad Neuenahr-Ahrweiler": [
+  50.54322,
+  7.1113
+ ],
+ "Germany|Bad Schandau": [
+  50.91743,
+  14.15494
+ ],
+ "Germany|Berlin": [
+  52.52437,
+  13.41053
+ ],
+ "Germany|Böblingen": [
+  48.68212,
+  9.01171
+ ],
+ "Germany|Bonn": [
+  50.73438,
+  7.09549
+ ],
+ "Germany|Bremen Bremerhaven": [
+  53.07582,
+  8.80717
+ ],
+ "Germany|Bullenhausen Delmenhorst": [
+  53.44924,
+  10.07282
+ ],
+ "Germany|Cochem Kaiserslautern Koblenz": [
+  50.14511,
+  7.16379
+ ],
+ "Germany|Cottbus Potsdam": [
+  51.75769,
+  14.32888
+ ],
+ "Germany|Crimmitschau": [
+  50.81644,
+  12.39045
+ ],
+ "Germany|Darmstadt": [
+  49.87167,
+  8.65027
+ ],
+ "Germany|Dortmund": [
+  51.51494,
+  7.466
+ ],
+ "Germany|Duisburg": [
+  51.43247,
+  6.76516
+ ],
+ "Germany|Düsseldorf": [
+  51.22319,
+  6.77927
+ ],
+ "Germany|Eichwalde": [
+  52.36667,
+  13.61667
+ ],
+ "Germany|Elsfleth Göttingen Hanover Hildesheim Schiffdorf": [
+  53.23748,
+  8.45664
+ ],
+ "Germany|Erfurt Gera Jena Ponitz": [
+  50.97734,
+  11.03536
+ ],
+ "Germany|Erlangen": [
+  49.59099,
+  11.00783
+ ],
+ "Germany|Essen": [
+  51.45657,
+  7.01228
+ ],
+ "Germany|Falkensee": [
+  52.56014,
+  13.0927
+ ],
+ "Germany|Fischen Passau": [
+  47.67705,
+  10.31589
+ ],
+ "Germany|Frankenberg Dresden Görlitz Leipzig Zwickau": [
+  51.0589,
+  8.80077
+ ],
+ "Germany|Freising Neu-Ulm": [
+  48.40351,
+  11.74876
+ ],
+ "Germany|Friedrichshafen": [
+  47.65689,
+  9.47554
+ ],
+ "Germany|Gaienhofen Lörrach": [
+  47.68333,
+  8.98333
+ ],
+ "Germany|Glauchau": [
+  50.81987,
+  12.54493
+ ],
+ "Germany|Hagenbach": [
+  49.01734,
+  8.25024
+ ],
+ "Germany|Halle": [
+  51.99122,
+  9.56532
+ ],
+ "Germany|Hamburg": [
+  53.55073,
+  9.99302
+ ],
+ "Germany|Hamm Detmold Düren Gütersloh Herford Lüdenscheid Münster Paderborn Rheine Siegen": [
+  51.68033,
+  7.82089
+ ],
+ "Germany|Hanau": [
+  50.13423,
+  8.91418
+ ],
+ "Germany|Heidelberg": [
+  49.40768,
+  8.69079
+ ],
+ "Germany|Kirchheim unter Teck": [
+  48.64683,
+  9.45378
+ ],
+ "Germany|Kressbronn am Bodensee": [
+  47.5976,
+  9.59707
+ ],
+ "Germany|Langen bei Bremerhaven Staufenberg-Uschlag Lebenstedt Lüneburg Oldenburg Osnabrück Wilhelmshaven Wolfsburg": [
+  52.53985,
+  7.4674
+ ],
+ "Germany|Lützen Magdeburg": [
+  51.25671,
+  12.14164
+ ],
+ "Germany|Meckelfeld": [
+  53.42203,
+  10.02094
+ ],
+ "Germany|Mering Bamberg Bayreuth Berchtesgaden Coburg Freilassing Füssen Garmisch-Partenkirchen": [
+  48.2656,
+  10.98461
+ ],
+ "Germany|Neuhaus am Inn Regensburg Rosenheim Rothenburg ob der Tauber Schweinfurt Wasserburg am Bodensee Würzburg": [
+  48.46086,
+  13.42083
+ ],
+ "Germany|Neuwied Ludwigshafen": [
+  50.4336,
+  7.47057
+ ],
+ "Germany|Norderstedt": [
+  53.70177,
+  9.99328
+ ],
+ "Germany|Oberammergau Ingolstadt Kempten Landshut Lindau Mühldorf": [
+  47.59812,
+  11.06692
+ ],
+ "Germany|Osterholz-Scharmbeck": [
+  53.22659,
+  8.7923
+ ],
+ "Germany|Pforzheim Kehl Konstanz": [
+  48.88436,
+  8.69892
+ ],
+ "Germany|Reinbek": [
+  53.51773,
+  10.24861
+ ],
+ "Germany|Rheinfelden Mannheim": [
+  47.56013,
+  7.78715
+ ],
+ "Germany|Saarbrücken": [
+  49.23262,
+  7.00982
+ ],
+ "Germany|Schwabach Oberstdorf": [
+  49.33047,
+  11.02346
+ ],
+ "Germany|Senden": [
+  51.85645,
+  7.48327
+ ],
+ "Germany|Senden Nuremberg": [
+  51.85645,
+  7.48327
+ ],
+ "Germany|Simbach am Inn Munich": [
+  48.26548,
+  13.02309
+ ],
+ "Germany|Speyer Mainz Mudersbach Trier Worms Wörth am Rhein": [
+  49.32083,
+  8.43111
+ ],
+ "Germany|Stadt Wehlen Chemnitz": [
+  50.95821,
+  14.03091
+ ],
+ "Germany|Sulzbach am Main Augsburg": [
+  49.91149,
+  9.15315
+ ],
+ "Germany|Überlingen": [
+  47.76977,
+  9.17136
+ ],
+ "Germany|Unkel Bernkastel-Kues": [
+  50.59653,
+  7.21888
+ ],
+ "Germany|Viernheim": [
+  49.54033,
+  8.5782
+ ],
+ "Germany|Vilshofen an der Donau": [
+  48.62695,
+  13.19222
+ ],
+ "Germany|Wedel Elmshorn Flensburg Kiel Lübeck Neumünster": [
+  53.58374,
+  9.69835
+ ],
+ "Germany|Weinheim Ravensburg Reutlingen Stuttgart": [
+  49.54887,
+  8.66697
+ ],
+ "Germany|Wiesbaden Fulda Giessen Kassel Marburg Wehrzollhaus": [
+  50.08601,
+  8.24435
+ ],
+ "Germany|Wuppertal": [
+  51.25627,
+  7.14816
+ ],
+ "Germany|Zell": [
+  49.14348,
+  12.41162
+ ],
+ "Greece|Acharavi": [
+  39.7936,
+  19.81736
+ ],
+ "Greece|Afantou": [
+  36.29354,
+  28.16225
+ ],
+ "Greece|Agios Nikolaos": [
+  35.19106,
+  25.71524
+ ],
+ "Greece|Agrinio": [
+  38.62139,
+  21.40778
+ ],
+ "Greece|Ano Mera": [
+  37.44904,
+  25.39095
+ ],
+ "Greece|Argostoli": [
+  38.18109,
+  20.48903
+ ],
+ "Greece|Athens": [
+  37.98376,
+  23.72784
+ ],
+ "Greece|Chania": [
+  35.51124,
+  24.02921
+ ],
+ "Greece|Corfu": [
+  39.62441,
+  19.92016
+ ],
+ "Greece|Gavros": [
+  39.799,
+  21.59667
+ ],
+ "Greece|Heraklion": [
+  35.33694,
+  25.17375
+ ],
+ "Greece|Ioannina": [
+  39.66341,
+  20.85187
+ ],
+ "Greece|Istro": [
+  35.12468,
+  25.73882
+ ],
+ "Greece|Kalamata": [
+  37.03913,
+  22.11265
+ ],
+ "Greece|Karavados": [
+  38.11596,
+  20.60016
+ ],
+ "Greece|Katerini": [
+  40.26956,
+  22.50608
+ ],
+ "Greece|Kavos": [
+  39.39025,
+  20.10781
+ ],
+ "Greece|Komotini": [
+  41.11758,
+  25.40587
+ ],
+ "Greece|Koutselio": [
+  39.58808,
+  20.91197
+ ],
+ "Greece|Laganas": [
+  37.72837,
+  20.8678
+ ],
+ "Greece|Lamia": [
+  38.89947,
+  22.4335
+ ],
+ "Greece|Larissa": [
+  39.62847,
+  22.42112
+ ],
+ "Greece|Lixouri": [
+  38.20133,
+  20.43706
+ ],
+ "Greece|Mikonos": [
+  37.43513,
+  25.3481
+ ],
+ "Greece|Naxos": [
+  37.10556,
+  25.37639
+ ],
+ "Greece|Oia": [
+  36.4626,
+  25.37637
+ ],
+ "Greece|Oraiokastro": [
+  40.73083,
+  22.91722
+ ],
+ "Greece|Patras": [
+  38.2462,
+  21.73508
+ ],
+ "Greece|Perissa | Nea Kameni (Center) | Nea Kameni (East) | Palia Kameni | Thirasia Island)": [
+  36.3555,
+  25.47176
+ ],
+ "Greece|Planos": [
+  37.81635,
+  20.86437
+ ],
+ "Greece|Rethymno": [
+  35.36555,
+  24.48232
+ ],
+ "Greece|Rhodes": [
+  36.43556,
+  28.22199
+ ],
+ "Greece|Santorini (Akrotiri | Area East of Santoniri Airport | Area West of Akrotiri | Aspronisi Island | Fira": [
+  36.40572,
+  25.45682
+ ],
+ "Greece|Serres": [
+  41.08499,
+  23.54757
+ ],
+ "Greece|Thessaloniki": [
+  40.64072,
+  22.93493
+ ],
+ "Greece|Trikala": [
+  39.55493,
+  21.76837
+ ],
+ "Greece|Vivlos": [
+  37.05824,
+  25.40827
+ ],
+ "Greece|Volos": [
+  39.36923,
+  22.94769
+ ],
+ "Greece|Vrouchas": [
+  35.31694,
+  25.73387
+ ],
+ "Greece|Xanthi": [
+  41.13488,
+  24.888
+ ],
+ "Greece|Zakinthos": [
+  37.78022,
+  20.89555
+ ],
+ "Hong Kong|Fanling": [
+  22.49487,
+  114.13949
+ ],
+ "Hong Kong|Hong Kong Island": [
+  22.26686,
+  114.17885
+ ],
+ "Hong Kong|Kowloon": [
+  22.31667,
+  114.18333
+ ],
+ "Hong Kong|Sha Tin": [
+  22.38333,
+  114.18333
+ ],
+ "Hong Kong|Tai Po": [
+  22.45007,
+  114.16877
+ ],
+ "Hong Kong|Tuen Mun": [
+  22.39175,
+  113.97157
+ ],
+ "Hungary|Algyő": [
+  46.33472,
+  20.20849
+ ],
+ "Hungary|Ballószög": [
+  46.86216,
+  19.57092
+ ],
+ "Hungary|Budapest": [
+  47.49835,
+  19.04045
+ ],
+ "Hungary|Bükkszentkereszt": [
+  48.06667,
+  20.63333
+ ],
+ "Hungary|Debrecen": [
+  47.53167,
+  21.62444
+ ],
+ "Hungary|Dunaújváros": [
+  46.96479,
+  18.93974
+ ],
+ "Hungary|Győr": [
+  47.68333,
+  17.63512
+ ],
+ "Hungary|Hajdúsámson": [
+  47.6,
+  21.76667
+ ],
+ "Hungary|Kecskemét": [
+  46.90618,
+  19.69128
+ ],
+ "Hungary|Miskolc": [
+  48.10327,
+  20.77806
+ ],
+ "Hungary|Nyíregyháza": [
+  47.95539,
+  21.71671
+ ],
+ "Hungary|Pécs": [
+  46.07617,
+  18.22814
+ ],
+ "Hungary|Söpte": [
+  47.28628,
+  16.65153
+ ],
+ "Hungary|Szeged": [
+  46.253,
+  20.14824
+ ],
+ "Hungary|Székesfehérvár": [
+  47.18995,
+  18.41034
+ ],
+ "Hungary|Szolnok": [
+  47.18066,
+  20.19835
+ ],
+ "Hungary|Szombathely": [
+  47.23088,
+  16.62155
+ ],
+ "Iceland|Grindavik": [
+  63.83849,
+  -22.43931
+ ],
+ "Iceland|Njarðvík": [
+  63.9809,
+  -22.5145
+ ],
+ "Iceland|Reykjavik": [
+  64.13548,
+  -21.89541
+ ],
+ "Iceland|Selfoss": [
+  63.93311,
+  -20.99712
+ ],
+ "Iceland|Vogar": [
+  63.9816,
+  -22.38473
+ ],
+ "Ireland|Area Southeast of Bridge End": [
+  55.04083,
+  -7.38222
+ ],
+ "Ireland|Athlone": [
+  53.42278,
+  -7.93722
+ ],
+ "Ireland|Cork": [
+  51.89797,
+  -8.47061
+ ],
+ "Ireland|Dublin": [
+  53.33306,
+  -6.24889
+ ],
+ "Ireland|Dundalk": [
+  54,
+  -6.41667
+ ],
+ "Ireland|Galway": [
+  53.27245,
+  -9.05095
+ ],
+ "Ireland|Kilkenny": [
+  52.65417,
+  -7.25222
+ ],
+ "Ireland|Leixlip": [
+  53.36583,
+  -6.49556
+ ],
+ "Ireland|Limerick": [
+  52.66472,
+  -8.62306
+ ],
+ "Ireland|Tralee": [
+  52.27042,
+  -9.70264
+ ],
+ "Italy|Abano Terme Peschiera del Garda": [
+  45.35753,
+  11.78725
+ ],
+ "Italy|Acireale Gela Giarre Messina": [
+  37.60886,
+  15.16577
+ ],
+ "Italy|Adrano": [
+  37.66358,
+  14.83283
+ ],
+ "Italy|Albiano Magra Arezzo Elba ( Portoferraio": [
+  44.17574,
+  9.91619
+ ],
+ "Italy|Alessandria Area East of San Martino Area Northwest of Staffa Areas East of Ollegio Asti Biella Cuneo Novara": [
+  44.90924,
+  8.61007
+ ],
+ "Italy|Altamura": [
+  40.82664,
+  16.54952
+ ],
+ "Italy|Ancona": [
+  43.60717,
+  13.5103
+ ],
+ "Italy|Andria": [
+  41.23117,
+  16.29797
+ ],
+ "Italy|Anzio": [
+  41.45263,
+  12.62157
+ ],
+ "Italy|Aosta": [
+  45.73764,
+  7.31722
+ ],
+ "Italy|Arabba Bassano del Grappa Bibione Chioggia": [
+  46.49757,
+  11.87485
+ ],
+ "Italy|Area South of San Rocco al Porto Areas Southwest of Lanzo d'Intelvi Brescia": [
+  45.08197,
+  9.69717
+ ],
+ "Italy|Arzignano": [
+  45.52027,
+  11.33446
+ ],
+ "Italy|Aymavilles Breuil-Cervinia": [
+  45.7013,
+  7.24683
+ ],
+ "Italy|Bagnolo in Piano Rimini": [
+  44.76437,
+  10.67358
+ ],
+ "Italy|Balangero": [
+  45.26988,
+  7.51884
+ ],
+ "Italy|Bardolino": [
+  45.54114,
+  10.73298
+ ],
+ "Italy|Barletta": [
+  41.31429,
+  16.28165
+ ],
+ "Italy|Battipaglia": [
+  40.60861,
+  14.98209
+ ],
+ "Italy|Belpasso": [
+  37.59192,
+  14.97985
+ ],
+ "Italy|Bergamo": [
+  45.69601,
+  9.66721
+ ],
+ "Italy|Bologna Cesena Faenza Ferrara Imola Mezzano Chitantolo Modena": [
+  44.49381,
+  11.33875
+ ],
+ "Italy|Bolzano": [
+  46.49067,
+  11.33982
+ ],
+ "Italy|Brindisi * Foggia * Lecce": [
+  40.63215,
+  17.93607
+ ],
+ "Italy|Busto Arsizio": [
+  45.61128,
+  8.84914
+ ],
+ "Italy|Caccamo Ragusa": [
+  37.93357,
+  13.66808
+ ],
+ "Italy|Cagliari Nuoro Olbia": [
+  39.23054,
+  9.11917
+ ],
+ "Italy|Camere Vecchie": [
+  44.65753,
+  9.02982
+ ],
+ "Italy|Campitello di Fassa": [
+  46.47579,
+  11.7411
+ ],
+ "Italy|Campobasso": [
+  41.55947,
+  14.66737
+ ],
+ "Italy|Caniparola Montepulciano": [
+  44.10934,
+  9.99722
+ ],
+ "Italy|Caprino Veronese Rovigo San Donà di Piave Santa Maria Maddalena": [
+  45.60489,
+  10.79518
+ ],
+ "Italy|Carovigno Taranto": [
+  40.70626,
+  17.65847
+ ],
+ "Italy|Carpi Parma Piacenza Ravenna": [
+  44.78237,
+  10.8777
+ ],
+ "Italy|Castelvetrano": [
+  37.68081,
+  12.79194
+ ],
+ "Italy|Catanzaro Cosenza Crotone Lamezia Terme": [
+  38.88247,
+  16.60086
+ ],
+ "Italy|Cattolica": [
+  43.96182,
+  12.73631
+ ],
+ "Italy|Cerignola": [
+  41.26523,
+  15.89559
+ ],
+ "Italy|Cervia": [
+  44.26204,
+  12.34812
+ ],
+ "Italy|Cesena": [
+  44.1391,
+  12.24315
+ ],
+ "Italy|Chianciano Pagliadiccio Piombino": [
+  43.04181,
+  11.81205
+ ],
+ "Italy|Chiaravalle Ascoli Piceno": [
+  43.60114,
+  13.32511
+ ],
+ "Italy|Civitavecchia": [
+  42.09325,
+  11.79674
+ ],
+ "Italy|Comiso": [
+  36.94893,
+  14.60731
+ ],
+ "Italy|Fano": [
+  43.84052,
+  13.01665
+ ],
+ "Italy|Fermignano": [
+  43.69311,
+  12.65437
+ ],
+ "Italy|Fiano Romano Viterbo": [
+  42.15538,
+  12.59467
+ ],
+ "Italy|Foggia": [
+  41.45845,
+  15.55188
+ ],
+ "Italy|Foligno": [
+  42.95488,
+  12.70268
+ ],
+ "Italy|Follonica Pisa": [
+  42.92779,
+  10.76451
+ ],
+ "Italy|Forio": [
+  40.73757,
+  13.86003
+ ],
+ "Italy|Forli": [
+  44.22177,
+  12.04144
+ ],
+ "Italy|Fraconalto Turin": [
+  44.59105,
+  8.87846
+ ],
+ "Italy|Frosinone Latina Rome": [
+  41.63976,
+  13.34109
+ ],
+ "Italy|Gabicce Mare Urbino": [
+  43.96471,
+  12.75641
+ ],
+ "Italy|Gambolò": [
+  45.26209,
+  8.8582
+ ],
+ "Italy|Gardola Mantua Milan": [
+  45.7418,
+  10.71871
+ ],
+ "Italy|Genoa": [
+  44.40478,
+  8.94439
+ ],
+ "Italy|Gioia Tauro Reggio Calabria": [
+  38.4251,
+  15.8975
+ ],
+ "Italy|Gizzeria Lido Palmi": [
+  38.93007,
+  16.21433
+ ],
+ "Italy|Gorizia Lignano Sabbiadoro Monfalcone Pordenone Trieste": [
+  45.94088,
+  13.62167
+ ],
+ "Italy|Gravina in Puglia Bari": [
+  40.81748,
+  16.41915
+ ],
+ "Italy|Grottammare Civitanova Marche": [
+  42.98182,
+  13.86765
+ ],
+ "Italy|Ischia": [
+  40.73793,
+  13.94862
+ ],
+ "Italy|L'Aquila": [
+  42.35055,
+  13.39954
+ ],
+ "Italy|La Maddalena Oristano Sassari": [
+  41.21424,
+  9.40833
+ ],
+ "Italy|La Spezia": [
+  44.103,
+  9.82375
+ ],
+ "Italy|La Villa Stern Rovereto": [
+  45.26713,
+  7.43109
+ ],
+ "Italy|Laives Urtijëi": [
+  46.42679,
+  11.33841
+ ],
+ "Italy|Lecco Pavia Vigevano": [
+  45.85589,
+  9.39704
+ ],
+ "Italy|Lucca Siena": [
+  43.84369,
+  10.50447
+ ],
+ "Italy|Manduria": [
+  40.39899,
+  17.63726
+ ],
+ "Italy|Manfredonia": [
+  41.63065,
+  15.91876
+ ],
+ "Italy|Marsala": [
+  37.7992,
+  12.4367
+ ],
+ "Italy|Martinsicuro": [
+  42.88031,
+  13.91326
+ ],
+ "Italy|Matera Potenza": [
+  40.66599,
+  16.60463
+ ],
+ "Italy|Mirano Verona Vicenza": [
+  45.49458,
+  12.10775
+ ],
+ "Italy|Modica Syracuse": [
+  36.85868,
+  14.75966
+ ],
+ "Italy|Muggia Udine": [
+  45.60419,
+  13.76754
+ ],
+ "Italy|Navene Padua": [
+  45.80005,
+  10.83873
+ ],
+ "Italy|Nus": [
+  45.74026,
+  7.4666
+ ],
+ "Italy|Occhiobello Treviso": [
+  44.9224,
+  11.58139
+ ],
+ "Italy|Ofena": [
+  42.32536,
+  13.75864
+ ],
+ "Italy|Ognina Taormina": [
+  36.982,
+  15.2587
+ ],
+ "Italy|Ortona": [
+  42.35087,
+  14.40342
+ ],
+ "Italy|Paese Venice": [
+  45.67417,
+  12.16389
+ ],
+ "Italy|Paganica Pescara": [
+  42.50529,
+  13.2739
+ ],
+ "Italy|Partinico": [
+  38.04657,
+  13.11785
+ ],
+ "Italy|Paterno Agrigento": [
+  37.56675,
+  14.90254
+ ],
+ "Italy|Pellaro": [
+  38.01667,
+  15.65
+ ],
+ "Italy|Piani Paorelli": [
+  43.84985,
+  7.9489
+ ],
+ "Italy|Pienza": [
+  43.07873,
+  11.67671
+ ],
+ "Italy|Pietra Ligure": [
+  44.1492,
+  8.28206
+ ],
+ "Italy|Pietracuta Sassuolo": [
+  43.954,
+  12.37138
+ ],
+ "Italy|Pistoia Grosseto Livorno Massa": [
+  43.93064,
+  10.92365
+ ],
+ "Italy|Pizzoli": [
+  42.43603,
+  13.29886
+ ],
+ "Italy|Poggibonsi": [
+  43.47064,
+  11.14804
+ ],
+ "Italy|Pomonte": [
+  42.74846,
+  10.12115
+ ],
+ "Italy|Porto Empedocle Caltanissetta Catania": [
+  37.28942,
+  13.52494
+ ],
+ "Italy|Porto San Giorgio Pesaro": [
+  43.17784,
+  13.79411
+ ],
+ "Italy|Prato": [
+  43.8805,
+  11.09699
+ ],
+ "Italy|Priolo Gargallo": [
+  37.15512,
+  15.18248
+ ],
+ "Italy|Procida Naples": [
+  40.75636,
+  14.01457
+ ],
+ "Italy|Riva del Garda Trento": [
+  45.88577,
+  10.84117
+ ],
+ "Italy|Salaparuta Vittoria": [
+  37.75694,
+  13.00981
+ ],
+ "Italy|Salerno": [
+  40.67545,
+  14.79328
+ ],
+ "Italy|San Mariano Terni": [
+  43.53304,
+  12.95626
+ ],
+ "Italy|San Severo Lecce": [
+  41.68564,
+  15.38148
+ ],
+ "Italy|Sant'Anna Malcesine": [
+  37.74459,
+  15.20396
+ ],
+ "Italy|Savona": [
+  44.30905,
+  8.47715
+ ],
+ "Italy|Senigallia": [
+  43.71626,
+  13.20882
+ ],
+ "Italy|Sestri Levante": [
+  44.27317,
+  9.39683
+ ],
+ "Italy|Spello": [
+  42.99231,
+  12.66632
+ ],
+ "Italy|Teramo": [
+  42.66123,
+  13.69901
+ ],
+ "Italy|Torre Faro Palermo": [
+  38.65293,
+  16.37211
+ ],
+ "Italy|Toscolano Maderno Limone sul Garda": [
+  45.63977,
+  10.6076
+ ],
+ "Italy|Trecate Rigoroso": [
+  45.43399,
+  8.7364
+ ],
+ "Italy|Triscina": [
+  37.58717,
+  12.78912
+ ],
+ "Italy|Varese": [
+  45.82058,
+  8.82511
+ ],
+ "Italy|Viareggio": [
+  43.86693,
+  10.2502
+ ],
+ "Italy|Villa Pitignano Perugia": [
+  46.0708,
+  8.26709
+ ],
+ "Italy|Villa San Giovanni": [
+  38.21991,
+  15.63689
+ ],
+ "Italy|Villanova d'Asti": [
+  44.94299,
+  7.93671
+ ],
+ "Italy|Villareggia": [
+  45.30885,
+  7.97724
+ ],
+ "Japan|Akita": [
+  39.71667,
+  140.11667
+ ],
+ "Japan|Aomori": [
+  40.81667,
+  140.73334
+ ],
+ "Japan|Arao": [
+  32.97888,
+  130.44572
+ ],
+ "Japan|Areas South of Aino Island": [
+  32.81667,
+  130.15
+ ],
+ "Japan|Asahikawa": [
+  43.77063,
+  142.36488
+ ],
+ "Japan|Atami": [
+  35.08834,
+  139.05325
+ ],
+ "Japan|Beppu": [
+  33.27945,
+  131.49751
+ ],
+ "Japan|Chiba": [
+  35.6,
+  140.11667
+ ],
+ "Japan|Fuji": [
+  35.16667,
+  138.68333
+ ],
+ "Japan|Fujiyoshida": [
+  35.44032,
+  138.79585
+ ],
+ "Japan|Fukui": [
+  36.06443,
+  136.22256
+ ],
+ "Japan|Fukuoka": [
+  33.6,
+  130.41667
+ ],
+ "Japan|Fukuyama": [
+  34.48333,
+  133.36667
+ ],
+ "Japan|Gamagori": [
+  34.83333,
+  137.23334
+ ],
+ "Japan|Gifu": [
+  35.42291,
+  136.76039
+ ],
+ "Japan|Gobō": [
+  33.88153,
+  135.1696
+ ],
+ "Japan|Hachinohe": [
+  40.5,
+  141.5
+ ],
+ "Japan|Hakodate": [
+  41.77583,
+  140.73666
+ ],
+ "Japan|Hamamatsu": [
+  34.7,
+  137.73334
+ ],
+ "Japan|Hanamaki": [
+  39.38333,
+  141.11667
+ ],
+ "Japan|Handa": [
+  34.88333,
+  136.93333
+ ],
+ "Japan|Higashihiroshima": [
+  34.40861,
+  132.73682
+ ],
+ "Japan|Hikone": [
+  35.25,
+  136.25
+ ],
+ "Japan|Himeji": [
+  34.81667,
+  134.7
+ ],
+ "Japan|Hiroshima": [
+  34.4,
+  132.45
+ ],
+ "Japan|Hofu": [
+  34.05,
+  131.56667
+ ],
+ "Japan|Iida": [
+  35.51965,
+  137.82074
+ ],
+ "Japan|Imabari": [
+  34.07001,
+  133.00023
+ ],
+ "Japan|Ise": [
+  34.48333,
+  136.7
+ ],
+ "Japan|Ishinomaki": [
+  38.41667,
+  141.3
+ ],
+ "Japan|Ishioka": [
+  36.18333,
+  140.26666
+ ],
+ "Japan|Itō": [
+  34.96667,
+  139.08333
+ ],
+ "Japan|Iwaki": [
+  37.05,
+  140.88333
+ ],
+ "Japan|Iwanuma": [
+  38.10472,
+  140.85944
+ ],
+ "Japan|Izumo": [
+  35.36667,
+  132.76666
+ ],
+ "Japan|Kagoshima": [
+  31.56667,
+  130.55
+ ],
+ "Japan|Kamisu": [
+  35.89685,
+  140.66666
+ ],
+ "Japan|Kanazawa": [
+  36.6,
+  136.61667
+ ],
+ "Japan|Kashima": [
+  35.96536,
+  140.64474
+ ],
+ "Japan|Kirishima": [
+  31.74087,
+  130.76288
+ ],
+ "Japan|Kitakyushu": [
+  33.85181,
+  130.85034
+ ],
+ "Japan|Kitami": [
+  43.80306,
+  143.89082
+ ],
+ "Japan|Kochi": [
+  33.55,
+  133.53333
+ ],
+ "Japan|Kofu": [
+  35.66667,
+  138.56667
+ ],
+ "Japan|Koriyama": [
+  37.4,
+  140.38333
+ ],
+ "Japan|Koya": [
+  34.21294,
+  135.62244
+ ],
+ "Japan|Kumamoto": [
+  32.80589,
+  130.6918
+ ],
+ "Japan|Kurashiki": [
+  34.58333,
+  133.76666
+ ],
+ "Japan|Kure": [
+  34.23222,
+  132.56657
+ ],
+ "Japan|Kurume": [
+  33.31667,
+  130.51666
+ ],
+ "Japan|Kushiro": [
+  42.975,
+  144.37473
+ ],
+ "Japan|Kyoto": [
+  35.02107,
+  135.75385
+ ],
+ "Japan|Maebashi": [
+  36.4,
+  139.08333
+ ],
+ "Japan|Marugame": [
+  34.28333,
+  133.78333
+ ],
+ "Japan|Matsue": [
+  35.48333,
+  133.05
+ ],
+ "Japan|Matsumoto": [
+  36.23333,
+  137.96667
+ ],
+ "Japan|Matsuyama": [
+  33.83916,
+  132.76575
+ ],
+ "Japan|Mito": [
+  36.35,
+  140.45
+ ],
+ "Japan|Miyakonojo": [
+  31.73333,
+  131.06667
+ ],
+ "Japan|Miyazaki": [
+  31.91667,
+  131.41667
+ ],
+ "Japan|Miyazu": [
+  35.53638,
+  135.19934
+ ],
+ "Japan|Morioka": [
+  39.7,
+  141.15
+ ],
+ "Japan|Munakata": [
+  33.7957,
+  130.55894
+ ],
+ "Japan|Nabari": [
+  34.61667,
+  136.08333
+ ],
+ "Japan|Nagahama": [
+  35.38333,
+  136.26666
+ ],
+ "Japan|Nagano": [
+  36.65,
+  138.18333
+ ],
+ "Japan|Nagasaki": [
+  32.75,
+  129.88333
+ ],
+ "Japan|Nagoya": [
+  35.18147,
+  136.9064
+ ],
+ "Japan|Naha": [
+  26.213,
+  127.67851
+ ],
+ "Japan|Nakatsu": [
+  33.59811,
+  131.1883
+ ],
+ "Japan|Nara": [
+  34.68505,
+  135.80486
+ ],
+ "Japan|Narita": [
+  35.78333,
+  140.31667
+ ],
+ "Japan|Nasushiobara": [
+  36.97682,
+  140.06642
+ ],
+ "Japan|Niigata": [
+  37.92259,
+  139.04124
+ ],
+ "Japan|Niihama": [
+  33.96047,
+  133.30522
+ ],
+ "Japan|Nikko": [
+  36.75,
+  139.61667
+ ],
+ "Japan|Nobeoka": [
+  32.58333,
+  131.66667
+ ],
+ "Japan|Oarai": [
+  36.31409,
+  140.5839
+ ],
+ "Japan|Oita": [
+  33.23333,
+  131.6
+ ],
+ "Japan|Okama Crater Lake": [
+  41.72344,
+  140.55067
+ ],
+ "Japan|Okaya": [
+  36.05659,
+  138.0451
+ ],
+ "Japan|Okayama": [
+  34.65,
+  133.93333
+ ],
+ "Japan|Ōmura": [
+  32.92139,
+  129.95389
+ ],
+ "Japan|Onomichi": [
+  34.41667,
+  133.2
+ ],
+ "Japan|Osaka": [
+  34.69379,
+  135.50107
+ ],
+ "Japan|Oshima": [
+  34.74824,
+  139.36243
+ ],
+ "Japan|Oshu Sabae": [
+  39.13927,
+  141.1685
+ ],
+ "Japan|Otake": [
+  34.20754,
+  132.22063
+ ],
+ "Japan|Otsu": [
+  35,
+  135.86667
+ ],
+ "Japan|Oyama": [
+  36.3,
+  139.8
+ ],
+ "Japan|Sakaiminato": [
+  35.53774,
+  133.23094
+ ],
+ "Japan|Sakata": [
+  38.91667,
+  139.855
+ ],
+ "Japan|Sapporo": [
+  43.06667,
+  141.35
+ ],
+ "Japan|Sasebo": [
+  33.16834,
+  129.72502
+ ],
+ "Japan|Sendai": [
+  38.26667,
+  140.86667
+ ],
+ "Japan|Shikokuchuo": [
+  33.9754,
+  133.54895
+ ],
+ "Japan|Shimonoseki": [
+  33.95548,
+  130.93713
+ ],
+ "Japan|Shizuoka": [
+  34.98333,
+  138.38333
+ ],
+ "Japan|Shunan": [
+  34.08053,
+  131.82564
+ ],
+ "Japan|Suwa": [
+  36.03799,
+  138.11308
+ ],
+ "Japan|Takamatsu": [
+  34.33333,
+  134.05
+ ],
+ "Japan|Takasaki": [
+  36.33333,
+  139.01666
+ ],
+ "Japan|Takashimamachi": [
+  32.52223,
+  130.58081
+ ],
+ "Japan|Takeo": [
+  33.19009,
+  130.02084
+ ],
+ "Japan|Tamano": [
+  34.51745,
+  133.94574
+ ],
+ "Japan|Togane": [
+  35.55,
+  140.36667
+ ],
+ "Japan|Tokai": [
+  35.02269,
+  136.90887
+ ],
+ "Japan|Tokushima": [
+  34.06667,
+  134.56667
+ ],
+ "Japan|Tokyo": [
+  35.6895,
+  139.69171
+ ],
+ "Japan|Tomioka": [
+  36.25411,
+  138.89813
+ ],
+ "Japan|Tottori": [
+  43.40809,
+  143.81136
+ ],
+ "Japan|Toyama": [
+  36.7,
+  137.21667
+ ],
+ "Japan|Toyohashi": [
+  34.76667,
+  137.38333
+ ],
+ "Japan|Toyota": [
+  35.08333,
+  137.15
+ ],
+ "Japan|Ube": [
+  33.94306,
+  131.25111
+ ],
+ "Japan|Ueda": [
+  36.40265,
+  138.28162
+ ],
+ "Japan|Utsunomiya": [
+  36.56667,
+  139.88333
+ ],
+ "Japan|Wakayama": [
+  34.23333,
+  135.16667
+ ],
+ "Japan|Yaizu": [
+  34.86877,
+  138.31952
+ ],
+ "Japan|Yamagata": [
+  38.23333,
+  140.36667
+ ],
+ "Japan|Yamaguchi": [
+  34.18333,
+  131.46667
+ ],
+ "Japan|Yatsushiro": [
+  32.55723,
+  130.65285
+ ],
+ "Japan|Yokosuka": [
+  35.28361,
+  139.66722
+ ],
+ "Japan|Yokote": [
+  39.31691,
+  140.55034
+ ],
+ "Japan|Yonezawa": [
+  37.91,
+  140.11667
+ ],
+ "Japan|Zaō Onsen": [
+  40.61035,
+  140.39636
+ ],
+ "Kosovo|Pristina": [
+  42.67272,
+  21.16688
+ ],
+ "Latvia|Baldone": [
+  56.74451,
+  24.40078
+ ],
+ "Latvia|Dignāja": [
+  56.29587,
+  26.17252
+ ],
+ "Latvia|Ezere": [
+  56.40915,
+  22.3613
+ ],
+ "Latvia|Grieze": [
+  56.42033,
+  22.25616
+ ],
+ "Latvia|Jekabpils": [
+  56.49903,
+  25.85735
+ ],
+ "Latvia|Jelgava": [
+  56.65,
+  23.71278
+ ],
+ "Latvia|Lielvircava": [
+  56.51575,
+  23.7479
+ ],
+ "Latvia|Liepāja": [
+  56.50474,
+  21.01085
+ ],
+ "Latvia|Nīcas pusmuiža": [
+  56.34601,
+  21.06401
+ ],
+ "Latvia|Penkule": [
+  56.48525,
+  23.18768
+ ],
+ "Latvia|Piltene": [
+  57.22426,
+  21.67439
+ ],
+ "Latvia|Ragaciems": [
+  57.02226,
+  23.49561
+ ],
+ "Latvia|Rītausmas": [
+  56.38264,
+  24.16964
+ ],
+ "Latvia|Rozes": [
+  57.51917,
+  24.94556
+ ],
+ "Latvia|Salacgrīva": [
+  57.75312,
+  24.35895
+ ],
+ "Latvia|Sēja": [
+  57.20028,
+  24.59364
+ ],
+ "Latvia|Tukums": [
+  56.96764,
+  23.15554
+ ],
+ "Latvia|Valgunde": [
+  56.74921,
+  23.6806
+ ],
+ "Latvia|Ventspils": [
+  57.39485,
+  21.56121
+ ],
+ "Latvia|Vērgale": [
+  56.69865,
+  21.19748
+ ],
+ "Lithuania|Alytus": [
+  54.39574,
+  24.03885
+ ],
+ "Lithuania|Bukonys": [
+  55.22492,
+  24.36847
+ ],
+ "Lithuania|Gruzdžiai": [
+  56.09782,
+  23.25134
+ ],
+ "Lithuania|Gudžiūnai": [
+  55.50933,
+  23.77339
+ ],
+ "Lithuania|Gureliai": [
+  55.13703,
+  25.6986
+ ],
+ "Lithuania|Kaunas": [
+  54.90156,
+  23.90909
+ ],
+ "Lithuania|Kėdainiai": [
+  55.28782,
+  23.97275
+ ],
+ "Lithuania|Klaipėda": [
+  55.7068,
+  21.13912
+ ],
+ "Lithuania|Lupikai": [
+  55.71229,
+  23.04849
+ ],
+ "Lithuania|Mažeikiai": [
+  56.31667,
+  22.33333
+ ],
+ "Lithuania|Panevėžys": [
+  55.73186,
+  24.35983
+ ],
+ "Lithuania|Radviliškis": [
+  55.81667,
+  23.53333
+ ],
+ "Lithuania|Ramygala": [
+  55.514,
+  24.3
+ ],
+ "Lithuania|Šiauliai": [
+  55.93333,
+  23.31667
+ ],
+ "Lithuania|Telšiai": [
+  55.98139,
+  22.24722
+ ],
+ "Lithuania|Viekšniai": [
+  56.23598,
+  22.51667
+ ],
+ "Lithuania|Vilnius": [
+  54.68916,
+  25.2798
+ ],
+ "Luxembourg|Esch-sur-Alzette": [
+  49.49583,
+  5.98056
+ ],
+ "Luxembourg|Luxembourg": [
+  49.60982,
+  6.13268
+ ],
+ "Macau|Coloane": [
+  22.12611,
+  113.56691
+ ],
+ "Macau|Cotai": [
+  22.14082,
+  113.5631
+ ],
+ "Macau|Macau Penisula": [
+  22.20056,
+  113.54611
+ ],
+ "Macau|Taipa": [
+  22.15583,
+  113.55694
+ ],
+ "Malaysia|Klang": [
+  3.03667,
+  101.44333
+ ],
+ "Malaysia|Shah Alam": [
+  3.08507,
+  101.53281
+ ],
+ "Malaysia|Sungai Petani": [
+  5.647,
+  100.48772
+ ],
+ "Malta|Entire country except Filfla and Filfoletta Island": [
+  35.91667,
+  14.43333
+ ],
+ "Mexico|Acapulco": [
+  16.84942,
+  -99.90891
+ ],
+ "Mexico|Area North of La Bocatoma": [
+  26.14056,
+  -98.33944
+ ],
+ "Mexico|Areas North of Matamoros": [
+  25.52699,
+  -103.2285
+ ],
+ "Mexico|Cabo San Lucas": [
+  22.89088,
+  -109.91238
+ ],
+ "Mexico|Ciudad Juarez": [
+  31.72024,
+  -106.46084
+ ],
+ "Mexico|El Sauzal": [
+  18.18244,
+  -95.22249
+ ],
+ "Mexico|Ensenada": [
+  31.87149,
+  -116.60071
+ ],
+ "Mexico|Gomez Palacio": [
+  25.56871,
+  -103.4996
+ ],
+ "Mexico|Guadalajara": [
+  20.67738,
+  -103.34749
+ ],
+ "Mexico|Hotel Zone, Cancún": [
+  21.17429,
+  -86.84656
+ ],
+ "Mexico|Isla Mujeres": [
+  21.23114,
+  -86.73105
+ ],
+ "Mexico|La Paz": [
+  24.14231,
+  -110.31316
+ ],
+ "Mexico|Leon": [
+  21.12183,
+  -101.68253
+ ],
+ "Mexico|Mazatlán": [
+  23.22163,
+  -106.41885
+ ],
+ "Mexico|Mérida": [
+  20.967,
+  -89.62318
+ ],
+ "Mexico|Mexicali": [
+  32.62781,
+  -115.45446
+ ],
+ "Mexico|Mexico City": [
+  19.42847,
+  -99.12766
+ ],
+ "Mexico|Monterrey": [
+  25.68435,
+  -100.31721
+ ],
+ "Mexico|Nuevo Laredo (East)": [
+  27.47629,
+  -99.51639
+ ],
+ "Mexico|Puebla": [
+  19.04778,
+  -98.20723
+ ],
+ "Mexico|Puerto Vallarta": [
+  20.617,
+  -105.23018
+ ],
+ "Mexico|San Luis Potosí": [
+  22.15234,
+  -100.97135
+ ],
+ "Mexico|Santiago de Querétaro": [
+  20.58806,
+  -100.38806
+ ],
+ "Mexico|Tijuana": [
+  32.5027,
+  -117.00371
+ ],
+ "Mexico|Toluca": [
+  19.28786,
+  -99.65324
+ ],
+ "Mexico|Torreón": [
+  25.54389,
+  -103.41898
+ ],
+ "Monaco|Entire country": [
+  43.73718,
+  7.42145
+ ],
+ "Montenegro|Podgorica": [
+  42.44124,
+  19.26309
+ ],
+ "Morocco|Beni Ansar": [
+  35.10381,
+  -4.85331
+ ],
+ "Netherlands|'s-Hertogenbosch": [
+  51.69917,
+  5.30417
+ ],
+ "Netherlands|Alkmaar": [
+  52.63167,
+  4.74861
+ ],
+ "Netherlands|Almelo": [
+  52.35667,
+  6.6625
+ ],
+ "Netherlands|Almere": [
+  52.37025,
+  5.21413
+ ],
+ "Netherlands|Amersfoort": [
+  52.155,
+  5.3875
+ ],
+ "Netherlands|Amsterdam": [
+  52.37403,
+  4.88969
+ ],
+ "Netherlands|Apeldoorn": [
+  52.21,
+  5.96944
+ ],
+ "Netherlands|Areas South of Ossendrecht": [
+  51.39417,
+  4.32639
+ ],
+ "Netherlands|Arnhem": [
+  51.98,
+  5.91111
+ ],
+ "Netherlands|Bergen op Zoom": [
+  51.495,
+  4.29167
+ ],
+ "Netherlands|Best": [
+  51.5075,
+  5.39028
+ ],
+ "Netherlands|Beuningen": [
+  51.86083,
+  5.76667
+ ],
+ "Netherlands|Borne": [
+  52.30136,
+  6.7482
+ ],
+ "Netherlands|Breda": [
+  51.58656,
+  4.77596
+ ],
+ "Netherlands|Dordrecht": [
+  51.81,
+  4.67361
+ ],
+ "Netherlands|Ede": [
+  52.03333,
+  5.65833
+ ],
+ "Netherlands|Eindhoven": [
+  51.44083,
+  5.47778
+ ],
+ "Netherlands|Enschede": [
+  52.21833,
+  6.89583
+ ],
+ "Netherlands|Geldrop": [
+  51.42167,
+  5.55972
+ ],
+ "Netherlands|Groningen": [
+  53.21917,
+  6.56667
+ ],
+ "Netherlands|Haarlem": [
+  52.38084,
+  4.63683
+ ],
+ "Netherlands|Heemskerk": [
+  52.51108,
+  4.67165
+ ],
+ "Netherlands|Heiloo": [
+  52.60252,
+  4.68815
+ ],
+ "Netherlands|Hengelo": [
+  52.26583,
+  6.79306
+ ],
+ "Netherlands|Hoorn": [
+  52.6425,
+  5.05972
+ ],
+ "Netherlands|Kerkrade": [
+  50.86583,
+  6.0625
+ ],
+ "Netherlands|Leeuwarden": [
+  53.20271,
+  5.80973
+ ],
+ "Netherlands|Maastricht": [
+  50.84833,
+  5.68889
+ ],
+ "Netherlands|Middelburg": [
+  51.5,
+  3.61389
+ ],
+ "Netherlands|Nibbixwoud": [
+  52.69167,
+  5.05972
+ ],
+ "Netherlands|Nijmegen": [
+  51.8425,
+  5.85278
+ ],
+ "Netherlands|Noordwijk": [
+  52.234,
+  4.44474
+ ],
+ "Netherlands|Oss": [
+  51.765,
+  5.51806
+ ],
+ "Netherlands|Roosendaal": [
+  51.53083,
+  4.46528
+ ],
+ "Netherlands|Rotterdam": [
+  51.9225,
+  4.47917
+ ],
+ "Netherlands|The Hague": [
+  52.07667,
+  4.29861
+ ],
+ "Netherlands|Tilburg": [
+  51.55551,
+  5.0913
+ ],
+ "Netherlands|Utrecht": [
+  52.09083,
+  5.12222
+ ],
+ "Netherlands|Vaals": [
+  50.77083,
+  6.01806
+ ],
+ "Netherlands|Veenendaal": [
+  52.02863,
+  5.55891
+ ],
+ "Netherlands|Venlo": [
+  51.37,
+  6.16806
+ ],
+ "Netherlands|Vianen": [
+  51.9925,
+  5.09167
+ ],
+ "Netherlands|Vlissingen": [
+  51.4425,
+  3.57361
+ ],
+ "Netherlands|Wageningen": [
+  51.97,
+  5.66667
+ ],
+ "Netherlands|Wormer": [
+  52.495,
+  4.80556
+ ],
+ "Netherlands|Zwolle": [
+  52.5125,
+  6.09444
+ ],
+ "New Zealand|Arrowtown": [
+  -44.93837,
+  168.81007
+ ],
+ "New Zealand|Auckland": [
+  -36.84853,
+  174.76349
+ ],
+ "New Zealand|Christchurch": [
+  -43.53333,
+  172.63333
+ ],
+ "New Zealand|Hamilton": [
+  -37.78333,
+  175.28333
+ ],
+ "New Zealand|Kaiapoi": [
+  -43.37832,
+  172.64014
+ ],
+ "New Zealand|Lower Hutt": [
+  -41.21667,
+  174.91667
+ ],
+ "New Zealand|Nelson": [
+  -41.27078,
+  173.28404
+ ],
+ "New Zealand|Ōmokoroa": [
+  -37.64849,
+  176.03497
+ ],
+ "New Zealand|Orewa": [
+  -36.581,
+  174.679
+ ],
+ "New Zealand|Porirua": [
+  -41.13333,
+  174.85
+ ],
+ "New Zealand|Queenstown": [
+  -45.03023,
+  168.6627
+ ],
+ "New Zealand|Richmond": [
+  -41.33333,
+  173.18333
+ ],
+ "New Zealand|Tauranga": [
+  -37.68611,
+  176.16667
+ ],
+ "New Zealand|Upper Hutt": [
+  -41.13827,
+  175.0502
+ ],
+ "New Zealand|Waimauku": [
+  -36.75,
+  174.5
+ ],
+ "New Zealand|Wellington": [
+  -41.28664,
+  174.77557
+ ],
+ "Norway|Ålesund": [
+  62.47225,
+  6.15492
+ ],
+ "Norway|Åros": [
+  59.7061,
+  10.51092
+ ],
+ "Norway|Bergen": [
+  60.39299,
+  5.32415
+ ],
+ "Norway|Bodø": [
+  67.28267,
+  14.37513
+ ],
+ "Norway|Brumunddal": [
+  60.88095,
+  10.93948
+ ],
+ "Norway|Engan": [
+  67.58487,
+  15.81723
+ ],
+ "Norway|Fosseberget": [
+  59.43017,
+  11.00185
+ ],
+ "Norway|Fredrikstad": [
+  59.2181,
+  10.9298
+ ],
+ "Norway|Gjøvik": [
+  60.79574,
+  10.69155
+ ],
+ "Norway|Halden": [
+  59.12478,
+  11.38754
+ ],
+ "Norway|Hamar": [
+  60.7945,
+  11.06798
+ ],
+ "Norway|Harstad": [
+  68.79833,
+  16.54165
+ ],
+ "Norway|Haugesund": [
+  59.41378,
+  5.268
+ ],
+ "Norway|Høle": [
+  58.89639,
+  6.02081
+ ],
+ "Norway|Horten": [
+  59.41721,
+  10.48343
+ ],
+ "Norway|Kongsberg": [
+  59.66858,
+  9.65017
+ ],
+ "Norway|Kristiansand": [
+  58.14671,
+  7.9956
+ ],
+ "Norway|Lierbyen": [
+  59.78651,
+  10.24447
+ ],
+ "Norway|Lierskogen": [
+  59.81978,
+  10.33084
+ ],
+ "Norway|Lierstranda": [
+  59.75544,
+  10.2614
+ ],
+ "Norway|Lillehammer": [
+  61.11514,
+  10.46628
+ ],
+ "Norway|Moelv": [
+  60.93333,
+  10.7
+ ],
+ "Norway|Molde": [
+  62.73752,
+  7.15912
+ ],
+ "Norway|Moss": [
+  59.43403,
+  10.65771
+ ],
+ "Norway|Narvik": [
+  68.43838,
+  17.4272
+ ],
+ "Norway|Nevlunghavn": [
+  58.96741,
+  9.86748
+ ],
+ "Norway|Oslo": [
+  59.91273,
+  10.74609
+ ],
+ "Norway|Osøyro": [
+  60.18385,
+  5.4638
+ ],
+ "Norway|Øyjord": [
+  69.38333,
+  18.36667
+ ],
+ "Norway|Porsgrunn": [
+  59.14054,
+  9.6561
+ ],
+ "Norway|Raufoss": [
+  60.72604,
+  10.6133
+ ],
+ "Norway|Sandefjord": [
+  59.13118,
+  10.21665
+ ],
+ "Norway|Sarpsborg": [
+  59.28391,
+  11.10962
+ ],
+ "Norway|Ski": [
+  59.71949,
+  10.83576
+ ],
+ "Norway|Skjærhalden": [
+  59.02526,
+  11.03685
+ ],
+ "Norway|Stavanger": [
+  58.97005,
+  5.73332
+ ],
+ "Norway|Straume": [
+  68.6888,
+  14.47205
+ ],
+ "Norway|Sylling": [
+  59.89303,
+  10.29105
+ ],
+ "Norway|Tromsø": [
+  69.6489,
+  18.95508
+ ],
+ "Norway|Trondheim": [
+  63.43049,
+  10.39506
+ ],
+ "Norway|Trysnes": [
+  58.05657,
+  7.71077
+ ],
+ "Norway|Våga": [
+  59.54333,
+  5.44194
+ ],
+ "Norway|Varåa": [
+  59.93168,
+  11.18753
+ ],
+ "Philippines|Cebu City": [
+  10.31672,
+  123.89071
+ ],
+ "Philippines|Davao": [
+  7.07306,
+  125.61278
+ ],
+ "Poland|Bełchatów": [
+  51.36883,
+  19.35671
+ ],
+ "Poland|Białystok": [
+  53.13333,
+  23.16433
+ ],
+ "Poland|Bielsko-Biała": [
+  49.82245,
+  19.04686
+ ],
+ "Poland|Bydgoszcz": [
+  53.1235,
+  18.00762
+ ],
+ "Poland|Dąbrowa Górnicza": [
+  50.33394,
+  19.20479
+ ],
+ "Poland|Dębica Stalowa Wola": [
+  50.05146,
+  21.41141
+ ],
+ "Poland|Ełk Olsztyn": [
+  53.82824,
+  22.36469
+ ],
+ "Poland|Gdańsk": [
+  54.35227,
+  18.64912
+ ],
+ "Poland|Gdynia": [
+  54.51889,
+  18.53188
+ ],
+ "Poland|Gliwice": [
+  50.29761,
+  18.67658
+ ],
+ "Poland|Glogow Legnica Lubin Świdnica Wałbrzych Wrocław": [
+  50.15122,
+  21.96287
+ ],
+ "Poland|Głubczyce": [
+  50.20086,
+  17.82858
+ ],
+ "Poland|Gniezno Kalisz Konin Leszno Ostrów Wielkopolski Piła Poznań": [
+  52.53481,
+  17.58259
+ ],
+ "Poland|Gorzów Wielkopolski Zielona Góra": [
+  52.73371,
+  15.22505
+ ],
+ "Poland|Jastrzębie-Zdrój": [
+  49.95542,
+  18.57479
+ ],
+ "Poland|Kęty": [
+  49.88214,
+  19.22333
+ ],
+ "Poland|Kietrz Opole": [
+  50.08042,
+  18.00432
+ ],
+ "Poland|Koszalin Szczecin": [
+  54.19438,
+  16.17222
+ ],
+ "Poland|Kraków": [
+  50.06143,
+  19.93658
+ ],
+ "Poland|Łomianki": [
+  52.33413,
+  20.88602
+ ],
+ "Poland|Lublin": [
+  51.25058,
+  22.57009
+ ],
+ "Poland|Mielec Rzeszów": [
+  50.28709,
+  21.4239
+ ],
+ "Poland|Myszków Katowice": [
+  50.5752,
+  19.32461
+ ],
+ "Poland|Osielsko Grudziądz Inowrocław Włocławek": [
+  53.18505,
+  18.08418
+ ],
+ "Poland|Ostrowiec Świętokrzyski Kielce": [
+  50.92936,
+  21.38525
+ ],
+ "Poland|Pabianice": [
+  51.66446,
+  19.35473
+ ],
+ "Poland|Płock Warsaw": [
+  52.54682,
+  19.70638
+ ],
+ "Poland|pomorskie": [
+  54.03333,
+  16.2
+ ],
+ "Poland|Poronin Nowy Sącz Oświęcim Wadowice": [
+  49.33781,
+  20.00291
+ ],
+ "Poland|Pruszków": [
+  52.17072,
+  20.81214
+ ],
+ "Poland|Rabka-Zdrój": [
+  49.60889,
+  19.96654
+ ],
+ "Poland|Raciborz": [
+  50.09195,
+  18.21928
+ ],
+ "Poland|Radomsko Łódź": [
+  51.06713,
+  19.44477
+ ],
+ "Poland|Radzionków": [
+  50.40026,
+  18.90232
+ ],
+ "Poland|Rumia Malbork": [
+  54.57092,
+  18.38802
+ ],
+ "Poland|Rybnik": [
+  50.09713,
+  18.54179
+ ],
+ "Poland|Siechnice Zgorzelec": [
+  51.03384,
+  17.14743
+ ],
+ "Poland|śląskie": [
+  51.93249,
+  15.55553
+ ],
+ "Poland|Sopot": [
+  54.4418,
+  18.56003
+ ],
+ "Poland|Stryszawa Tarnów": [
+  49.71327,
+  19.52185
+ ],
+ "Poland|Świdnik Puławy (North including industrial complex)": [
+  51.21898,
+  22.69621
+ ],
+ "Poland|świętokrzyskie": [
+  50.88986,
+  20.66129
+ ],
+ "Poland|Tragamin Starogard Gdański Tczew": [
+  54.07828,
+  19.04789
+ ],
+ "Poland|Tuszyn": [
+  51.60949,
+  19.53009
+ ],
+ "Poland|Tychy Wikłów": [
+  50.13717,
+  18.96641
+ ],
+ "Poland|Wieliczka Lubcza Nowy Targ": [
+  49.98738,
+  20.06473
+ ],
+ "Poland|Wołomin Radom": [
+  52.34006,
+  21.24207
+ ],
+ "Poland|Zgierz Piotrków Trybunalski Tomaszów Mazowiecki": [
+  51.85561,
+  19.40623
+ ],
+ "Poland|Żywiec Częstochowa": [
+  49.68529,
+  19.19243
+ ],
+ "Portugal|Albufeira": [
+  37.08819,
+  -8.2503
+ ],
+ "Portugal|Almeirim": [
+  39.20837,
+  -8.62635
+ ],
+ "Portugal|Altura": [
+  37.1756,
+  -7.50064
+ ],
+ "Portugal|Areas East of Elvas along Spanish border": [
+  38.8815,
+  -7.16282
+ ],
+ "Portugal|Aveiro": [
+  40.64575,
+  -8.64643
+ ],
+ "Portugal|Barcelos": [
+  41.53174,
+  -8.61843
+ ],
+ "Portugal|Barcouço": [
+  40.3031,
+  -8.47429
+ ],
+ "Portugal|Beja": [
+  38.01469,
+  -7.86284
+ ],
+ "Portugal|Braga": [
+  41.5514,
+  -8.42311
+ ],
+ "Portugal|Caldas da Rainha": [
+  39.40326,
+  -9.13839
+ ],
+ "Portugal|Caniço": [
+  32.65078,
+  -16.83749
+ ],
+ "Portugal|Coimbra": [
+  40.20686,
+  -8.41996
+ ],
+ "Portugal|Condeixa-a-Nova": [
+  40.11283,
+  -8.49804
+ ],
+ "Portugal|Évora": [
+  38.56587,
+  -7.90405
+ ],
+ "Portugal|Faro": [
+  37.01869,
+  -7.92716
+ ],
+ "Portugal|Funchal": [
+  32.66568,
+  -16.92547
+ ],
+ "Portugal|Gafanha da Nazaré": [
+  40.63621,
+  -8.71338
+ ],
+ "Portugal|Guimarães": [
+  41.44443,
+  -8.29619
+ ],
+ "Portugal|Labruge": [
+  41.28172,
+  -8.70121
+ ],
+ "Portugal|Lagos": [
+  37.10202,
+  -8.67422
+ ],
+ "Portugal|Leiria": [
+  39.74362,
+  -8.80705
+ ],
+ "Portugal|Lisbon": [
+  38.72509,
+  -9.1498
+ ],
+ "Portugal|Marinha Grande": [
+  39.74769,
+  -8.93228
+ ],
+ "Portugal|Odeleite": [
+  37.33372,
+  -7.48728
+ ],
+ "Portugal|Peniche": [
+  39.3558,
+  -9.38112
+ ],
+ "Portugal|Ponte do Rol": [
+  39.09213,
+  -9.31915
+ ],
+ "Portugal|Pontével": [
+  39.14945,
+  -8.8388
+ ],
+ "Portugal|Porto": [
+  41.1485,
+  -8.61097
+ ],
+ "Portugal|Póvoa de Varzim": [
+  41.38344,
+  -8.76364
+ ],
+ "Portugal|Sagres": [
+  37.00864,
+  -8.94311
+ ],
+ "Portugal|Santa Clara de Louredo": [
+  37.97106,
+  -7.872
+ ],
+ "Portugal|Santarém": [
+  39.23379,
+  -8.68617
+ ],
+ "Portugal|Setúbal": [
+  38.5244,
+  -8.8882
+ ],
+ "Portugal|Sines": [
+  37.95622,
+  -8.86979
+ ],
+ "Portugal|Sintra": [
+  38.80097,
+  -9.37826
+ ],
+ "Portugal|Sobralinho": [
+  38.91703,
+  -9.02656
+ ],
+ "Portugal|Torres Vedras": [
+  39.09109,
+  -9.2586
+ ],
+ "Portugal|Vagos": [
+  40.556,
+  -8.68175
+ ],
+ "Portugal|Vale de Cambra": [
+  40.8497,
+  -8.39389
+ ],
+ "Portugal|Viana do Castelo": [
+  41.69323,
+  -8.83287
+ ],
+ "Portugal|Vila do Conde": [
+  41.35326,
+  -8.74516
+ ],
+ "Portugal|Viseu": [
+  40.66165,
+  -7.90905
+ ],
+ "Portugal|Zambujeiro": [
+  39.44535,
+  -9.1845
+ ],
+ "Romania|Arad": [
+  46.18333,
+  21.31667
+ ],
+ "Romania|Bacău": [
+  46.56718,
+  26.91384
+ ],
+ "Romania|Baia Mare": [
+  47.65729,
+  23.56808
+ ],
+ "Romania|Bârlad": [
+  46.23175,
+  27.66907
+ ],
+ "Romania|Belciugatele": [
+  44.48333,
+  26.43333
+ ],
+ "Romania|Borcea": [
+  44.33333,
+  27.75
+ ],
+ "Romania|Botoșani": [
+  47.75,
+  26.66667
+ ],
+ "Romania|Brăila": [
+  45.27152,
+  27.97429
+ ],
+ "Romania|Brașov": [
+  45.64861,
+  25.60613
+ ],
+ "Romania|Bucharest": [
+  44.43225,
+  26.10626
+ ],
+ "Romania|Budești": [
+  44.23472,
+  26.46583
+ ],
+ "Romania|Buzău": [
+  45.15,
+  26.83333
+ ],
+ "Romania|Călărași": [
+  44.2051,
+  27.31356
+ ],
+ "Romania|Câmpina": [
+  45.12619,
+  25.73496
+ ],
+ "Romania|Cluj-Napoca": [
+  46.76667,
+  23.6
+ ],
+ "Romania|Constanța": [
+  44.18073,
+  28.63432
+ ],
+ "Romania|Constantin Brâncoveanu": [
+  44.47842,
+  27.41274
+ ],
+ "Romania|Craiova": [
+  44.31667,
+  23.8
+ ],
+ "Romania|Cristian": [
+  45.61667,
+  25.46667
+ ],
+ "Romania|Daneș": [
+  46.21667,
+  24.7
+ ],
+ "Romania|Dichiseni": [
+  44.23333,
+  27.53333
+ ],
+ "Romania|Dor Mărunt": [
+  44.45,
+  26.91667
+ ],
+ "Romania|Dragalina": [
+  44.43333,
+  27.31667
+ ],
+ "Romania|Drobeta-Turnu Severin": [
+  44.62693,
+  22.65288
+ ],
+ "Romania|Eforie": [
+  44.03973,
+  28.64685
+ ],
+ "Romania|Florești": [
+  45.05,
+  25.78333
+ ],
+ "Romania|Focşani": [
+  45.7,
+  27.18333
+ ],
+ "Romania|Frumușani": [
+  44.29611,
+  26.32556
+ ],
+ "Romania|Fundulea": [
+  44.46667,
+  26.51667
+ ],
+ "Romania|Galați": [
+  45.43687,
+  28.05028
+ ],
+ "Romania|Ghercești": [
+  44.35561,
+  23.89728
+ ],
+ "Romania|Giurgiu": [
+  43.88664,
+  25.9627
+ ],
+ "Romania|Iași": [
+  47.16667,
+  27.6
+ ],
+ "Romania|Jegălia": [
+  44.3,
+  27.63333
+ ],
+ "Romania|Mănăstirea": [
+  44.21667,
+  26.9
+ ],
+ "Romania|Mediaș": [
+  46.16667,
+  24.35
+ ],
+ "Romania|Nicolae": [
+  45.07925,
+  25.38157
+ ],
+ "Romania|Oltenița": [
+  44.08333,
+  26.63333
+ ],
+ "Romania|Oradea": [
+  47.0458,
+  21.91833
+ ],
+ "Romania|Piatra Neamț": [
+  46.91667,
+  26.33333
+ ],
+ "Romania|Piteşti": [
+  44.85,
+  24.86667
+ ],
+ "Romania|Ploieşti": [
+  44.95,
+  26.01667
+ ],
+ "Romania|Predeal": [
+  45.5,
+  25.56667
+ ],
+ "Romania|Râmnicu Vâlcea": [
+  45.1,
+  24.36667
+ ],
+ "Romania|Reșița": [
+  45.30083,
+  21.88917
+ ],
+ "Romania|Roseți": [
+  44.21482,
+  27.44848
+ ],
+ "Romania|Satu Mare": [
+  47.79926,
+  22.86255
+ ],
+ "Romania|Sibiu": [
+  45.8,
+  24.15
+ ],
+ "Romania|Sighișoara": [
+  46.22141,
+  24.79279
+ ],
+ "Romania|Sinaia": [
+  45.35,
+  25.55
+ ],
+ "Romania|Slatina": [
+  44.43333,
+  24.36667
+ ],
+ "Romania|Ștefan cel Mare": [
+  46.98482,
+  26.5107
+ ],
+ "Romania|Suceava": [
+  47.63333,
+  26.25
+ ],
+ "Romania|Târgoviște": [
+  44.92543,
+  25.4567
+ ],
+ "Romania|Târgu Jiu": [
+  45.05,
+  23.28333
+ ],
+ "Romania|Târgu Mures": [
+  46.54245,
+  24.55747
+ ],
+ "Romania|Timișoara": [
+  45.75372,
+  21.22571
+ ],
+ "Romania|Tulcea": [
+  45.1787,
+  28.80501
+ ],
+ "San Marino|Entire country": [
+  43.93667,
+  12.44639
+ ],
+ "Serbia|Belgrade": [
+  44.80401,
+  20.46513
+ ],
+ "Serbia|Čačak": [
+  43.89139,
+  20.34972
+ ],
+ "Serbia|Futog": [
+  45.23874,
+  19.71416
+ ],
+ "Serbia|Kragujevac": [
+  44.01667,
+  20.91667
+ ],
+ "Serbia|Kraljevo": [
+  43.72583,
+  20.68944
+ ],
+ "Serbia|Krusevac": [
+  43.58,
+  21.33389
+ ],
+ "Serbia|Leskovac": [
+  42.99806,
+  21.94611
+ ],
+ "Serbia|Mataruska Spa": [
+  43.68816,
+  20.61007
+ ],
+ "Serbia|Niš": [
+  43.32472,
+  21.90333
+ ],
+ "Serbia|Novi Pazar": [
+  43.13667,
+  20.51222
+ ],
+ "Serbia|Novi Sad": [
+  45.25167,
+  19.83694
+ ],
+ "Serbia|Pančevo": [
+  44.87177,
+  20.64167
+ ],
+ "Serbia|Šabac": [
+  44.74667,
+  19.69
+ ],
+ "Serbia|Smederevo": [
+  44.66436,
+  20.92763
+ ],
+ "Serbia|Subotica": [
+  46.1,
+  19.66667
+ ],
+ "Serbia|Užice": [
+  43.85861,
+  19.84878
+ ],
+ "Serbia|Valjevo": [
+  44.27513,
+  19.89821
+ ],
+ "Serbia|Vranje": [
+  42.55139,
+  21.90028
+ ],
+ "Serbia|Zrenjanin": [
+  45.38361,
+  20.38194
+ ],
+ "Singapore|Jurong West": [
+  1.35028,
+  103.72278
+ ],
+ "Singapore|Sengkang": [
+  1.39167,
+  103.89444
+ ],
+ "Slovakia|Banska Bystrica": [
+  48.73947,
+  19.14932
+ ],
+ "Slovakia|Bratislava": [
+  48.14816,
+  17.10674
+ ],
+ "Slovakia|Košice": [
+  48.71441,
+  21.25802
+ ],
+ "Slovakia|Nitra": [
+  48.30763,
+  18.08453
+ ],
+ "Slovakia|Prešov": [
+  48.99923,
+  21.2355
+ ],
+ "Slovakia|Trnava": [
+  48.37773,
+  17.58603
+ ],
+ "Slovakia|Žílina": [
+  49.22315,
+  18.73941
+ ],
+ "Slovenia|Ajdovščina": [
+  45.88601,
+  13.90946
+ ],
+ "Slovenia|Area Southeast of Podsabotin": [
+  45.98972,
+  13.60806
+ ],
+ "Slovenia|Celje": [
+  46.23092,
+  15.26044
+ ],
+ "Slovenia|Hrvatini": [
+  45.58278,
+  13.75667
+ ],
+ "Slovenia|Ilirska Bistrica": [
+  45.56757,
+  14.24571
+ ],
+ "Slovenia|Kozina": [
+  45.61,
+  13.93556
+ ],
+ "Slovenia|Ljubljana": [
+  46.05108,
+  14.50513
+ ],
+ "Slovenia|Logatec": [
+  45.9168,
+  14.22652
+ ],
+ "Slovenia|Maribor": [
+  46.55583,
+  15.64593
+ ],
+ "Slovenia|Nova Gorica": [
+  45.95604,
+  13.64837
+ ],
+ "Slovenia|Polzela": [
+  46.28363,
+  15.06508
+ ],
+ "Slovenia|Ptuj": [
+  46.42005,
+  15.87018
+ ],
+ "Slovenia|Sevnica": [
+  46.00792,
+  15.31646
+ ],
+ "Slovenia|Slovenska Bistrica": [
+  46.39309,
+  15.57347
+ ],
+ "Slovenia|Trbovlje": [
+  46.1541,
+  15.05178
+ ],
+ "Slovenia|Trebnje": [
+  45.90424,
+  15.02238
+ ],
+ "Slovenia|Žužemberk": [
+  45.83376,
+  14.92804
+ ],
+ "South Africa|Bloemfontein": [
+  -29.12107,
+  26.214
+ ],
+ "South Africa|Cape Town": [
+  -33.92584,
+  18.42322
+ ],
+ "South Africa|Durban": [
+  -29.8579,
+  31.0292
+ ],
+ "South Africa|East London": [
+  -33.01529,
+  27.91162
+ ],
+ "South Africa|Gqeberha": [
+  -33.96109,
+  25.61494
+ ],
+ "South Africa|Johannesburg": [
+  -26.20227,
+  28.04363
+ ],
+ "South Africa|Kariega": [
+  -33.75562,
+  25.40074
+ ],
+ "South Africa|Newcastle": [
+  -27.75796,
+  29.9318
+ ],
+ "South Africa|Phoenix": [
+  -29.70306,
+  31.0051
+ ],
+ "South Africa|Pinetown": [
+  -29.82068,
+  30.88674
+ ],
+ "South Africa|Pretoria": [
+  -25.74486,
+  28.18783
+ ],
+ "South Africa|Rustenburg": [
+  -25.66756,
+  27.24208
+ ],
+ "Spain|A Coruña": [
+  43.37135,
+  -8.396
+ ],
+ "Spain|Adeje": [
+  28.12271,
+  -16.726
+ ],
+ "Spain|Aguadulce Sanlúcar de Barrameda Seville": [
+  36.81409,
+  -2.57235
+ ],
+ "Spain|Águilas": [
+  37.4063,
+  -1.58289
+ ],
+ "Spain|Albacete Areas Southeast of Seseña Ciudad Real": [
+  38.99424,
+  -1.85643
+ ],
+ "Spain|Alcala de Henares": [
+  40.48205,
+  -3.35996
+ ],
+ "Spain|Alcalá de los Gazules Ronda": [
+  36.46212,
+  -5.72382
+ ],
+ "Spain|Alcoletge Manresa": [
+  41.64762,
+  0.69383
+ ],
+ "Spain|Alcúdia": [
+  39.85316,
+  3.12138
+ ],
+ "Spain|Alfacar": [
+  37.23744,
+  -3.56807
+ ],
+ "Spain|Algeciras": [
+  36.13326,
+  -5.45051
+ ],
+ "Spain|Alicante": [
+  38.34517,
+  -0.48149
+ ],
+ "Spain|Almería": [
+  36.83814,
+  -2.45974
+ ],
+ "Spain|Almodóvar del Campo Talavera de la Reina Toledo": [
+  38.70936,
+  -4.17908
+ ],
+ "Spain|Alpedrete San Lorenzo del Escorial": [
+  40.65889,
+  -4.02512
+ ],
+ "Spain|Aranjuez Collado Villalba": [
+  40.03108,
+  -3.60246
+ ],
+ "Spain|Arapiles Segovia": [
+  40.89366,
+  -5.64494
+ ],
+ "Spain|Archena": [
+  38.11631,
+  -1.30043
+ ],
+ "Spain|Argamasilla de Calatrava": [
+  38.72985,
+  -4.07627
+ ],
+ "Spain|Arinaga": [
+  27.85824,
+  -15.39408
+ ],
+ "Spain|Arriate Roquetas de Mar": [
+  36.80005,
+  -5.1408
+ ],
+ "Spain|Ávila": [
+  40.65724,
+  -4.69951
+ ],
+ "Spain|Avilés": [
+  43.55473,
+  -5.92483
+ ],
+ "Spain|Ayamonte": [
+  37.21329,
+  -7.40807
+ ],
+ "Spain|Badajoz": [
+  38.87789,
+  -6.97061
+ ],
+ "Spain|Barbantes": [
+  42.35525,
+  -8.00792
+ ],
+ "Spain|Barcelona": [
+  41.38879,
+  2.15899
+ ],
+ "Spain|Benicàssim Elda Ontinyent Torrevieja": [
+  40.05,
+  0.06667
+ ],
+ "Spain|Benidorm": [
+  38.53816,
+  -0.13098
+ ],
+ "Spain|Berrocalejo de Aragona": [
+  40.69436,
+  -4.59474
+ ],
+ "Spain|Bertamiráns Vigo": [
+  42.85983,
+  -8.65109
+ ],
+ "Spain|Betanzos Lugo Ourense": [
+  43.28042,
+  -8.21467
+ ],
+ "Spain|Borriana": [
+  39.88901,
+  -0.08499
+ ],
+ "Spain|Brunete": [
+  40.40532,
+  -3.9985
+ ],
+ "Spain|Bunyol": [
+  39.41667,
+  -0.78333
+ ],
+ "Spain|Cadaqués": [
+  42.28856,
+  3.27706
+ ],
+ "Spain|Calamonte": [
+  38.88861,
+  -6.38791
+ ],
+ "Spain|Cambrils": [
+  41.06997,
+  1.05949
+ ],
+ "Spain|Campo y Santibáñez": [
+  42.40956,
+  0.39615
+ ],
+ "Spain|Camponaraya Salamanca": [
+  42.57799,
+  -6.66709
+ ],
+ "Spain|Cardeñadijo León": [
+  42.30217,
+  -3.66779
+ ],
+ "Spain|Castelldefels": [
+  41.27794,
+  1.97033
+ ],
+ "Spain|Cazorla": [
+  37.91495,
+  -3.00342
+ ],
+ "Spain|Cocentaina Castellón de la Plana": [
+  38.73975,
+  -0.43976
+ ],
+ "Spain|Conil de la Frontera Bailén Córdoba": [
+  36.27719,
+  -6.0885
+ ],
+ "Spain|Dehesilla de Calamón Cáceres Mérida": [
+  36.6749,
+  -5.64899
+ ],
+ "Spain|Dénia": [
+  38.84078,
+  0.10574
+ ],
+ "Spain|Dos Hermanas": [
+  37.28287,
+  -5.92088
+ ],
+ "Spain|El Alquián C Cádiz": [
+  36.85263,
+  -2.35313
+ ],
+ "Spain|El Campello Alcoi": [
+  38.42885,
+  -0.39774
+ ],
+ "Spain|El Escorial": [
+  40.59144,
+  -4.14738
+ ],
+ "Spain|El Fresno Burgos": [
+  40.61572,
+  -4.75746
+ ],
+ "Spain|El Palmar Cartagena La Manga": [
+  37.93939,
+  -1.16095
+ ],
+ "Spain|Elche": [
+  38.26218,
+  -0.70107
+ ],
+ "Spain|Felipe II Madrid": [
+  37.37105,
+  -5.97289
+ ],
+ "Spain|Ferrol": [
+  43.48451,
+  -8.23293
+ ],
+ "Spain|Florida de Liébana": [
+  41.02361,
+  -5.76252
+ ],
+ "Spain|Gijón": [
+  43.53573,
+  -5.66152
+ ],
+ "Spain|Grulleros Palencia Ponferrada": [
+  42.50268,
+  -5.54967
+ ],
+ "Spain|Güímar Vecindario": [
+  28.31122,
+  -16.41276
+ ],
+ "Spain|Huelma": [
+  37.64784,
+  -3.45985
+ ],
+ "Spain|Huesca Zaragoza": [
+  42.13615,
+  -0.4087
+ ],
+ "Spain|Irun": [
+  43.33904,
+  -1.78938
+ ],
+ "Spain|Jerez de la Frontera": [
+  36.68645,
+  -6.13606
+ ],
+ "Spain|La Marina València": [
+  38.14617,
+  -0.64596
+ ],
+ "Spain|Langráiz Oka": [
+  42.81844,
+  -2.80949
+ ],
+ "Spain|Lestedo": [
+  42.87329,
+  -7.81473
+ ],
+ "Spain|Lloret de Mar Girona": [
+  41.69993,
+  2.84565
+ ],
+ "Spain|Los Alamos Maspalomas Santa Cruz de Tenerife": [
+  37.54169,
+  -2.3305
+ ],
+ "Spain|Los Corrales de Buelna": [
+  43.26358,
+  -4.07262
+ ],
+ "Spain|Machacón": [
+  40.92623,
+  -5.5243
+ ],
+ "Spain|Marbella": [
+  36.51543,
+  -4.88583
+ ],
+ "Spain|Marchamalo Ontígola Puertollano": [
+  40.66677,
+  -3.19914
+ ],
+ "Spain|Marmolejo El Ejido Granada": [
+  38.04549,
+  -4.17029
+ ],
+ "Spain|Mazagón": [
+  37.13749,
+  -6.82697
+ ],
+ "Spain|Melilla": [
+  35.29369,
+  -2.93833
+ ],
+ "Spain|Miguelturra Cuenca Guadalajara": [
+  38.96442,
+  -3.89047
+ ],
+ "Spain|Moncofa": [
+  39.80907,
+  -0.14701
+ ],
+ "Spain|Murcia": [
+  37.98704,
+  -1.13004
+ ],
+ "Spain|Noáin Viana": [
+  42.76239,
+  -1.63448
+ ],
+ "Spain|Onda": [
+  39.96495,
+  -0.26041
+ ],
+ "Spain|Oviedo": [
+  43.36029,
+  -5.84476
+ ],
+ "Spain|Palmanyola": [
+  39.66148,
+  2.67311
+ ],
+ "Spain|Pamplona": [
+  42.81687,
+  -1.64323
+ ],
+ "Spain|Pilar de la Horadada": [
+  37.86591,
+  -0.79256
+ ],
+ "Spain|Playa de las Américas Arrecife Las Palmas de Gran Canaria": [
+  28.06403,
+  -16.73012
+ ],
+ "Spain|Plentzia": [
+  43.4053,
+  -2.94794
+ ],
+ "Spain|Pola de Siero Langreo": [
+  43.39228,
+  -5.66335
+ ],
+ "Spain|Pontevedra": [
+  42.431,
+  -8.64435
+ ],
+ "Spain|Port d'Alcúdia Ibiza and Formentera (entire islands) Menorca (entire island except area south of Villacarlos) Palma": [
+  39.84182,
+  3.13291
+ ],
+ "Spain|Pozo Izquierdo": [
+  27.82541,
+  -15.42438
+ ],
+ "Spain|Pravia": [
+  43.48861,
+  -6.1117
+ ],
+ "Spain|Puebla de Guzmán Huércal-Overa": [
+  37.61427,
+  -7.24878
+ ],
+ "Spain|Puerto de la Cruz": [
+  28.41686,
+  -16.55085
+ ],
+ "Spain|Reus": [
+  41.15612,
+  1.10687
+ ],
+ "Spain|Ribeira": [
+  42.73809,
+  -8.44106
+ ],
+ "Spain|S'Arenal": [
+  39.5,
+  2.75
+ ],
+ "Spain|San Andrés": [
+  43.21667,
+  -8.43333
+ ],
+ "Spain|San Pedro del Pinatar Lorca": [
+  37.83568,
+  -0.79102
+ ],
+ "Spain|Sant Feliu de Guíxols Igualada Lleida": [
+  41.78333,
+  3.03333
+ ],
+ "Spain|Sant Vicenç de Castellet Tarragona": [
+  41.66667,
+  1.86667
+ ],
+ "Spain|Santa Fe Huelva": [
+  36.97479,
+  -2.53126
+ ],
+ "Spain|Santander": [
+  43.46589,
+  -3.80493
+ ],
+ "Spain|Santomera": [
+  38.06147,
+  -1.04877
+ ],
+ "Spain|Solares": [
+  43.38334,
+  -3.73861
+ ],
+ "Spain|Suances": [
+  43.43341,
+  -4.04338
+ ],
+ "Spain|Telde Los Galguitos": [
+  27.99243,
+  -15.41915
+ ],
+ "Spain|Terrassa": [
+  41.56667,
+  2.01667
+ ],
+ "Spain|Tres Cantos": [
+  40.60092,
+  -3.70806
+ ],
+ "Spain|Trescasas Valladolid Zamora": [
+  40.96442,
+  -4.0359
+ ],
+ "Spain|Utebo": [
+  41.70826,
+  -0.99916
+ ],
+ "Spain|Valdemoro": [
+  40.19081,
+  -3.67887
+ ],
+ "Spain|Vélez-Málaga": [
+  36.78107,
+  -4.10266
+ ],
+ "Spain|Vélez-Rubio": [
+  37.64844,
+  -2.07686
+ ],
+ "Spain|Vilagarcía de Arousa": [
+  42.59631,
+  -8.76426
+ ],
+ "Spain|Vilches Utrera": [
+  38.20695,
+  -3.51025
+ ],
+ "Spain|Villamediana de Iregua": [
+  42.42658,
+  -2.41943
+ ],
+ "Spain|Villarrubia": [
+  37.85,
+  -4.9
+ ],
+ "Sweden|Åkersberga": [
+  59.47944,
+  18.29967
+ ],
+ "Sweden|Bankeryd": [
+  57.86021,
+  14.124
+ ],
+ "Sweden|Borås": [
+  57.72101,
+  12.9401
+ ],
+ "Sweden|Dalsjöfors": [
+  57.71667,
+  13.08333
+ ],
+ "Sweden|Eskilstuna": [
+  59.36661,
+  16.5077
+ ],
+ "Sweden|Fristad": [
+  57.82483,
+  13.01064
+ ],
+ "Sweden|Gothenburg": [
+  57.70716,
+  11.96679
+ ],
+ "Sweden|Gustavsberg": [
+  59.32684,
+  18.38975
+ ],
+ "Sweden|Helsingborg": [
+  56.04673,
+  12.69437
+ ],
+ "Sweden|Hovsta": [
+  59.35,
+  15.21667
+ ],
+ "Sweden|Jönköping": [
+  57.78145,
+  14.15618
+ ],
+ "Sweden|Karlstad": [
+  59.3793,
+  13.50357
+ ],
+ "Sweden|Laröd": [
+  56.1,
+  12.65
+ ],
+ "Sweden|Lilla Edet": [
+  58.13333,
+  12.13333
+ ],
+ "Sweden|Linköping": [
+  58.41086,
+  15.62157
+ ],
+ "Sweden|Lund": [
+  55.70584,
+  13.19321
+ ],
+ "Sweden|Malmö": [
+  55.60587,
+  13.00073
+ ],
+ "Sweden|Månsarp": [
+  57.65,
+  14.06667
+ ],
+ "Sweden|Norrköping": [
+  58.59419,
+  16.1826
+ ],
+ "Sweden|Örebro": [
+  59.27412,
+  15.2066
+ ],
+ "Sweden|Sandared": [
+  57.70992,
+  12.79238
+ ],
+ "Sweden|Södertälje": [
+  59.19554,
+  17.62525
+ ],
+ "Sweden|Stenungsund": [
+  58.07046,
+  11.8181
+ ],
+ "Sweden|Stockholm": [
+  59.32938,
+  18.06871
+ ],
+ "Sweden|Svärtinge": [
+  58.65507,
+  16.02823
+ ],
+ "Sweden|Umeå": [
+  63.82842,
+  20.25972
+ ],
+ "Sweden|Uppsala": [
+  59.85882,
+  17.63889
+ ],
+ "Sweden|Vårgårda": [
+  58.03706,
+  12.80907
+ ],
+ "Sweden|Västerås": [
+  59.61617,
+  16.55276
+ ],
+ "Sweden|Växjö": [
+  56.87767,
+  14.80906
+ ],
+ "Switzerland|Aarau": [
+  47.39254,
+  8.04422
+ ],
+ "Switzerland|Aesch": [
+  47.47104,
+  7.5973
+ ],
+ "Switzerland|Basel": [
+  47.55839,
+  7.57327
+ ],
+ "Switzerland|Bern": [
+  46.94809,
+  7.44744
+ ],
+ "Switzerland|Biel": [
+  47.13713,
+  7.24608
+ ],
+ "Switzerland|Chiasso": [
+  45.83203,
+  9.03119
+ ],
+ "Switzerland|Chur": [
+  46.84986,
+  9.53287
+ ],
+ "Switzerland|Domat": [
+  46.83483,
+  9.45075
+ ],
+ "Switzerland|Engelberg": [
+  46.82107,
+  8.40133
+ ],
+ "Switzerland|Faulhorn Mountain": [
+  46.67484,
+  7.99908
+ ],
+ "Switzerland|Fribourg": [
+  46.80237,
+  7.15128
+ ],
+ "Switzerland|Geneva": [
+  46.20222,
+  6.14569
+ ],
+ "Switzerland|Grächen": [
+  46.19529,
+  7.83745
+ ],
+ "Switzerland|Herisau": [
+  47.38615,
+  9.27916
+ ],
+ "Switzerland|Ingenbohl": [
+  46.9988,
+  8.61529
+ ],
+ "Switzerland|Interlaken": [
+  46.68387,
+  7.86638
+ ],
+ "Switzerland|Jegenstorf": [
+  47.04802,
+  7.50787
+ ],
+ "Switzerland|Kreuzlingen": [
+  47.65051,
+  9.17504
+ ],
+ "Switzerland|La Chaux-de-Fonds": [
+  47.09993,
+  6.82586
+ ],
+ "Switzerland|Lausanne": [
+  46.516,
+  6.63282
+ ],
+ "Switzerland|Le Locle": [
+  47.05619,
+  6.74913
+ ],
+ "Switzerland|Lugano": [
+  46.01008,
+  8.96004
+ ],
+ "Switzerland|Meiringen": [
+  46.72709,
+  8.1872
+ ],
+ "Switzerland|Münsingen": [
+  46.87298,
+  7.561
+ ],
+ "Switzerland|Neuchâtel": [
+  46.99179,
+  6.931
+ ],
+ "Switzerland|Nyon": [
+  46.38318,
+  6.23955
+ ],
+ "Switzerland|Olten": [
+  47.34999,
+  7.90329
+ ],
+ "Switzerland|Rheinfelden": [
+  47.55437,
+  7.79403
+ ],
+ "Switzerland|Schaffhausen": [
+  47.69732,
+  8.63493
+ ],
+ "Switzerland|Sierre": [
+  46.29192,
+  7.53559
+ ],
+ "Switzerland|Sissach": [
+  47.46408,
+  7.80888
+ ],
+ "Switzerland|Solothurn": [
+  47.20791,
+  7.53714
+ ],
+ "Switzerland|Spiez": [
+  46.68473,
+  7.69111
+ ],
+ "Switzerland|St. Gallen": [
+  47.42391,
+  9.37477
+ ],
+ "Switzerland|St. Margrethen": [
+  47.45253,
+  9.63741
+ ],
+ "Switzerland|Steckborn": [
+  47.66667,
+  8.98333
+ ],
+ "Switzerland|Thun": [
+  46.75118,
+  7.62166
+ ],
+ "Switzerland|Vevey": [
+  46.46299,
+  6.84345
+ ],
+ "Switzerland|Villeneuve": [
+  46.39869,
+  6.92654
+ ],
+ "Switzerland|Widnau": [
+  47.40834,
+  9.63321
+ ],
+ "Switzerland|Windisch": [
+  47.47899,
+  8.21842
+ ],
+ "Switzerland|Winterthur": [
+  47.50564,
+  8.72413
+ ],
+ "Switzerland|Zermatt": [
+  46.01998,
+  7.74863
+ ],
+ "Switzerland|Zofingen": [
+  47.28779,
+  7.94586
+ ],
+ "Switzerland|Zug": [
+  47.17242,
+  8.51745
+ ],
+ "Switzerland|Zürich": [
+  47.36667,
+  8.55
+ ],
+ "Taiwan|Taichung": [
+  24.1469,
+  120.6839
+ ],
+ "Taiwan|Taipei": [
+  25.05306,
+  121.52639
+ ],
+ "Taiwan|Taoyuan": [
+  24.99368,
+  121.29696
+ ],
+ "The Bahamas|Nassau": [
+  25.05823,
+  -77.34306
+ ],
+ "Tunisia|Sfax": [
+  34.74056,
+  10.76028
+ ],
+ "Tunisia|Tunis": [
+  36.81897,
+  10.16579
+ ],
+ "United Kingdom|Aberdeen": [
+  57.14369,
+  -2.09814
+ ],
+ "United Kingdom|Accrington": [
+  53.75379,
+  -2.35863
+ ],
+ "United Kingdom|Aldershot": [
+  51.24827,
+  -0.76389
+ ],
+ "United Kingdom|Amesbury": [
+  51.17509,
+  -1.78064
+ ],
+ "United Kingdom|Ashford": [
+  51.14648,
+  0.87376
+ ],
+ "United Kingdom|Avebury": [
+  51.41667,
+  -1.86667
+ ],
+ "United Kingdom|Aylesbury": [
+  51.81665,
+  -0.81458
+ ],
+ "United Kingdom|Banbury": [
+  52.0632,
+  -1.34222
+ ],
+ "United Kingdom|Bangor": [
+  54.66079,
+  -5.66802
+ ],
+ "United Kingdom|Barrow-in-Furness": [
+  54.11094,
+  -3.22758
+ ],
+ "United Kingdom|Barry": [
+  51.39979,
+  -3.2838
+ ],
+ "United Kingdom|Basildon": [
+  51.56844,
+  0.45782
+ ],
+ "United Kingdom|Basingstoke": [
+  51.26249,
+  -1.08708
+ ],
+ "United Kingdom|Bath": [
+  51.3751,
+  -2.36172
+ ],
+ "United Kingdom|Bedford": [
+  52.13459,
+  -0.46632
+ ],
+ "United Kingdom|Belfast": [
+  54.59682,
+  -5.92541
+ ],
+ "United Kingdom|Birmingham": [
+  52.48142,
+  -1.89983
+ ],
+ "United Kingdom|Bishopton": [
+  54.58333,
+  -1.43333
+ ],
+ "United Kingdom|Blackburn": [
+  53.75,
+  -2.48333
+ ],
+ "United Kingdom|Blackpool": [
+  53.81667,
+  -3.05
+ ],
+ "United Kingdom|Bognor Regis": [
+  50.78206,
+  -0.67978
+ ],
+ "United Kingdom|Bolton": [
+  53.58333,
+  -2.43333
+ ],
+ "United Kingdom|Bournemouth": [
+  50.72048,
+  -1.8795
+ ],
+ "United Kingdom|Bowbrook": [
+  52.70599,
+  -2.80146
+ ],
+ "United Kingdom|Bradford": [
+  53.79391,
+  -1.75206
+ ],
+ "United Kingdom|Braintree": [
+  51.87819,
+  0.55292
+ ],
+ "United Kingdom|Bridgend": [
+  51.50583,
+  -3.57722
+ ],
+ "United Kingdom|Bristol": [
+  51.45523,
+  -2.59665
+ ],
+ "United Kingdom|Brixham": [
+  50.39431,
+  -3.51585
+ ],
+ "United Kingdom|Brough": [
+  53.72861,
+  -0.57215
+ ],
+ "United Kingdom|Brymbo": [
+  53.06667,
+  -3.06667
+ ],
+ "United Kingdom|Bugle": [
+  50.39577,
+  -4.79334
+ ],
+ "United Kingdom|Burgess Hill": [
+  50.95843,
+  -0.13287
+ ],
+ "United Kingdom|Burnley": [
+  53.8,
+  -2.23333
+ ],
+ "United Kingdom|Burton upon Trent": [
+  52.80728,
+  -1.64263
+ ],
+ "United Kingdom|Bury St Edmunds": [
+  52.2463,
+  0.71111
+ ],
+ "United Kingdom|Caernarfon": [
+  53.14126,
+  -4.27016
+ ],
+ "United Kingdom|Cambridge": [
+  52.2,
+  0.11667
+ ],
+ "United Kingdom|Canterbury": [
+  51.27904,
+  1.07992
+ ],
+ "United Kingdom|Cardiff": [
+  51.48,
+  -3.18
+ ],
+ "United Kingdom|Carlisle": [
+  54.8951,
+  -2.9382
+ ],
+ "United Kingdom|Cheddar": [
+  51.27537,
+  -2.77662
+ ],
+ "United Kingdom|Chelmsford": [
+  51.73575,
+  0.46958
+ ],
+ "United Kingdom|Cheltenham": [
+  51.90006,
+  -2.07972
+ ],
+ "United Kingdom|Chester": [
+  53.1905,
+  -2.89189
+ ],
+ "United Kingdom|Chesterfield": [
+  53.25,
+  -1.41667
+ ],
+ "United Kingdom|Chorley": [
+  53.65,
+  -2.61667
+ ],
+ "United Kingdom|Christchurch": [
+  50.73583,
+  -1.78129
+ ],
+ "United Kingdom|Clacton-on-Sea": [
+  51.78967,
+  1.15597
+ ],
+ "United Kingdom|Colchester": [
+  51.88921,
+  0.90421
+ ],
+ "United Kingdom|Corby": [
+  52.49637,
+  -0.68939
+ ],
+ "United Kingdom|Coventry": [
+  52.40656,
+  -1.51217
+ ],
+ "United Kingdom|Cramlington": [
+  55.08652,
+  -1.58598
+ ],
+ "United Kingdom|Crawley": [
+  51.11303,
+  -0.18312
+ ],
+ "United Kingdom|Crewe": [
+  53.09787,
+  -2.44161
+ ],
+ "United Kingdom|Danbury": [
+  51.71645,
+  0.58245
+ ],
+ "United Kingdom|Darlington": [
+  54.52429,
+  -1.55039
+ ],
+ "United Kingdom|Derby": [
+  52.92277,
+  -1.47663
+ ],
+ "United Kingdom|Doncaster": [
+  53.52285,
+  -1.13116
+ ],
+ "United Kingdom|Dundee": [
+  56.46913,
+  -2.97489
+ ],
+ "United Kingdom|Durham": [
+  54.77676,
+  -1.57566
+ ],
+ "United Kingdom|Eastbourne": [
+  50.76871,
+  0.28453
+ ],
+ "United Kingdom|Edinburgh": [
+  55.95206,
+  -3.19648
+ ],
+ "United Kingdom|Exeter": [
+  50.7236,
+  -3.52751
+ ],
+ "United Kingdom|Falmouth": [
+  50.15441,
+  -5.07113
+ ],
+ "United Kingdom|Fareham": [
+  50.85162,
+  -1.17929
+ ],
+ "United Kingdom|Farnborough": [
+  51.53333,
+  -1.36667
+ ],
+ "United Kingdom|Farnham": [
+  51.21444,
+  -0.80054
+ ],
+ "United Kingdom|Folkestone": [
+  51.08169,
+  1.16734
+ ],
+ "United Kingdom|Formby": [
+  53.55838,
+  -3.06999
+ ],
+ "United Kingdom|Glasgow": [
+  55.86515,
+  -4.25763
+ ],
+ "United Kingdom|Gloucester": [
+  51.86568,
+  -2.2431
+ ],
+ "United Kingdom|Gorseinon": [
+  51.66931,
+  -4.04163
+ ],
+ "United Kingdom|Gravesend": [
+  51.44206,
+  0.37106
+ ],
+ "United Kingdom|Great Yarmouth": [
+  52.60831,
+  1.73052
+ ],
+ "United Kingdom|Grimsby": [
+  53.56539,
+  -0.07553
+ ],
+ "United Kingdom|Guildford": [
+  51.23536,
+  -0.57427
+ ],
+ "United Kingdom|Harrogate": [
+  53.99078,
+  -1.5373
+ ],
+ "United Kingdom|Hartlepool": [
+  54.68554,
+  -1.21028
+ ],
+ "United Kingdom|Harwich": [
+  51.94194,
+  1.28437
+ ],
+ "United Kingdom|Hastings": [
+  50.85568,
+  0.58009
+ ],
+ "United Kingdom|Haywards Heath": [
+  50.99769,
+  -0.10313
+ ],
+ "United Kingdom|Hereford": [
+  52.05684,
+  -2.71482
+ ],
+ "United Kingdom|High Wycombe": [
+  51.62907,
+  -0.74934
+ ],
+ "United Kingdom|Horley": [
+  51.17423,
+  -0.15919
+ ],
+ "United Kingdom|Horsham": [
+  51.06314,
+  -0.32757
+ ],
+ "United Kingdom|Huddersfield": [
+  53.64904,
+  -1.78416
+ ],
+ "United Kingdom|Indian Queens": [
+  50.39946,
+  -4.92035
+ ],
+ "United Kingdom|Inverness": [
+  57.47908,
+  -4.22398
+ ],
+ "United Kingdom|Ipswich": [
+  52.05917,
+  1.15545
+ ],
+ "United Kingdom|Kettering": [
+  52.39836,
+  -0.72571
+ ],
+ "United Kingdom|Kidderminster": [
+  52.38819,
+  -2.25
+ ],
+ "United Kingdom|Kidlington": [
+  51.82166,
+  -1.2886
+ ],
+ "United Kingdom|Kingston upon Hull": [
+  53.7446,
+  -0.33525
+ ],
+ "United Kingdom|Knebworth": [
+  51.86674,
+  -0.18394
+ ],
+ "United Kingdom|Leeds": [
+  53.79648,
+  -1.54785
+ ],
+ "United Kingdom|Leicester": [
+  52.6386,
+  -1.13169
+ ],
+ "United Kingdom|Leighton Buzzard": [
+  51.91722,
+  -0.65802
+ ],
+ "United Kingdom|Letchworth Garden City": [
+  51.97938,
+  -0.22664
+ ],
+ "United Kingdom|Lincoln": [
+  53.22683,
+  -0.53792
+ ],
+ "United Kingdom|Liverpool": [
+  53.41058,
+  -2.97794
+ ],
+ "United Kingdom|Llanberis": [
+  53.11809,
+  -4.12923
+ ],
+ "United Kingdom|Llanelli": [
+  51.68195,
+  -4.16191
+ ],
+ "United Kingdom|London": [
+  51.50853,
+  -0.12574
+ ],
+ "United Kingdom|Londonderry Derry": [
+  54.9981,
+  -7.30934
+ ],
+ "United Kingdom|Loughborough": [
+  52.76667,
+  -1.2
+ ],
+ "United Kingdom|Lowestoft": [
+  52.47523,
+  1.75167
+ ],
+ "United Kingdom|Luton": [
+  51.87967,
+  -0.41748
+ ],
+ "United Kingdom|Maidstone": [
+  51.26667,
+  0.51667
+ ],
+ "United Kingdom|Manchester": [
+  53.48095,
+  -2.23743
+ ],
+ "United Kingdom|Mansfield": [
+  53.13333,
+  -1.2
+ ],
+ "United Kingdom|Margate": [
+  51.38132,
+  1.38617
+ ],
+ "United Kingdom|Marlow": [
+  51.56933,
+  -0.77415
+ ],
+ "United Kingdom|Middlesbrough": [
+  54.57623,
+  -1.23483
+ ],
+ "United Kingdom|Milton Keynes": [
+  52.04172,
+  -0.75583
+ ],
+ "United Kingdom|Morecambe": [
+  54.06835,
+  -2.86108
+ ],
+ "United Kingdom|Nantwich": [
+  53.06878,
+  -2.52051
+ ],
+ "United Kingdom|New Milton": [
+  50.75601,
+  -1.6658
+ ],
+ "United Kingdom|Newbury": [
+  51.40148,
+  -1.32471
+ ],
+ "United Kingdom|Newcastle upon Tyne": [
+  54.97328,
+  -1.61396
+ ],
+ "United Kingdom|Newhaven": [
+  50.79693,
+  0.05545
+ ],
+ "United Kingdom|Newport": [
+  51.58774,
+  -2.99835
+ ],
+ "United Kingdom|Newtownards": [
+  54.59236,
+  -5.69092
+ ],
+ "United Kingdom|Northampton": [
+  52.25,
+  -0.88333
+ ],
+ "United Kingdom|Norwich": [
+  52.62783,
+  1.29834
+ ],
+ "United Kingdom|Nottingham": [
+  52.9536,
+  -1.15047
+ ],
+ "United Kingdom|Oxford": [
+  51.75222,
+  -1.25596
+ ],
+ "United Kingdom|Perth": [
+  56.39522,
+  -3.43139
+ ],
+ "United Kingdom|Peterborough": [
+  52.57364,
+  -0.24777
+ ],
+ "United Kingdom|Plymouth": [
+  50.37153,
+  -4.14305
+ ],
+ "United Kingdom|Pontypool": [
+  51.70111,
+  -3.04444
+ ],
+ "United Kingdom|Poole": [
+  50.71429,
+  -1.98458
+ ],
+ "United Kingdom|Port Talbot": [
+  51.59241,
+  -3.78019
+ ],
+ "United Kingdom|Portsmouth": [
+  50.79899,
+  -1.09125
+ ],
+ "United Kingdom|Prestatyn": [
+  53.33748,
+  -3.40776
+ ],
+ "United Kingdom|Preston": [
+  53.76282,
+  -2.70452
+ ],
+ "United Kingdom|Queensferry": [
+  53.2,
+  -3.03333
+ ],
+ "United Kingdom|Ramsgate": [
+  51.33568,
+  1.41797
+ ],
+ "United Kingdom|Reading": [
+  51.45625,
+  -0.97113
+ ],
+ "United Kingdom|Redhill": [
+  51.24048,
+  -0.17044
+ ],
+ "United Kingdom|Rhyl": [
+  53.31929,
+  -3.49228
+ ],
+ "United Kingdom|Rochester": [
+  51.38764,
+  0.50546
+ ],
+ "United Kingdom|Royal Leamington Spa": [
+  52.2852,
+  -1.52
+ ],
+ "United Kingdom|Royal Tunbridge Wells": [
+  51.13321,
+  0.26256
+ ],
+ "United Kingdom|Rugby": [
+  52.37092,
+  -1.26417
+ ],
+ "United Kingdom|Salisbury": [
+  51.06931,
+  -1.79569
+ ],
+ "United Kingdom|Saltney": [
+  53.17729,
+  -2.9306
+ ],
+ "United Kingdom|Scarborough": [
+  54.27966,
+  -0.40443
+ ],
+ "United Kingdom|Scunthorpe": [
+  53.57905,
+  -0.65437
+ ],
+ "United Kingdom|Sheffield": [
+  53.38297,
+  -1.4659
+ ],
+ "United Kingdom|Sittingbourne": [
+  51.34128,
+  0.73282
+ ],
+ "United Kingdom|Slough": [
+  51.50949,
+  -0.59541
+ ],
+ "United Kingdom|Southampton": [
+  50.90395,
+  -1.40428
+ ],
+ "United Kingdom|Southend-on-Sea": [
+  51.53782,
+  0.71433
+ ],
+ "United Kingdom|Southport": [
+  53.64581,
+  -3.01008
+ ],
+ "United Kingdom|St Albans": [
+  51.75,
+  -0.33333
+ ],
+ "United Kingdom|St Andrews": [
+  56.33871,
+  -2.79902
+ ],
+ "United Kingdom|St. Austell": [
+  50.3425,
+  -4.77442
+ ],
+ "United Kingdom|Stafford": [
+  52.80521,
+  -2.11636
+ ],
+ "United Kingdom|Stevenage": [
+  51.90224,
+  -0.20256
+ ],
+ "United Kingdom|Stockton-on-Tees": [
+  54.56848,
+  -1.3187
+ ],
+ "United Kingdom|Stoke-on-Trent": [
+  53.00415,
+  -2.18538
+ ],
+ "United Kingdom|Stourport-on-Severn": [
+  52.33976,
+  -2.28034
+ ],
+ "United Kingdom|Street": [
+  51.12472,
+  -2.74
+ ],
+ "United Kingdom|Sunderland": [
+  54.90465,
+  -1.38222
+ ],
+ "United Kingdom|Swansea": [
+  51.62079,
+  -3.94323
+ ],
+ "United Kingdom|Swindon": [
+  51.55797,
+  -1.78116
+ ],
+ "United Kingdom|Tamworth": [
+  52.63399,
+  -1.69587
+ ],
+ "United Kingdom|Taunton": [
+  51.01494,
+  -3.10293
+ ],
+ "United Kingdom|Telford": [
+  52.67659,
+  -2.44926
+ ],
+ "United Kingdom|Thatcham": [
+  51.40366,
+  -1.26049
+ ],
+ "United Kingdom|Tonbridge": [
+  51.19532,
+  0.27363
+ ],
+ "United Kingdom|Torquay": [
+  50.46198,
+  -3.52522
+ ],
+ "United Kingdom|Wellingborough": [
+  52.30273,
+  -0.69446
+ ],
+ "United Kingdom|Wells": [
+  51.20794,
+  -2.64896
+ ],
+ "United Kingdom|West Lulworth": [
+  50.62614,
+  -2.24679
+ ],
+ "United Kingdom|West Overton": [
+  51.41095,
+  -1.81197
+ ],
+ "United Kingdom|Weston-super-Mare": [
+  51.34603,
+  -2.97665
+ ],
+ "United Kingdom|Weymouth": [
+  50.61448,
+  -2.45991
+ ],
+ "United Kingdom|Winchester": [
+  51.06513,
+  -1.3187
+ ],
+ "United Kingdom|Wishaw": [
+  55.76667,
+  -3.91667
+ ],
+ "United Kingdom|Wokingham": [
+  51.4112,
+  -0.83565
+ ],
+ "United Kingdom|Wolverhampton": [
+  52.58547,
+  -2.12296
+ ],
+ "United Kingdom|Woodbridge": [
+  52.09332,
+  1.32042
+ ],
+ "United Kingdom|Worcester": [
+  52.18935,
+  -2.22001
+ ],
+ "United Kingdom|Worthing": [
+  50.81795,
+  -0.37538
+ ],
+ "United Kingdom|Wrexham": [
+  53.04664,
+  -2.99132
+ ],
+ "United Kingdom|Yate": [
+  51.54074,
+  -2.41839
+ ],
+ "United Kingdom|Yeovil": [
+  50.94159,
+  -2.63211
+ ],
+ "United Kingdom|York": [
+  53.95763,
+  -1.08271
+ ],
+ "United States|Aberdeen": [
+  45.4647,
+  -98.48648
+ ],
+ "United States|Abilene": [
+  32.44874,
+  -99.73314
+ ],
+ "United States|Adrian": [
+  41.89755,
+  -84.03717
+ ],
+ "United States|Aiken": [
+  33.56042,
+  -81.71955
+ ],
+ "United States|Akron": [
+  41.08144,
+  -81.51901
+ ],
+ "United States|Alabaster": [
+  33.24428,
+  -86.81638
+ ],
+ "United States|Alachua": [
+  29.75163,
+  -82.42483
+ ],
+ "United States|Albany": [
+  42.65258,
+  -73.75623
+ ],
+ "United States|Albertville": [
+  34.26783,
+  -86.20878
+ ],
+ "United States|Albuquerque": [
+  35.08449,
+  -106.65114
+ ],
+ "United States|Alexandria": [
+  38.80484,
+  -77.04692
+ ],
+ "United States|Allegan": [
+  42.5292,
+  -85.8553
+ ],
+ "United States|Allentown": [
+  40.60843,
+  -75.49018
+ ],
+ "United States|Alma (South)": [
+  31.53937,
+  -82.46236
+ ],
+ "United States|Alton": [
+  36.69423,
+  -91.3993
+ ],
+ "United States|Altoona": [
+  40.51868,
+  -78.39474
+ ],
+ "United States|Amarillo": [
+  35.222,
+  -101.8313
+ ],
+ "United States|Amelia": [
+  37.34293,
+  -77.98056
+ ],
+ "United States|Ames": [
+  42.03471,
+  -93.61994
+ ],
+ "United States|Amherst": [
+  42.97839,
+  -78.79976
+ ],
+ "United States|Anchorage": [
+  61.21806,
+  -149.90028
+ ],
+ "United States|Anderson": [
+  40.10532,
+  -85.68025
+ ],
+ "United States|Angleton": [
+  29.16941,
+  -95.43188
+ ],
+ "United States|Ankeny": [
+  41.72971,
+  -93.60577
+ ],
+ "United States|Ann Arbor": [
+  42.27756,
+  -83.74088
+ ],
+ "United States|Annapolis": [
+  38.97859,
+  -76.49184
+ ],
+ "United States|Anniston": [
+  33.65983,
+  -85.83163
+ ],
+ "United States|Antioch": [
+  38.00492,
+  -121.80579
+ ],
+ "United States|Apex": [
+  35.73265,
+  -78.85029
+ ],
+ "United States|Apple Valley": [
+  34.50083,
+  -117.18588
+ ],
+ "United States|Appleton": [
+  44.26193,
+  -88.41538
+ ],
+ "United States|Arcata": [
+  40.86652,
+  -124.08284
+ ],
+ "United States|Arch Canyon": [
+  34.77454,
+  -95.6611
+ ],
+ "United States|Arches National Park": [
+  38.72254,
+  -109.58635
+ ],
+ "United States|Ardmore": [
+  34.17426,
+  -97.14363
+ ],
+ "United States|Area East of Marlowe": [
+  37.13121,
+  -82.83072
+ ],
+ "United States|Area East of Metropolis": [
+  37.15117,
+  -88.732
+ ],
+ "United States|Area North of Henderson": [
+  36.0397,
+  -114.98194
+ ],
+ "United States|Area Northeast of Seminole": [
+  32.71899,
+  -102.64491
+ ],
+ "United States|Area Northeast of Wathena": [
+  39.75916,
+  -94.94969
+ ],
+ "United States|Area South of Hyndman": [
+  39.82314,
+  -78.71807
+ ],
+ "United States|Area South of Patronville": [
+  37.85838,
+  -87.11055
+ ],
+ "United States|Area South of Randlett": [
+  34.17731,
+  -98.46367
+ ],
+ "United States|Area South of Unionville": [
+  40.47696,
+  -93.00326
+ ],
+ "United States|Area Southeast of Strickersville": [
+  39.734,
+  -75.79299
+ ],
+ "United States|Area West of Scuffletown": [
+  33.52791,
+  -82.47513
+ ],
+ "United States|Areas East of West Creek Village": [
+  39.66122,
+  -75.80299
+ ],
+ "United States|Areas South of Limehouse": [
+  32.2127,
+  -81.07067
+ ],
+ "United States|Areas South of Plaistow": [
+  42.83648,
+  -71.09478
+ ],
+ "United States|Areas Southwest of Kieler": [
+  42.58139,
+  -90.60263
+ ],
+ "United States|Areas Southwest of Vinton along border": [
+  42.16861,
+  -92.02351
+ ],
+ "United States|Arkoma": [
+  35.35454,
+  -94.4341
+ ],
+ "United States|Arlington": [
+  32.73569,
+  -97.10807
+ ],
+ "United States|Arroyo Grande": [
+  35.11859,
+  -120.59073
+ ],
+ "United States|Ashburn": [
+  31.70601,
+  -83.65322
+ ],
+ "United States|Asheville": [
+  35.60095,
+  -82.55402
+ ],
+ "United States|Ashland": [
+  40.86867,
+  -82.31822
+ ],
+ "United States|Aspen": [
+  39.1911,
+  -106.81754
+ ],
+ "United States|Atascadero": [
+  35.48942,
+  -120.67073
+ ],
+ "United States|Athens": [
+  33.96095,
+  -83.37794
+ ],
+ "United States|Atlanta": [
+  33.749,
+  -84.38798
+ ],
+ "United States|Atlantic City": [
+  39.36415,
+  -74.42306
+ ],
+ "United States|Atoka": [
+  34.38593,
+  -96.12833
+ ],
+ "United States|Atwater": [
+  37.34772,
+  -120.60908
+ ],
+ "United States|Auburn": [
+  42.93173,
+  -76.56605
+ ],
+ "United States|Augusta": [
+  44.31062,
+  -69.77949
+ ],
+ "United States|Aurora": [
+  39.72943,
+  -104.83192
+ ],
+ "United States|Austin": [
+  30.26715,
+  -97.74306
+ ],
+ "United States|Baird": [
+  32.39402,
+  -99.39424
+ ],
+ "United States|Bakersfield": [
+  35.37329,
+  -119.01871
+ ],
+ "United States|Baldwinsville": [
+  43.15868,
+  -76.33271
+ ],
+ "United States|Ball": [
+  31.41546,
+  -92.4118
+ ],
+ "United States|Baltimore": [
+  39.29038,
+  -76.61219
+ ],
+ "United States|Bangor": [
+  44.79884,
+  -68.77265
+ ],
+ "United States|Bar Harbor": [
+  44.38758,
+  -68.2039
+ ],
+ "United States|Barre": [
+  44.19701,
+  -72.50205
+ ],
+ "United States|Barstow": [
+  34.89859,
+  -117.02282
+ ],
+ "United States|Bastrop": [
+  30.11049,
+  -97.31527
+ ],
+ "United States|Baton Rouge": [
+  30.44332,
+  -91.18747
+ ],
+ "United States|Battle Creek": [
+  42.3173,
+  -85.17816
+ ],
+ "United States|Battle Ground": [
+  45.78095,
+  -122.53343
+ ],
+ "United States|Bay City": [
+  43.59447,
+  -83.88886
+ ],
+ "United States|Bay St. Louis": [
+  35.7423,
+  -90.56233
+ ],
+ "United States|Bayou La Batre": [
+  30.40352,
+  -88.24852
+ ],
+ "United States|Bears Ears": [
+  37.62999,
+  -109.86763
+ ],
+ "United States|Beaufort": [
+  32.4317,
+  -80.66993
+ ],
+ "United States|Beaumont": [
+  30.08605,
+  -94.10185
+ ],
+ "United States|Beaver Dam": [
+  43.45777,
+  -88.83733
+ ],
+ "United States|Beckley": [
+  37.77817,
+  -81.18816
+ ],
+ "United States|Beebe": [
+  35.07064,
+  -91.87959
+ ],
+ "United States|Bel Air": [
+  39.53594,
+  -76.34829
+ ],
+ "United States|Belen": [
+  34.66284,
+  -106.77642
+ ],
+ "United States|Belgrade": [
+  45.77604,
+  -111.1769
+ ],
+ "United States|Belleville": [
+  38.52005,
+  -89.98399
+ ],
+ "United States|Bellingham": [
+  48.75955,
+  -122.48822
+ ],
+ "United States|Belpre": [
+  39.27396,
+  -81.5729
+ ],
+ "United States|Belvidere": [
+  42.26391,
+  -88.84427
+ ],
+ "United States|Bend": [
+  44.05817,
+  -121.31531
+ ],
+ "United States|Benson": [
+  45.315,
+  -95.6025
+ ],
+ "United States|Benton": [
+  34.56454,
+  -92.58683
+ ],
+ "United States|Bentonville": [
+  36.37285,
+  -94.20882
+ ],
+ "United States|Berea": [
+  41.36616,
+  -81.8543
+ ],
+ "United States|Berwick": [
+  41.05453,
+  -76.23327
+ ],
+ "United States|Biddeford": [
+  43.49258,
+  -70.45338
+ ],
+ "United States|Big Bear Lake": [
+  34.2439,
+  -116.91142
+ ],
+ "United States|Billings": [
+  45.78329,
+  -108.50069
+ ],
+ "United States|Biloxi": [
+  30.39603,
+  -88.88531
+ ],
+ "United States|Binghamton": [
+  42.09869,
+  -75.91797
+ ],
+ "United States|Birmingham": [
+  33.52066,
+  -86.80249
+ ],
+ "United States|Bismarck": [
+  46.80833,
+  -100.78374
+ ],
+ "United States|Black Canyon of the Gunnison National Park": [
+  38.57778,
+  -107.72426
+ ],
+ "United States|Blacksburg": [
+  37.22957,
+  -80.41394
+ ],
+ "United States|Bloomington": [
+  39.16533,
+  -86.52639
+ ],
+ "United States|Bloomsburg": [
+  41.0037,
+  -76.45495
+ ],
+ "United States|Blue Springs": [
+  39.01695,
+  -94.28161
+ ],
+ "United States|Bluefield": [
+  37.26984,
+  -81.22232
+ ],
+ "United States|Boaz": [
+  34.20065,
+  -86.16637
+ ],
+ "United States|Bodie": [
+  48.83267,
+  -118.8967
+ ],
+ "United States|Boerne": [
+  29.79466,
+  -98.73197
+ ],
+ "United States|Boise": [
+  43.6135,
+  -116.20345
+ ],
+ "United States|Bolton": [
+  42.43343,
+  -71.60784
+ ],
+ "United States|Bonneauville": [
+  39.81204,
+  -77.13721
+ ],
+ "United States|Boston": [
+  42.35843,
+  -71.05977
+ ],
+ "United States|Boulder": [
+  40.01499,
+  -105.27055
+ ],
+ "United States|Boulder City": [
+  35.97859,
+  -114.83249
+ ],
+ "United States|Boulder Creek": [
+  37.12606,
+  -122.12219
+ ],
+ "United States|Bowling Green": [
+  36.99032,
+  -86.4436
+ ],
+ "United States|Bozeman": [
+  45.67965,
+  -111.03856
+ ],
+ "United States|Bradenton": [
+  27.49893,
+  -82.57482
+ ],
+ "United States|Brainerd": [
+  46.35802,
+  -94.20083
+ ],
+ "United States|Branson": [
+  36.64367,
+  -93.21851
+ ],
+ "United States|Bridgeport": [
+  41.17923,
+  -73.18945
+ ],
+ "United States|Brilliant": [
+  40.26479,
+  -80.62619
+ ],
+ "United States|Brownsville": [
+  25.90175,
+  -97.49748
+ ],
+ "United States|Bryan": [
+  30.67436,
+  -96.36996
+ ],
+ "United States|Bryce Canyon City": [
+  37.67389,
+  -112.15694
+ ],
+ "United States|Bryce Canyon National Park": [
+  37.5839,
+  -112.18271
+ ],
+ "United States|Buchanan": [
+  33.8026,
+  -85.18856
+ ],
+ "United States|Buck Run": [
+  40.70759,
+  -76.32689
+ ],
+ "United States|Buckeye": [
+  33.37032,
+  -112.58378
+ ],
+ "United States|Buffalo": [
+  42.88645,
+  -78.87837
+ ],
+ "United States|Buffalo Gap": [
+  32.2793,
+  -99.83009
+ ],
+ "United States|Burkburnett": [
+  34.09787,
+  -98.57061
+ ],
+ "United States|Burlington": [
+  44.47588,
+  -73.21207
+ ],
+ "United States|Butler": [
+  40.86118,
+  -79.89533
+ ],
+ "United States|Calabash": [
+  33.89073,
+  -78.56834
+ ],
+ "United States|Caldwell": [
+  43.66294,
+  -116.68736
+ ],
+ "United States|Calexico": [
+  32.67895,
+  -115.49888
+ ],
+ "United States|Calhoun": [
+  34.50259,
+  -84.95105
+ ],
+ "United States|Camden": [
+  39.92595,
+  -75.11962
+ ],
+ "United States|Canton": [
+  40.79895,
+  -81.37845
+ ],
+ "United States|Canyon": [
+  34.98033,
+  -101.9188
+ ],
+ "United States|Canyon Lake": [
+  29.87522,
+  -98.26251
+ ],
+ "United States|Canyonlands National Park": [
+  38.32687,
+  -109.87826
+ ],
+ "United States|Cape Canaveral": [
+  28.40584,
+  -80.60477
+ ],
+ "United States|Cape Coral": [
+  26.56285,
+  -81.94953
+ ],
+ "United States|Cape Girardeau": [
+  37.30588,
+  -89.51815
+ ],
+ "United States|Carbondale": [
+  37.72727,
+  -89.21675
+ ],
+ "United States|Carolina Beach": [
+  34.03517,
+  -77.8936
+ ],
+ "United States|Carpinteria": [
+  34.39888,
+  -119.51846
+ ],
+ "United States|Carrollton": [
+  32.95373,
+  -96.89028
+ ],
+ "United States|Carson City": [
+  39.1638,
+  -119.7674
+ ],
+ "United States|Carthage": [
+  37.17645,
+  -94.31022
+ ],
+ "United States|Cartwright": [
+  33.85288,
+  -96.56194
+ ],
+ "United States|Casa Grande": [
+  32.8795,
+  -111.75735
+ ],
+ "United States|Casper": [
+  42.86663,
+  -106.31308
+ ],
+ "United States|Castle Rock": [
+  39.37221,
+  -104.85609
+ ],
+ "United States|Cave Creek": [
+  33.83333,
+  -111.95083
+ ],
+ "United States|Cearfoss": [
+  39.70093,
+  -77.77555
+ ],
+ "United States|Cedar Rapids": [
+  42.00833,
+  -91.64407
+ ],
+ "United States|Champaign": [
+  40.11642,
+  -88.24338
+ ],
+ "United States|Chapel Hill": [
+  35.9132,
+  -79.05584
+ ],
+ "United States|Charleston": [
+  32.77632,
+  -79.93275
+ ],
+ "United States|Charlestown": [
+  42.37787,
+  -71.062
+ ],
+ "United States|Charlotte": [
+  35.22709,
+  -80.84313
+ ],
+ "United States|Charlottesville": [
+  38.02931,
+  -78.47668
+ ],
+ "United States|Chatsworth": [
+  34.76591,
+  -84.76994
+ ],
+ "United States|Chattanooga": [
+  35.04563,
+  -85.30968
+ ],
+ "United States|Cheat Lake": [
+  39.67202,
+  -79.85339
+ ],
+ "United States|Cheyenne": [
+  41.13998,
+  -104.82025
+ ],
+ "United States|Chicago": [
+  41.85003,
+  -87.65005
+ ],
+ "United States|Chico": [
+  39.72849,
+  -121.83748
+ ],
+ "United States|Chino Valley": [
+  34.75752,
+  -112.45378
+ ],
+ "United States|Chippewa Falls": [
+  44.93691,
+  -91.39293
+ ],
+ "United States|Christiansburg": [
+  37.12985,
+  -80.40894
+ ],
+ "United States|Cincinnati": [
+  39.12711,
+  -84.51439
+ ],
+ "United States|Claremont": [
+  34.09668,
+  -117.71978
+ ],
+ "United States|Claremore": [
+  36.3126,
+  -95.61609
+ ],
+ "United States|Clark": [
+  45.66244,
+  -110.56104
+ ],
+ "United States|Clarkston": [
+  33.80955,
+  -84.23964
+ ],
+ "United States|Clarksville": [
+  36.52977,
+  -87.35945
+ ],
+ "United States|Claymont": [
+  39.80067,
+  -75.45964
+ ],
+ "United States|Clayton": [
+  31.87822,
+  -85.44966
+ ],
+ "United States|Clemson": [
+  34.68344,
+  -82.83737
+ ],
+ "United States|Cleveland": [
+  41.4995,
+  -81.69541
+ ],
+ "United States|Clio": [
+  43.17753,
+  -83.73413
+ ],
+ "United States|Coachella": [
+  33.6803,
+  -116.17389
+ ],
+ "United States|Cocoa": [
+  28.38612,
+  -80.742
+ ],
+ "United States|Coeur d'Alene": [
+  47.67768,
+  -116.78047
+ ],
+ "United States|Colbert": [
+  33.85316,
+  -96.50249
+ ],
+ "United States|Colfax": [
+  46.88017,
+  -117.36435
+ ],
+ "United States|College Station": [
+  30.62798,
+  -96.33441
+ ],
+ "United States|Colorado Springs": [
+  38.83388,
+  -104.82136
+ ],
+ "United States|Columbia": [
+  34.00071,
+  -81.03481
+ ],
+ "United States|Columbus": [
+  39.96118,
+  -82.99879
+ ],
+ "United States|Concord": [
+  37.97798,
+  -122.03107
+ ],
+ "United States|Conroe": [
+  30.31188,
+  -95.45605
+ ],
+ "United States|Conway": [
+  35.0887,
+  -92.4421
+ ],
+ "United States|Cookeville": [
+  36.16284,
+  -85.50164
+ ],
+ "United States|Copperas Cove (South)": [
+  31.12406,
+  -97.90308
+ ],
+ "United States|Corpus Christi": [
+  27.80058,
+  -97.39638
+ ],
+ "United States|Corvallis": [
+  33.90224,
+  -118.08173
+ ],
+ "United States|Council Bluffs": [
+  41.26194,
+  -95.86083
+ ],
+ "United States|Covington": [
+  33.59678,
+  -83.86018
+ ],
+ "United States|Crater Lake": [
+  34.70507,
+  -98.62534
+ ],
+ "United States|Creola": [
+  30.89185,
+  -88.03972
+ ],
+ "United States|Cresaptown": [
+  39.59287,
+  -78.83335
+ ],
+ "United States|Crestline": [
+  34.24195,
+  -117.2856
+ ],
+ "United States|Crestview": [
+  30.76213,
+  -86.57051
+ ],
+ "United States|Cross Lake": [
+  32.51265,
+  -93.79824
+ ],
+ "United States|Crown Point": [
+  41.41698,
+  -87.36531
+ ],
+ "United States|Crystal River": [
+  28.90248,
+  -82.5926
+ ],
+ "United States|Cullman": [
+  34.17482,
+  -86.84361
+ ],
+ "United States|Culver": [
+  44.52568,
+  -121.2131
+ ],
+ "United States|Cumberland": [
+  39.65287,
+  -78.76252
+ ],
+ "United States|Cushing Oil Field": [
+  35.98506,
+  -96.76697
+ ],
+ "United States|Custer": [
+  43.76665,
+  -103.59881
+ ],
+ "United States|Daleville": [
+  31.31017,
+  -85.71299
+ ],
+ "United States|Dallas": [
+  32.78306,
+  -96.80667
+ ],
+ "United States|Dalton": [
+  34.7698,
+  -84.97022
+ ],
+ "United States|Danbury": [
+  41.39482,
+  -73.45401
+ ],
+ "United States|Danville": [
+  36.58597,
+  -79.39502
+ ],
+ "United States|Daphne": [
+  30.60353,
+  -87.9036
+ ],
+ "United States|Dardanelle": [
+  35.22314,
+  -93.15795
+ ],
+ "United States|Darlington": [
+  34.29988,
+  -79.87617
+ ],
+ "United States|Davenport": [
+  41.52364,
+  -90.57764
+ ],
+ "United States|Davis": [
+  38.54491,
+  -121.74052
+ ],
+ "United States|Davison": [
+  43.03475,
+  -83.51801
+ ],
+ "United States|Dayton": [
+  39.75895,
+  -84.19161
+ ],
+ "United States|Daytona Beach": [
+  29.21081,
+  -81.02283
+ ],
+ "United States|Decatur": [
+  39.84031,
+  -88.9548
+ ],
+ "United States|DeLand": [
+  29.02832,
+  -81.30312
+ ],
+ "United States|Delano": [
+  35.76884,
+  -119.24705
+ ],
+ "United States|Delaware City": [
+  39.57775,
+  -75.58945
+ ],
+ "United States|Delmar": [
+  42.62202,
+  -73.83262
+ ],
+ "United States|Denison": [
+  42.01777,
+  -95.35528
+ ],
+ "United States|Denton": [
+  33.21484,
+  -97.13307
+ ],
+ "United States|Denver": [
+  39.73915,
+  -104.9847
+ ],
+ "United States|Derry": [
+  42.88064,
+  -71.32729
+ ],
+ "United States|Des Moines": [
+  41.60054,
+  -93.60911
+ ],
+ "United States|Desert Hot Springs": [
+  33.96173,
+  -116.50353
+ ],
+ "United States|Destin": [
+  30.39353,
+  -86.49578
+ ],
+ "United States|Detroit": [
+  42.33143,
+  -83.04575
+ ],
+ "United States|Devils Tower": [
+  44.58915,
+  -104.69663
+ ],
+ "United States|Dewey": [
+  35.59412,
+  -119.34095
+ ],
+ "United States|Dewey-Humboldt": [
+  34.53,
+  -112.24222
+ ],
+ "United States|DeWitt": [
+  41.82336,
+  -90.53819
+ ],
+ "United States|Diamondhead": [
+  30.39464,
+  -89.36394
+ ],
+ "United States|Diboll": [
+  31.18713,
+  -94.78104
+ ],
+ "United States|Dock Junction": [
+  31.20245,
+  -81.51677
+ ],
+ "United States|Dorado": [
+  36.90788,
+  -82.27042
+ ],
+ "United States|Dothan": [
+  31.22323,
+  -85.39049
+ ],
+ "United States|Douglas": [
+  31.50881,
+  -82.84987
+ ],
+ "United States|Douglasville": [
+  33.7515,
+  -84.74771
+ ],
+ "United States|Dover": [
+  39.15817,
+  -75.52437
+ ],
+ "United States|Downingtown": [
+  40.0065,
+  -75.70327
+ ],
+ "United States|Downstream Casino Resort , Quapaw": [
+  31.9902,
+  -82.17484
+ ],
+ "United States|DuBois": [
+  44.1763,
+  -112.23082
+ ],
+ "United States|Dubuque": [
+  42.50056,
+  -90.66457
+ ],
+ "United States|Duluth": [
+  46.78327,
+  -92.10658
+ ],
+ "United States|Dunlap": [
+  35.37146,
+  -85.39052
+ ],
+ "United States|Dunn": [
+  47.68,
+  -99.1379
+ ],
+ "United States|Durham": [
+  35.99403,
+  -78.89862
+ ],
+ "United States|Eagle Mesa": [
+  35.90585,
+  -107.21949
+ ],
+ "United States|Eagle Point": [
+  42.47263,
+  -122.80282
+ ],
+ "United States|Earl": [
+  35.27509,
+  -90.46677
+ ],
+ "United States|East Cape Girardeau": [
+  37.29588,
+  -89.4962
+ ],
+ "United States|East Dubuque": [
+  42.49223,
+  -90.64291
+ ],
+ "United States|East Grand Forks": [
+  47.92998,
+  -97.02452
+ ],
+ "United States|East St. Louis": [
+  42.06121,
+  -71.86396
+ ],
+ "United States|Easthampton": [
+  42.26676,
+  -72.66898
+ ],
+ "United States|Easton": [
+  40.68843,
+  -75.22073
+ ],
+ "United States|Eau Claire": [
+  44.81135,
+  -91.49849
+ ],
+ "United States|Edwardsville": [
+  38.81144,
+  -89.95316
+ ],
+ "United States|El Centro": [
+  32.792,
+  -115.56305
+ ],
+ "United States|El Paso": [
+  31.75872,
+  -106.48693
+ ],
+ "United States|Elizabeth": [
+  40.66399,
+  -74.2107
+ ],
+ "United States|Elizabethton": [
+  36.34872,
+  -82.21069
+ ],
+ "United States|Elizabethtown": [
+  37.69395,
+  -85.85913
+ ],
+ "United States|Elk River": [
+  45.30385,
+  -93.56718
+ ],
+ "United States|Ellensburg": [
+  46.99651,
+  -120.54785
+ ],
+ "United States|Elwood": [
+  40.59028,
+  -99.86095
+ ],
+ "United States|Endicott": [
+  42.09841,
+  -76.04937
+ ],
+ "United States|Enfield": [
+  41.97621,
+  -72.59176
+ ],
+ "United States|Enid": [
+  36.39559,
+  -97.87839
+ ],
+ "United States|Enterprise": [
+  45.42626,
+  -117.27878
+ ],
+ "United States|Erie": [
+  42.12922,
+  -80.08506
+ ],
+ "United States|Escondido": [
+  33.11921,
+  -117.08642
+ ],
+ "United States|Essex Junction": [
+  44.49061,
+  -73.11096
+ ],
+ "United States|Eudora": [
+  38.94334,
+  -95.09858
+ ],
+ "United States|Eugene": [
+  44.05207,
+  -123.08675
+ ],
+ "United States|Eunice": [
+  30.49437,
+  -92.41763
+ ],
+ "United States|Eureka": [
+  40.80207,
+  -124.16367
+ ],
+ "United States|Evansville": [
+  37.97476,
+  -87.55585
+ ],
+ "United States|Everett": [
+  47.97898,
+  -122.20208
+ ],
+ "United States|Fairbanks": [
+  64.83778,
+  -147.71638
+ ],
+ "United States|Fairport": [
+  42.16702,
+  -76.82051
+ ],
+ "United States|Fargo": [
+  46.87719,
+  -96.7898
+ ],
+ "United States|Farmington": [
+  40.9805,
+  -111.88744
+ ],
+ "United States|Fayetteville": [
+  35.05266,
+  -78.87836
+ ],
+ "United States|Fenwick Island": [
+  38.46233,
+  -75.05129
+ ],
+ "United States|Fernley": [
+  39.60797,
+  -119.25183
+ ],
+ "United States|Festus": [
+  38.22061,
+  -90.39595
+ ],
+ "United States|Filer": [
+  42.57019,
+  -114.60782
+ ],
+ "United States|Fitchburg": [
+  42.58342,
+  -71.8023
+ ],
+ "United States|Flagstaff": [
+  35.19807,
+  -111.65127
+ ],
+ "United States|Fleetwood": [
+  40.45398,
+  -75.81798
+ ],
+ "United States|Flint": [
+  43.01253,
+  -83.68746
+ ],
+ "United States|Florence": [
+  34.79981,
+  -87.67725
+ ],
+ "United States|Foley": [
+  45.66469,
+  -93.9097
+ ],
+ "United States|Follansbee": [
+  40.32757,
+  -80.59591
+ ],
+ "United States|Fond du Lac": [
+  43.775,
+  -88.43883
+ ],
+ "United States|Forest Grove": [
+  45.51984,
+  -123.11066
+ ],
+ "United States|Forest Lake": [
+  45.27886,
+  -92.98522
+ ],
+ "United States|Fort Atkinson": [
+  42.92889,
+  -88.83705
+ ],
+ "United States|Fort Campbell": [
+  36.65429,
+  -87.46056
+ ],
+ "United States|Fort Collins": [
+  40.58526,
+  -105.08442
+ ],
+ "United States|Fort Drum": [
+  44.05843,
+  -75.76189
+ ],
+ "United States|Fort Lauderdale": [
+  26.12231,
+  -80.14338
+ ],
+ "United States|Fort Myers": [
+  26.62168,
+  -81.84059
+ ],
+ "United States|Fort Oglethorpe": [
+  34.94896,
+  -85.2569
+ ],
+ "United States|Fort Pierce": [
+  27.44671,
+  -80.32561
+ ],
+ "United States|Fort Smith": [
+  35.38592,
+  -94.39855
+ ],
+ "United States|Fort Valley": [
+  32.55376,
+  -83.88741
+ ],
+ "United States|Fort Wayne": [
+  41.1306,
+  -85.12886
+ ],
+ "United States|Fort Worth": [
+  32.72541,
+  -97.32085
+ ],
+ "United States|Fortuna Foothills": [
+  32.65783,
+  -114.41189
+ ],
+ "United States|Fountain": [
+  38.68222,
+  -104.70081
+ ],
+ "United States|Franklin": [
+  35.92506,
+  -86.86889
+ ],
+ "United States|Frederick": [
+  39.41427,
+  -77.41054
+ ],
+ "United States|Freeport": [
+  42.29669,
+  -89.62123
+ ],
+ "United States|Fresno": [
+  36.74773,
+  -119.77237
+ ],
+ "United States|Fruita": [
+  39.15887,
+  -108.72899
+ ],
+ "United States|Gadsden": [
+  34.01434,
+  -86.00639
+ ],
+ "United States|Gainesville": [
+  29.65163,
+  -82.32483
+ ],
+ "United States|Galena": [
+  42.41667,
+  -90.42902
+ ],
+ "United States|Galveston": [
+  29.30135,
+  -94.7977
+ ],
+ "United States|Gardendale": [
+  33.6601,
+  -86.81277
+ ],
+ "United States|Gardiner": [
+  44.23007,
+  -69.77532
+ ],
+ "United States|Gary": [
+  41.59337,
+  -87.34643
+ ],
+ "United States|Gate City": [
+  36.63788,
+  -82.58099
+ ],
+ "United States|Gatlinburg": [
+  35.71453,
+  -83.51189
+ ],
+ "United States|Genoa": [
+  42.09725,
+  -88.69287
+ ],
+ "United States|Georgetown": [
+  30.63269,
+  -97.67723
+ ],
+ "United States|Germantown": [
+  39.17316,
+  -77.27165
+ ],
+ "United States|Gettysburg": [
+  39.83093,
+  -77.2311
+ ],
+ "United States|Gilmer": [
+  32.72875,
+  -94.94244
+ ],
+ "United States|Gilroy": [
+  37.00578,
+  -121.56828
+ ],
+ "United States|Glacier National Park": [
+  48.68306,
+  -113.80031
+ ],
+ "United States|Gladewater": [
+  32.53653,
+  -94.94272
+ ],
+ "United States|Glenarm": [
+  39.62366,
+  -89.64899
+ ],
+ "United States|Glens Falls": [
+  43.30952,
+  -73.64401
+ ],
+ "United States|Gold Canyon": [
+  33.37145,
+  -111.43691
+ ],
+ "United States|Goldsboro": [
+  35.38488,
+  -77.99277
+ ],
+ "United States|Gonzales": [
+  29.50163,
+  -97.45249
+ ],
+ "United States|Grand Canyon West": [
+  35.98559,
+  -113.81945
+ ],
+ "United States|Grand Forks": [
+  47.92526,
+  -97.03285
+ ],
+ "United States|Grand Island, Nebraska": [
+  40.92501,
+  -98.34201
+ ],
+ "United States|Grand Junction": [
+  39.06387,
+  -108.55065
+ ],
+ "United States|Grand Ledge": [
+  42.75337,
+  -84.74638
+ ],
+ "United States|Grand Rapids": [
+  42.96336,
+  -85.66809
+ ],
+ "United States|Grants Pass": [
+  42.43933,
+  -123.33067
+ ],
+ "United States|Grass Valley": [
+  39.21906,
+  -121.06106
+ ],
+ "United States|Grawn": [
+  44.6625,
+  -85.69369
+ ],
+ "United States|Great Falls": [
+  47.50024,
+  -111.30081
+ ],
+ "United States|Greeley": [
+  40.42331,
+  -104.70913
+ ],
+ "United States|Green Bay": [
+  44.51916,
+  -88.01983
+ ],
+ "United States|Greensboro": [
+  36.07264,
+  -79.79198
+ ],
+ "United States|Greenville": [
+  35.61266,
+  -77.36635
+ ],
+ "United States|Gulfport": [
+  30.36742,
+  -89.09282
+ ],
+ "United States|Guntersville": [
+  34.35823,
+  -86.29446
+ ],
+ "United States|Hackettstown": [
+  40.85399,
+  -74.82906
+ ],
+ "United States|Hagerstown": [
+  39.64176,
+  -77.71999
+ ],
+ "United States|Hallsville": [
+  32.50432,
+  -94.57409
+ ],
+ "United States|Hammond": [
+  41.58337,
+  -87.50004
+ ],
+ "United States|Hanford": [
+  36.32745,
+  -119.64568
+ ],
+ "United States|Harlingen": [
+  26.19063,
+  -97.6961
+ ],
+ "United States|Harrisburg": [
+  40.2737,
+  -76.88442
+ ],
+ "United States|Harrisonburg": [
+  38.44957,
+  -78.86892
+ ],
+ "United States|Hartford": [
+  41.76371,
+  -72.68509
+ ],
+ "United States|Hartselle": [
+  34.44343,
+  -86.93528
+ ],
+ "United States|Hastings": [
+  40.58612,
+  -98.38839
+ ],
+ "United States|Hattiesburg": [
+  31.32712,
+  -89.29034
+ ],
+ "United States|Havasu Lake": [
+  34.48223,
+  -114.41385
+ ],
+ "United States|Havre De Grace": [
+  39.54928,
+  -76.09162
+ ],
+ "United States|Headland": [
+  31.35128,
+  -85.34216
+ ],
+ "United States|Hebron": [
+  40.16639,
+  -97.58588
+ ],
+ "United States|Helendale": [
+  34.74388,
+  -117.32449
+ ],
+ "United States|Hendersonville": [
+  35.31873,
+  -82.46095
+ ],
+ "United States|Hermiston": [
+  45.84041,
+  -119.28946
+ ],
+ "United States|Hernando": [
+  34.82399,
+  -89.9937
+ ],
+ "United States|Hesperia": [
+  34.42639,
+  -117.30088
+ ],
+ "United States|Hickory": [
+  35.73319,
+  -81.3412
+ ],
+ "United States|High Point": [
+  35.95569,
+  -80.00532
+ ],
+ "United States|Hill City": [
+  47.40387,
+  -97.06203
+ ],
+ "United States|Hilo": [
+  19.72991,
+  -155.09073
+ ],
+ "United States|Hilton": [
+  43.28812,
+  -77.79334
+ ],
+ "United States|Hilton Head Island": [
+  32.19382,
+  -80.73816
+ ],
+ "United States|Hiltons": [
+  36.65455,
+  -82.46709
+ ],
+ "United States|Hinesville": [
+  31.84688,
+  -81.59595
+ ],
+ "United States|Hobe Sound": [
+  27.0595,
+  -80.13643
+ ],
+ "United States|Hockessin": [
+  39.78761,
+  -75.6966
+ ],
+ "United States|Hokes Bluff": [
+  33.99815,
+  -85.86636
+ ],
+ "United States|Holland": [
+  42.78752,
+  -86.10893
+ ],
+ "United States|Hollister": [
+  36.85245,
+  -121.4016
+ ],
+ "United States|Holmen": [
+  43.9633,
+  -91.25625
+ ],
+ "United States|Holts Summit": [
+  38.64032,
+  -92.12241
+ ],
+ "United States|Homestead": [
+  25.46872,
+  -80.47756
+ ],
+ "United States|Honolulu": [
+  21.30694,
+  -157.85834
+ ],
+ "United States|Hoover Dam Lookout": [
+  33.6101,
+  -86.43498
+ ],
+ "United States|Horizon City": [
+  31.69261,
+  -106.20748
+ ],
+ "United States|Hot Springs": [
+  34.5037,
+  -93.05518
+ ],
+ "United States|Houlton": [
+  46.12616,
+  -67.8403
+ ],
+ "United States|Houma": [
+  29.59577,
+  -90.71953
+ ],
+ "United States|Houston": [
+  29.76328,
+  -95.36327
+ ],
+ "United States|Howell": [
+  42.60726,
+  -83.9294
+ ],
+ "United States|Hudson": [
+  44.97469,
+  -92.75687
+ ],
+ "United States|Huntington": [
+  38.41925,
+  -82.44515
+ ],
+ "United States|Huntsville": [
+  34.7304,
+  -86.58594
+ ],
+ "United States|Hyannis": [
+  42.00054,
+  -101.76184
+ ],
+ "United States|Idaho Falls": [
+  43.46658,
+  -112.03414
+ ],
+ "United States|Incline Village": [
+  39.2513,
+  -119.97297
+ ],
+ "United States|Indianapolis": [
+  39.76838,
+  -86.15804
+ ],
+ "United States|Inwood": [
+  40.62205,
+  -73.7468
+ ],
+ "United States|Iowa City": [
+  41.66113,
+  -91.53017
+ ],
+ "United States|Iowa Park": [
+  33.95148,
+  -98.66867
+ ],
+ "United States|Ironton": [
+  38.53675,
+  -82.68294
+ ],
+ "United States|Ithaca": [
+  42.44063,
+  -76.49661
+ ],
+ "United States|Jackson": [
+  32.29876,
+  -90.18481
+ ],
+ "United States|Jacksonville": [
+  30.33218,
+  -81.65565
+ ],
+ "United States|Janesville": [
+  42.68279,
+  -89.01872
+ ],
+ "United States|Jefferson City": [
+  38.5767,
+  -92.17352
+ ],
+ "United States|Jeffersonville": [
+  38.27757,
+  -85.73718
+ ],
+ "United States|Jersey City": [
+  40.72816,
+  -74.07764
+ ],
+ "United States|Jobs Sister": [
+  38.86241,
+  -119.88462
+ ],
+ "United States|Johnson City": [
+  30.27687,
+  -98.41197
+ ],
+ "United States|Johnstown": [
+  43.00674,
+  -74.36764
+ ],
+ "United States|Joliet": [
+  41.52519,
+  -88.0834
+ ],
+ "United States|Jolly": [
+  33.86399,
+  -98.34949
+ ],
+ "United States|Jonesboro": [
+  36.29427,
+  -82.47348
+ ],
+ "United States|Joplin": [
+  37.08423,
+  -94.51328
+ ],
+ "United States|Jordan": [
+  47.32083,
+  -106.91007
+ ],
+ "United States|Jourdanton": [
+  28.91803,
+  -98.54641
+ ],
+ "United States|Juno Beach": [
+  26.87978,
+  -80.05337
+ ],
+ "United States|Kahaluu-Keauhou": [
+  19.57181,
+  -155.96172
+ ],
+ "United States|Kahului": [
+  20.88933,
+  -156.47293
+ ],
+ "United States|Kailua": [
+  21.40241,
+  -157.74054
+ ],
+ "United States|Kailua-Kona": [
+  19.64016,
+  -155.99911
+ ],
+ "United States|Kalamazoo": [
+  42.29171,
+  -85.58723
+ ],
+ "United States|Kalispell": [
+  48.19579,
+  -114.31291
+ ],
+ "United States|Kankakee": [
+  41.12003,
+  -87.86115
+ ],
+ "United States|Kansas City": [
+  39.09973,
+  -94.57857
+ ],
+ "United States|Kapalua": [
+  20.99972,
+  -156.65807
+ ],
+ "United States|Kennewick": [
+  46.21125,
+  -119.13723
+ ],
+ "United States|Kenosha": [
+  42.58474,
+  -87.82119
+ ],
+ "United States|Kenova": [
+  38.39897,
+  -82.57821
+ ],
+ "United States|Kettering": [
+  39.6895,
+  -84.16883
+ ],
+ "United States|Key West": [
+  24.55524,
+  -81.78163
+ ],
+ "United States|Kihei": [
+  20.76462,
+  -156.44579
+ ],
+ "United States|Kilgore": [
+  32.38626,
+  -94.87577
+ ],
+ "United States|Killeen": [
+  31.11712,
+  -97.7278
+ ],
+ "United States|Kiln": [
+  30.40908,
+  -89.43505
+ ],
+ "United States|Kimberly": [
+  44.27221,
+  -88.339
+ ],
+ "United States|Kings Beach": [
+  39.23768,
+  -120.02658
+ ],
+ "United States|Kings Mountain": [
+  35.24513,
+  -81.34119
+ ],
+ "United States|Kingsburg": [
+  36.51384,
+  -119.55402
+ ],
+ "United States|Kingsport": [
+  36.54843,
+  -82.56182
+ ],
+ "United States|Kingston": [
+  41.92704,
+  -73.99736
+ ],
+ "United States|Kittery": [
+  43.08814,
+  -70.73616
+ ],
+ "United States|Knoxville": [
+  35.96064,
+  -83.92074
+ ],
+ "United States|Kokomo": [
+  40.48643,
+  -86.1336
+ ],
+ "United States|Kukio": [
+  19.81596,
+  -155.99892
+ ],
+ "United States|La Crescent": [
+  43.82802,
+  -91.30403
+ ],
+ "United States|La Crosse": [
+  43.80136,
+  -91.23958
+ ],
+ "United States|Lafayette": [
+  30.22409,
+  -92.01984
+ ],
+ "United States|Lahaina": [
+  20.87526,
+  -156.67982
+ ],
+ "United States|Lake Arrowhead": [
+  34.24834,
+  -117.18921
+ ],
+ "United States|Lake Charles": [
+  30.21309,
+  -93.2044
+ ],
+ "United States|Lake Geneva": [
+  42.59168,
+  -88.43343
+ ],
+ "United States|Lake George": [
+  43.42618,
+  -73.71234
+ ],
+ "United States|Lake Havasu City": [
+  34.4839,
+  -114.32245
+ ],
+ "United States|Lake of the Pines": [
+  39.03962,
+  -121.05661
+ ],
+ "United States|Lakeland": [
+  28.03947,
+  -81.9498
+ ],
+ "United States|Lambertville": [
+  41.76588,
+  -83.62799
+ ],
+ "United States|Lancaster": [
+  34.69804,
+  -118.13674
+ ],
+ "United States|Lansing": [
+  42.73253,
+  -84.55553
+ ],
+ "United States|LaPlace": [
+  30.06698,
+  -90.48147
+ ],
+ "United States|Laredo": [
+  27.50641,
+  -99.50754
+ ],
+ "United States|Las Cruces": [
+  32.31232,
+  -106.77834
+ ],
+ "United States|Las Vegas": [
+  36.17497,
+  -115.13722
+ ],
+ "United States|Lassen Peak": [
+  40.48766,
+  -121.50498
+ ],
+ "United States|Laurel": [
+  39.09928,
+  -76.84831
+ ],
+ "United States|Laurel Crossing": [
+  39.09928,
+  -76.84831
+ ],
+ "United States|Lavalette": [
+  38.32286,
+  -82.44682
+ ],
+ "United States|Lawrence": [
+  38.97167,
+  -95.23525
+ ],
+ "United States|Lawton": [
+  34.60869,
+  -98.39033
+ ],
+ "United States|Lebanon": [
+  36.20811,
+  -86.2911
+ ],
+ "United States|Ledbetter": [
+  37.04756,
+  -88.47699
+ ],
+ "United States|Leeds": [
+  33.54816,
+  -86.54443
+ ],
+ "United States|Leesburg": [
+  31.73212,
+  -84.17074
+ ],
+ "United States|Lenoir": [
+  35.91402,
+  -81.53898
+ ],
+ "United States|Lenoir City": [
+  35.7973,
+  -84.25603
+ ],
+ "United States|Lenox": [
+  42.35648,
+  -73.28483
+ ],
+ "United States|Lewisburg": [
+  35.44924,
+  -86.78889
+ ],
+ "United States|Lewiston": [
+  46.41655,
+  -117.01766
+ ],
+ "United States|Lexington": [
+  37.98869,
+  -84.47772
+ ],
+ "United States|Liberty Bell Arch": [
+  37.93527,
+  -107.79562
+ ],
+ "United States|Lightfoot": [
+  35.74786,
+  -89.64258
+ ],
+ "United States|Lima": [
+  40.74255,
+  -84.10523
+ ],
+ "United States|Lincoln": [
+  40.8,
+  -96.66696
+ ],
+ "United States|Lincolnton": [
+  35.47375,
+  -81.25453
+ ],
+ "United States|Lindale": [
+  32.5157,
+  -95.4094
+ ],
+ "United States|Little River": [
+  33.87323,
+  -78.61418
+ ],
+ "United States|Little Rock": [
+  34.74648,
+  -92.28959
+ ],
+ "United States|Lockport": [
+  43.17061,
+  -78.69031
+ ],
+ "United States|Lodi": [
+  38.1302,
+  -121.27245
+ ],
+ "United States|Logan": [
+  41.73549,
+  -111.83439
+ ],
+ "United States|Long Beach": [
+  33.76696,
+  -118.18923
+ ],
+ "United States|Longmont": [
+  40.16721,
+  -105.10193
+ ],
+ "United States|Longview": [
+  32.5007,
+  -94.74049
+ ],
+ "United States|Lorain": [
+  41.45282,
+  -82.18237
+ ],
+ "United States|Lorena": [
+  31.38656,
+  -97.21556
+ ],
+ "United States|Los Angeles": [
+  34.05223,
+  -118.24368
+ ],
+ "United States|Los Banos": [
+  37.05828,
+  -120.84992
+ ],
+ "United States|Louisville": [
+  38.25424,
+  -85.75941
+ ],
+ "United States|Loveland": [
+  40.39776,
+  -105.07498
+ ],
+ "United States|Lubbock": [
+  33.57786,
+  -101.85517
+ ],
+ "United States|Lufkin": [
+  31.33824,
+  -94.7291
+ ],
+ "United States|Luling": [
+  29.93215,
+  -90.36647
+ ],
+ "United States|Lumberton": [
+  34.61834,
+  -79.01045
+ ],
+ "United States|Luna Pier": [
+  41.80699,
+  -83.44243
+ ],
+ "United States|Lynchburg": [
+  37.41375,
+  -79.14225
+ ],
+ "United States|Macon": [
+  32.84069,
+  -83.6324
+ ],
+ "United States|Madera": [
+  36.96134,
+  -120.06072
+ ],
+ "United States|Madison": [
+  43.07305,
+  -89.40123
+ ],
+ "United States|Madisonville": [
+  37.3281,
+  -87.49889
+ ],
+ "United States|Madras": [
+  44.63345,
+  -121.12949
+ ],
+ "United States|Maiden": [
+  35.57569,
+  -81.21175
+ ],
+ "United States|Makakilo": [
+  21.35237,
+  -158.08655
+ ],
+ "United States|Manassas": [
+  38.75095,
+  -77.47527
+ ],
+ "United States|Manchester": [
+  42.99564,
+  -71.45479
+ ],
+ "United States|Manhattan": [
+  40.78343,
+  -73.96625
+ ],
+ "United States|Manheim": [
+  40.16343,
+  -76.39496
+ ],
+ "United States|Manitowoc": [
+  44.08861,
+  -87.65758
+ ],
+ "United States|Mankato": [
+  44.15906,
+  -94.00915
+ ],
+ "United States|Mansfield": [
+  40.75839,
+  -82.51545
+ ],
+ "United States|Marco Island": [
+  25.94121,
+  -81.71842
+ ],
+ "United States|Maricopa": [
+  33.05811,
+  -112.04764
+ ],
+ "United States|Marietta": [
+  33.9526,
+  -84.54993
+ ],
+ "United States|Marseilles": [
+  41.33087,
+  -88.70813
+ ],
+ "United States|Martins Ferry": [
+  40.09591,
+  -80.72453
+ ],
+ "United States|Martinsburg": [
+  39.45621,
+  -77.96389
+ ],
+ "United States|Maryville": [
+  35.75647,
+  -83.97046
+ ],
+ "United States|Mason": [
+  30.74879,
+  -99.23061
+ ],
+ "United States|Masury": [
+  41.21117,
+  -80.53785
+ ],
+ "United States|McAllen": [
+  26.20341,
+  -98.23001
+ ],
+ "United States|McDonough": [
+  33.44734,
+  -84.14686
+ ],
+ "United States|McFarland": [
+  35.67801,
+  -119.22927
+ ],
+ "United States|McGregor": [
+  46.60662,
+  -93.31384
+ ],
+ "United States|Medford": [
+  42.32652,
+  -122.87559
+ ],
+ "United States|Melbourne": [
+  28.08363,
+  -80.60811
+ ],
+ "United States|Memphis": [
+  35.14953,
+  -90.04898
+ ],
+ "United States|Merced": [
+  37.30216,
+  -120.48297
+ ],
+ "United States|Meridian": [
+  32.36431,
+  -88.70366
+ ],
+ "United States|Merkel": [
+  32.47068,
+  -100.01287
+ ],
+ "United States|Merlin": [
+  42.51734,
+  -123.41979
+ ],
+ "United States|Mesa Verde National Park": [
+  37.23905,
+  -108.46241
+ ],
+ "United States|Metolius": [
+  44.58651,
+  -121.17838
+ ],
+ "United States|Miami": [
+  25.77427,
+  -80.19366
+ ],
+ "United States|Michiana": [
+  41.76421,
+  -86.81336
+ ],
+ "United States|Michigan City": [
+  41.70754,
+  -86.89503
+ ],
+ "United States|Middletown": [
+  39.48508,
+  -80.14258
+ ],
+ "United States|Midland": [
+  31.99735,
+  -102.07791
+ ],
+ "United States|Midland City": [
+  31.31906,
+  -85.49382
+ ],
+ "United States|Midlothian": [
+  32.48236,
+  -96.99445
+ ],
+ "United States|Milford": [
+  41.32232,
+  -74.80239
+ ],
+ "United States|Miltona": [
+  46.04413,
+  -95.29142
+ ],
+ "United States|Milwaukee": [
+  43.0389,
+  -87.90647
+ ],
+ "United States|Minden": [
+  32.61543,
+  -93.28684
+ ],
+ "United States|Minneapolis": [
+  44.97997,
+  -93.26384
+ ],
+ "United States|Mission": [
+  26.21591,
+  -98.32529
+ ],
+ "United States|Missoula": [
+  46.87215,
+  -113.994
+ ],
+ "United States|Moab": [
+  38.57332,
+  -109.54984
+ ],
+ "United States|Mobile": [
+  30.69436,
+  -88.04305
+ ],
+ "United States|Modesto": [
+  37.6391,
+  -120.99688
+ ],
+ "United States|Moline": [
+  41.5067,
+  -90.51513
+ ],
+ "United States|Monroe": [
+  33.79484,
+  -83.71323
+ ],
+ "United States|Montauk": [
+  41.03594,
+  -71.95451
+ ],
+ "United States|Monterey": [
+  38.41234,
+  -79.5806
+ ],
+ "United States|Montgomery": [
+  32.36681,
+  -86.29997
+ ],
+ "United States|Montpelier": [
+  44.26006,
+  -72.57539
+ ],
+ "United States|Monument": [
+  39.09166,
+  -104.87276
+ ],
+ "United States|Monument Valley": [
+  38.86249,
+  -104.82803
+ ],
+ "United States|Mooresville": [
+  35.58486,
+  -80.81007
+ ],
+ "United States|Moorhead": [
+  46.87386,
+  -96.76951
+ ],
+ "United States|Morgan City": [
+  29.69937,
+  -91.20677
+ ],
+ "United States|Morganton": [
+  35.74541,
+  -81.68482
+ ],
+ "United States|Morgantown": [
+  39.62953,
+  -79.9559
+ ],
+ "United States|Moriarty": [
+  34.99005,
+  -106.04919
+ ],
+ "United States|Morristown": [
+  36.21398,
+  -83.29489
+ ],
+ "United States|Morrisville": [
+  35.82348,
+  -78.82556
+ ],
+ "United States|Moses Lake": [
+  47.13014,
+  -119.27808
+ ],
+ "United States|Moss": [
+  31.81516,
+  -89.17784
+ ],
+ "United States|Moss Bluff": [
+  30.3027,
+  -93.19071
+ ],
+ "United States|Moundsville": [
+  39.92035,
+  -80.74314
+ ],
+ "United States|Moundville": [
+  32.99762,
+  -87.63001
+ ],
+ "United States|Mount Rushmore": [
+  43.88027,
+  -103.4588
+ ],
+ "United States|Mount St. Helens": [
+  39.6854,
+  -74.60571
+ ],
+ "United States|Mount Vernon": [
+  48.42122,
+  -122.33405
+ ],
+ "United States|Mummy Cliff": [
+  40.57915,
+  -105.72612
+ ],
+ "United States|Muncie": [
+  40.19338,
+  -85.38636
+ ],
+ "United States|Murfreesboro": [
+  35.84562,
+  -86.39027
+ ],
+ "United States|Muscle Shoals": [
+  34.74481,
+  -87.66753
+ ],
+ "United States|Muskegon": [
+  43.23418,
+  -86.24839
+ ],
+ "United States|Myrtle Beach": [
+  33.68906,
+  -78.88669
+ ],
+ "United States|Nacogdoches": [
+  31.60351,
+  -94.65549
+ ],
+ "United States|Nampa": [
+  43.54072,
+  -116.56346
+ ],
+ "United States|Nashua": [
+  42.76537,
+  -71.46757
+ ],
+ "United States|Nashville": [
+  36.16589,
+  -86.78444
+ ],
+ "United States|National Harbor": [
+  38.78264,
+  -77.01506
+ ],
+ "United States|New Albany": [
+  38.28562,
+  -85.82413
+ ],
+ "United States|New Bedford": [
+  41.63526,
+  -70.92701
+ ],
+ "United States|New Braunfels": [
+  29.703,
+  -98.12445
+ ],
+ "United States|New Cumberland": [
+  40.49673,
+  -80.60674
+ ],
+ "United States|New Haven": [
+  41.30815,
+  -72.92816
+ ],
+ "United States|New Iberia": [
+  30.00354,
+  -91.81873
+ ],
+ "United States|New Kensington": [
+  40.56979,
+  -79.76477
+ ],
+ "United States|New London": [
+  39.88645,
+  -83.44825
+ ],
+ "United States|New Orleans": [
+  29.95465,
+  -90.07507
+ ],
+ "United States|New Paltz": [
+  41.74759,
+  -74.08681
+ ],
+ "United States|New Philadelphia": [
+  40.48979,
+  -81.44567
+ ],
+ "United States|New York": [
+  40.86807,
+  -97.592
+ ],
+ "United States|Newark": [
+  40.73566,
+  -74.17237
+ ],
+ "United States|Newburgh": [
+  41.50343,
+  -74.01042
+ ],
+ "United States|Newmarket": [
+  43.08286,
+  -70.93506
+ ],
+ "United States|Newport News": [
+  36.98038,
+  -76.42975
+ ],
+ "United States|Niagara Falls": [
+  43.0945,
+  -79.05671
+ ],
+ "United States|Niles": [
+  42.01892,
+  -87.80284
+ ],
+ "United States|Nixa": [
+  37.04339,
+  -93.29435
+ ],
+ "United States|Nogales (North)": [
+  31.34038,
+  -110.93425
+ ],
+ "United States|Norfolk": [
+  36.84681,
+  -76.28522
+ ],
+ "United States|Norman": [
+  35.22257,
+  -97.43948
+ ],
+ "United States|North Augusta": [
+  33.5018,
+  -81.96512
+ ],
+ "United States|North Sioux City": [
+  42.52722,
+  -96.48309
+ ],
+ "United States|Norwich": [
+  42.53118,
+  -75.52351
+ ],
+ "United States|Oak Harbor": [
+  48.29316,
+  -122.64322
+ ],
+ "United States|Oak Hill": [
+  37.97233,
+  -81.14871
+ ],
+ "United States|Oak Island": [
+  33.91656,
+  -78.16111
+ ],
+ "United States|Oak Ridge": [
+  36.01036,
+  -84.26964
+ ],
+ "United States|Oakdale": [
+  37.76659,
+  -120.84715
+ ],
+ "United States|Oakland": [
+  37.80437,
+  -122.2708
+ ],
+ "United States|Ocala": [
+  29.1872,
+  -82.14009
+ ],
+ "United States|Ocean City": [
+  39.27762,
+  -74.5746
+ ],
+ "United States|Oceanside": [
+  33.19587,
+  -117.37948
+ ],
+ "United States|Oconomowoc": [
+  43.11167,
+  -88.49927
+ ],
+ "United States|Odessa": [
+  31.84568,
+  -102.36764
+ ],
+ "United States|Ogden": [
+  41.223,
+  -111.97383
+ ],
+ "United States|Oglesby": [
+  41.29531,
+  -89.05953
+ ],
+ "United States|Oklahoma City": [
+  35.46756,
+  -97.51643
+ ],
+ "United States|Olive Branch": [
+  34.96176,
+  -89.82953
+ ],
+ "United States|Olympia": [
+  47.04491,
+  -122.90169
+ ],
+ "United States|Omaha": [
+  41.25626,
+  -95.94043
+ ],
+ "United States|Opelika": [
+  32.64541,
+  -85.37828
+ ],
+ "United States|Opelousas": [
+  30.53353,
+  -92.08151
+ ],
+ "United States|Orange Beach": [
+  30.29437,
+  -87.57359
+ ],
+ "United States|Orangeburg": [
+  33.49182,
+  -80.85565
+ ],
+ "United States|Orlando": [
+  28.53834,
+  -81.37924
+ ],
+ "United States|Oroville": [
+  39.51394,
+  -121.55776
+ ],
+ "United States|Osakis": [
+  45.86691,
+  -95.15225
+ ],
+ "United States|Oshkosh": [
+  44.02471,
+  -88.54261
+ ],
+ "United States|Ottawa": [
+  41.34559,
+  -88.84258
+ ],
+ "United States|Ottawa Lake": [
+  42.94001,
+  -88.47788
+ ],
+ "United States|Otto": [
+  35.06009,
+  -83.38765
+ ],
+ "United States|Overland Park": [
+  38.98223,
+  -94.67079
+ ],
+ "United States|Owensboro": [
+  37.77422,
+  -87.11333
+ ],
+ "United States|Oxford": [
+  34.3665,
+  -89.51925
+ ],
+ "United States|Ozark": [
+  37.02089,
+  -93.20602
+ ],
+ "United States|Paducah": [
+  37.08339,
+  -88.60005
+ ],
+ "United States|Page": [
+  36.91472,
+  -111.45583
+ ],
+ "United States|Painesville": [
+  41.72449,
+  -81.24566
+ ],
+ "United States|Palm Bay": [
+  28.03446,
+  -80.58866
+ ],
+ "United States|Palm Coast": [
+  29.58497,
+  -81.20784
+ ],
+ "United States|Palm Desert": [
+  33.72255,
+  -116.37697
+ ],
+ "United States|Palm Springs": [
+  33.8303,
+  -116.54529
+ ],
+ "United States|Palmdale": [
+  34.57943,
+  -118.11646
+ ],
+ "United States|Palmyra": [
+  39.79421,
+  -91.52321
+ ],
+ "United States|Panama City": [
+  30.15946,
+  -85.65983
+ ],
+ "United States|Parkersburg": [
+  39.26674,
+  -81.56151
+ ],
+ "United States|Pascagoula": [
+  30.36576,
+  -88.55613
+ ],
+ "United States|Paso Robles": [
+  35.62664,
+  -120.691
+ ],
+ "United States|Pawleys Island": [
+  33.43322,
+  -79.12143
+ ],
+ "United States|Pawtucket": [
+  41.87871,
+  -71.38256
+ ],
+ "United States|Peekskill": [
+  41.29009,
+  -73.92042
+ ],
+ "United States|Pekin": [
+  40.56754,
+  -89.64066
+ ],
+ "United States|Pelham": [
+  33.28567,
+  -86.80999
+ ],
+ "United States|Pelion": [
+  33.76321,
+  -81.24482
+ ],
+ "United States|Pendleton": [
+  45.67207,
+  -118.7886
+ ],
+ "United States|Pensacola": [
+  30.42131,
+  -87.21691
+ ],
+ "United States|Peoria": [
+  33.5806,
+  -112.23738
+ ],
+ "United States|Perry": [
+  32.45821,
+  -83.73157
+ ],
+ "United States|Peru": [
+  40.75365,
+  -86.06888
+ ],
+ "United States|Petersburg": [
+  37.22793,
+  -77.40193
+ ],
+ "United States|Phenix City": [
+  32.47098,
+  -85.00077
+ ],
+ "United States|Philadelphia": [
+  39.95238,
+  -75.16362
+ ],
+ "United States|Phillipsburg": [
+  39.75612,
+  -99.32399
+ ],
+ "United States|Philpot": [
+  37.73311,
+  -86.98888
+ ],
+ "United States|Phoenix": [
+  33.44838,
+  -112.07404
+ ],
+ "United States|Picture Rocks": [
+  41.2798,
+  -76.71301
+ ],
+ "United States|Pillager": [
+  46.32997,
+  -94.47417
+ ],
+ "United States|Pine Bluff": [
+  34.22843,
+  -92.0032
+ ],
+ "United States|Pine River": [
+  46.71802,
+  -94.40416
+ ],
+ "United States|Pinehurst": [
+  35.19543,
+  -79.46948
+ ],
+ "United States|Pinetop-Lakeside (West)": [
+  34.14254,
+  -109.96038
+ ],
+ "United States|Pinnacles National Park": [
+  36.4904,
+  -121.18117
+ ],
+ "United States|Pittsburgh": [
+  40.44062,
+  -79.99589
+ ],
+ "United States|Pittsfield": [
+  39.60783,
+  -90.80513
+ ],
+ "United States|Placerville": [
+  38.72963,
+  -120.79855
+ ],
+ "United States|Plattsburgh": [
+  44.69949,
+  -73.45291
+ ],
+ "United States|Pleasanton": [
+  37.66243,
+  -121.87468
+ ],
+ "United States|Pleasantville": [
+  34.85262,
+  -82.39401
+ ],
+ "United States|Poca": [
+  38.47231,
+  -81.8143
+ ],
+ "United States|Pocahontas": [
+  36.26146,
+  -90.97123
+ ],
+ "United States|Pocatello": [
+  42.8713,
+  -112.44553
+ ],
+ "United States|Ponchatoula": [
+  30.4388,
+  -90.44148
+ ],
+ "United States|Pontiac": [
+  42.63892,
+  -83.29105
+ ],
+ "United States|Port Aransas": [
+  27.83392,
+  -97.0611
+ ],
+ "United States|Port Arthur": [
+  29.88519,
+  -93.94233
+ ],
+ "United States|Port Barre": [
+  30.5602,
+  -91.95401
+ ],
+ "United States|Port Huron": [
+  42.97086,
+  -82.42491
+ ],
+ "United States|Porterville": [
+  36.06523,
+  -119.01677
+ ],
+ "United States|Portland": [
+  45.52345,
+  -122.67621
+ ],
+ "United States|Portsmouth": [
+  36.83543,
+  -76.29827
+ ],
+ "United States|Post Falls": [
+  47.71796,
+  -116.95159
+ ],
+ "United States|Pottsville": [
+  40.68565,
+  -76.1955
+ ],
+ "United States|Poughkeepsie": [
+  41.70037,
+  -73.92097
+ ],
+ "United States|Prattville": [
+  32.46402,
+  -86.4597
+ ],
+ "United States|Prescott": [
+  34.54002,
+  -112.4685
+ ],
+ "United States|Princeton": [
+  38.35532,
+  -87.56752
+ ],
+ "United States|Proctorville": [
+  38.43703,
+  -82.3771
+ ],
+ "United States|Providence": [
+  41.82399,
+  -71.41283
+ ],
+ "United States|Provo": [
+  40.23384,
+  -111.65853
+ ],
+ "United States|Pueblo": [
+  38.25445,
+  -104.60914
+ ],
+ "United States|Punta Gorda": [
+  26.92978,
+  -82.04537
+ ],
+ "United States|Putnam": [
+  41.9151,
+  -71.90896
+ ],
+ "United States|Raceland": [
+  29.72743,
+  -90.59898
+ ],
+ "United States|Racine": [
+  42.72613,
+  -87.78285
+ ],
+ "United States|Rainier": [
+  46.88815,
+  -122.68846
+ ],
+ "United States|Raleigh": [
+  35.7721,
+  -78.63861
+ ],
+ "United States|Rapid City": [
+  44.08054,
+  -103.23101
+ ],
+ "United States|Reading": [
+  40.33565,
+  -75.92687
+ ],
+ "United States|Redding": [
+  40.58654,
+  -122.39168
+ ],
+ "United States|Redmond": [
+  47.67399,
+  -122.12151
+ ],
+ "United States|Redwood Valley": [
+  39.26544,
+  -123.20445
+ ],
+ "United States|Reno": [
+  39.52963,
+  -119.8138
+ ],
+ "United States|Reynoldsville c": [
+  41.09701,
+  -78.88864
+ ],
+ "United States|Richland": [
+  33.78779,
+  -117.85311
+ ],
+ "United States|Richmond": [
+  37.55376,
+  -77.46026
+ ],
+ "United States|Richmond (West)": [
+  37.55376,
+  -77.46026
+ ],
+ "United States|Ridgeley": [
+  39.64148,
+  -78.77446
+ ],
+ "United States|Rileysburg": [
+  39.18671,
+  -92.39018
+ ],
+ "United States|Ringgold": [
+  34.91591,
+  -85.10912
+ ],
+ "United States|Rio Rico": [
+  31.47148,
+  -110.97648
+ ],
+ "United States|Riverhead": [
+  40.91704,
+  -72.66204
+ ],
+ "United States|Roanoke": [
+  37.27097,
+  -79.94143
+ ],
+ "United States|Roaring Spring": [
+  40.33591,
+  -78.39085
+ ],
+ "United States|Rochester": [
+  43.15478,
+  -77.61556
+ ],
+ "United States|Rock Hill": [
+  34.92487,
+  -81.02508
+ ],
+ "United States|Rock Island": [
+  41.50948,
+  -90.57875
+ ],
+ "United States|Rockford": [
+  42.27113,
+  -89.094
+ ],
+ "United States|Rockport": [
+  28.02077,
+  -97.05601
+ ],
+ "United States|Rocky Mount": [
+  36.99764,
+  -79.89198
+ ],
+ "United States|Rocky Top": [
+  36.21786,
+  -84.15465
+ ],
+ "United States|Rome": [
+  34.25704,
+  -85.16467
+ ],
+ "United States|Roseburg": [
+  43.2165,
+  -123.34174
+ ],
+ "United States|Rosenburg": [
+  41.63196,
+  -97.75394
+ ],
+ "United States|Russellville": [
+  35.27842,
+  -93.13379
+ ],
+ "United States|Sacramento": [
+  38.58157,
+  -121.4944
+ ],
+ "United States|Saginaw": [
+  43.41947,
+  -83.95081
+ ],
+ "United States|Salem": [
+  44.9429,
+  -123.0351
+ ],
+ "United States|Salinas": [
+  36.67774,
+  -121.6555
+ ],
+ "United States|Salisbury": [
+  35.67097,
+  -80.47423
+ ],
+ "United States|Salt Lake City": [
+  40.76078,
+  -111.89105
+ ],
+ "United States|San Angelo": [
+  31.46377,
+  -100.43704
+ ],
+ "United States|San Antonio": [
+  29.42412,
+  -98.49363
+ ],
+ "United States|San Bernardino": [
+  34.10834,
+  -117.28977
+ ],
+ "United States|San Clemente": [
+  33.42697,
+  -117.61199
+ ],
+ "United States|San Diego": [
+  32.71571,
+  -117.16472
+ ],
+ "United States|San Francisco": [
+  37.77493,
+  -122.41942
+ ],
+ "United States|San Jose": [
+  37.33939,
+  -121.89496
+ ],
+ "United States|San Juan": [
+  26.18924,
+  -98.15529
+ ],
+ "United States|San Juan Hill": [
+  32.0948,
+  -110.48063
+ ],
+ "United States|San Luis Obispo": [
+  35.28275,
+  -120.65962
+ ],
+ "United States|San Marcos": [
+  29.88327,
+  -97.94139
+ ],
+ "United States|San Miguel": [
+  32.71571,
+  -117.16472
+ ],
+ "United States|Sandusky": [
+  41.44894,
+  -82.70796
+ ],
+ "United States|Santa Barbara": [
+  34.42083,
+  -119.69819
+ ],
+ "United States|Santa Clarita": [
+  34.39166,
+  -118.54259
+ ],
+ "United States|Santa Cruz": [
+  36.97412,
+  -122.0308
+ ],
+ "United States|Santa Margarita": [
+  35.38997,
+  -120.60906
+ ],
+ "United States|Santa Maria": [
+  34.95303,
+  -120.43572
+ ],
+ "United States|Santa Nella": [
+  38.49714,
+  -122.96666
+ ],
+ "United States|Santa Rosa": [
+  38.44047,
+  -122.71443
+ ],
+ "United States|Sante Fe": [
+  39.3781,
+  -86.79806
+ ],
+ "United States|Sapulpa": [
+  35.9987,
+  -96.11417
+ ],
+ "United States|Saratoga Springs": [
+  43.08313,
+  -73.78457
+ ],
+ "United States|Saugatuck": [
+  42.65502,
+  -86.20198
+ ],
+ "United States|Sault Ste. Marie": [
+  46.4953,
+  -84.34532
+ ],
+ "United States|Savannah": [
+  32.08354,
+  -81.09983
+ ],
+ "United States|Schenectady": [
+  42.81424,
+  -73.93957
+ ],
+ "United States|Scott City": [
+  38.48252,
+  -100.90709
+ ],
+ "United States|Scranton": [
+  41.40916,
+  -75.6649
+ ],
+ "United States|Seaford": [
+  40.66593,
+  -73.48818
+ ],
+ "United States|Searcy": [
+  35.25064,
+  -91.73625
+ ],
+ "United States|Seattle": [
+  47.60621,
+  -122.33207
+ ],
+ "United States|Sebring": [
+  27.49559,
+  -81.44091
+ ],
+ "United States|Sedona": [
+  34.86974,
+  -111.76099
+ ],
+ "United States|Sedro-Woolley": [
+  48.50389,
+  -122.23611
+ ],
+ "United States|Seguin": [
+  29.56884,
+  -97.96473
+ ],
+ "United States|Selah": [
+  46.65402,
+  -120.53007
+ ],
+ "United States|Selinsgrove": [
+  40.79897,
+  -76.86219
+ ],
+ "United States|Semmes": [
+  30.77824,
+  -88.25917
+ ],
+ "United States|Sentinel Mesa": [
+  37.00639,
+  -110.10568
+ ],
+ "United States|Sevierville": [
+  35.86815,
+  -83.56184
+ ],
+ "United States|Shady Spring": [
+  37.70567,
+  -81.09843
+ ],
+ "United States|Shadyside": [
+  39.97091,
+  -80.75064
+ ],
+ "United States|Shallotte": [
+  33.97323,
+  -78.38584
+ ],
+ "United States|Sharon": [
+  41.23311,
+  -80.4934
+ ],
+ "United States|Sharpsville": [
+  41.25922,
+  -80.47201
+ ],
+ "United States|Sheboygan": [
+  43.75083,
+  -87.71453
+ ],
+ "United States|Shelby": [
+  35.29235,
+  -81.53565
+ ],
+ "United States|Sherman": [
+  33.63566,
+  -96.60888
+ ],
+ "United States|Show Low": [
+  34.25421,
+  -110.02983
+ ],
+ "United States|Shreveport": [
+  32.52515,
+  -93.75018
+ ],
+ "United States|Sibley": [
+  43.39914,
+  -95.75196
+ ],
+ "United States|Siloam": [
+  33.5368,
+  -83.08099
+ ],
+ "United States|Silsbee": [
+  30.3491,
+  -94.17796
+ ],
+ "United States|Silver Spring": [
+  38.99067,
+  -77.02609
+ ],
+ "United States|Sinton": [
+  28.03668,
+  -97.50916
+ ],
+ "United States|Sioux City": [
+  42.49999,
+  -96.40031
+ ],
+ "United States|Sioux Falls": [
+  43.54369,
+  -96.72796
+ ],
+ "United States|Sisters": [
+  44.29095,
+  -121.54921
+ ],
+ "United States|Slatington": [
+  40.74843,
+  -75.61185
+ ],
+ "United States|Smithfield": [
+  35.50849,
+  -78.33945
+ ],
+ "United States|Soddy-Daisy": [
+  35.2359,
+  -85.19079
+ ],
+ "United States|Souderton": [
+  40.31177,
+  -75.32518
+ ],
+ "United States|South Bend": [
+  41.68338,
+  -86.25001
+ ],
+ "United States|South Burlington": [
+  44.46699,
+  -73.17096
+ ],
+ "United States|South Lake Tahoe": [
+  38.93324,
+  -119.98435
+ ],
+ "United States|South Point": [
+  38.41786,
+  -82.58627
+ ],
+ "United States|South Sioux City": [
+  42.47388,
+  -96.41364
+ ],
+ "United States|Southaven": [
+  34.98898,
+  -90.01259
+ ],
+ "United States|Southwest Harbor": [
+  44.2798,
+  -68.32502
+ ],
+ "United States|Spartanburg": [
+  34.94957,
+  -81.93205
+ ],
+ "United States|Spencer": [
+  43.14136,
+  -95.14444
+ ],
+ "United States|Spokane": [
+  47.65966,
+  -117.42908
+ ],
+ "United States|Spring Valley": [
+  36.10803,
+  -115.245
+ ],
+ "United States|Springdale": [
+  36.18674,
+  -94.12881
+ ],
+ "United States|Springfield": [
+  37.21533,
+  -93.29824
+ ],
+ "United States|St Mary": [
+  30.75677,
+  -81.57173
+ ],
+ "United States|St. Albans City": [
+  44.76196,
+  -73.0611
+ ],
+ "United States|St. Augustine": [
+  38.62727,
+  -90.19789
+ ],
+ "United States|St. Cloud": [
+  45.54639,
+  -94.05972
+ ],
+ "United States|St. George": [
+  39.19111,
+  -96.42028
+ ],
+ "United States|St. Joseph": [
+  39.76861,
+  -94.84663
+ ],
+ "United States|St. Louis": [
+  38.62727,
+  -90.19789
+ ],
+ "United States|St. Paul": [
+  37.51894,
+  -95.17331
+ ],
+ "United States|Stamford": [
+  41.05343,
+  -73.53873
+ ],
+ "United States|Stanfield": [
+  45.78041,
+  -119.21724
+ ],
+ "United States|Starkville": [
+  33.45049,
+  -88.81961
+ ],
+ "United States|State College": [
+  40.79339,
+  -77.86
+ ],
+ "United States|State Line": [
+  41.58337,
+  -87.50004
+ ],
+ "United States|State Line City": [
+  40.19726,
+  -87.52696
+ ],
+ "United States|Statesboro": [
+  32.44879,
+  -81.78317
+ ],
+ "United States|Statesville": [
+  35.78264,
+  -80.8873
+ ],
+ "United States|Staunton": [
+  38.14991,
+  -79.0732
+ ],
+ "United States|Stephens City": [
+  39.08344,
+  -78.21806
+ ],
+ "United States|Steubenville": [
+  40.36979,
+  -80.63396
+ ],
+ "United States|Stillwater": [
+  36.11561,
+  -97.05837
+ ],
+ "United States|Stockton": [
+  37.9577,
+  -121.29078
+ ],
+ "United States|Storrs": [
+  41.80843,
+  -72.24952
+ ],
+ "United States|Streator": [
+  41.12087,
+  -88.83535
+ ],
+ "United States|Stuart": [
+  27.19755,
+  -80.25283
+ ],
+ "United States|Stuarts Draft": [
+  38.03014,
+  -79.03364
+ ],
+ "United States|Suffolk": [
+  36.72836,
+  -76.58496
+ ],
+ "United States|Summit": [
+  40.71562,
+  -74.36468
+ ],
+ "United States|Sumter": [
+  33.92044,
+  -80.34147
+ ],
+ "United States|Sunbury": [
+  44.79884,
+  -68.77265
+ ],
+ "United States|Sunland Park": [
+  31.7965,
+  -106.57999
+ ],
+ "United States|Superior": [
+  46.72077,
+  -92.10408
+ ],
+ "United States|Sycamore": [
+  41.98892,
+  -88.68675
+ ],
+ "United States|Sylacauga": [
+  33.17317,
+  -86.25164
+ ],
+ "United States|Syracuse": [
+  43.04812,
+  -76.14742
+ ],
+ "United States|Tacoma": [
+  47.25288,
+  -122.44429
+ ],
+ "United States|Talladega": [
+  33.43594,
+  -86.1058
+ ],
+ "United States|Talladega Superspeedway": [
+  33.43594,
+  -86.1058
+ ],
+ "United States|Tallahassee": [
+  30.43826,
+  -84.28073
+ ],
+ "United States|Tampa": [
+  27.94752,
+  -82.45843
+ ],
+ "United States|Taunton": [
+  41.9001,
+  -71.08977
+ ],
+ "United States|Taylorsville": [
+  35.9218,
+  -81.17647
+ ],
+ "United States|Tecumseh": [
+  40.36667,
+  -96.19612
+ ],
+ "United States|Temecula": [
+  33.49364,
+  -117.14836
+ ],
+ "United States|Temple": [
+  31.09823,
+  -97.34278
+ ],
+ "United States|Terre Haute": [
+  39.4667,
+  -87.41391
+ ],
+ "United States|Terry": [
+  46.79306,
+  -105.31221
+ ],
+ "United States|Texarkana": [
+  33.44179,
+  -94.03769
+ ],
+ "United States|Timmonsville": [
+  34.13488,
+  -79.93979
+ ],
+ "United States|Titusville": [
+  28.61222,
+  -80.80755
+ ],
+ "United States|Toledo": [
+  41.66394,
+  -83.55521
+ ],
+ "United States|Toms River": [
+  39.95373,
+  -74.19792
+ ],
+ "United States|Topeka": [
+  39.04833,
+  -95.67804
+ ],
+ "United States|Toronto": [
+  40.46423,
+  -80.60091
+ ],
+ "United States|Tortolita": [
+  32.41035,
+  -111.01732
+ ],
+ "United States|Tracy": [
+  37.73987,
+  -121.42618
+ ],
+ "United States|Traverse City": [
+  44.76306,
+  -85.62063
+ ],
+ "United States|Trenton": [
+  40.21705,
+  -74.74294
+ ],
+ "United States|Troy": [
+  42.72841,
+  -73.69179
+ ],
+ "United States|Truckee": [
+  39.32796,
+  -120.18325
+ ],
+ "United States|Tselakai Dezza": [
+  37.20306,
+  -109.60651
+ ],
+ "United States|Tucson": [
+  32.22174,
+  -110.92648
+ ],
+ "United States|Tulare": [
+  36.20773,
+  -119.34734
+ ],
+ "United States|Tullahoma": [
+  35.36202,
+  -86.20943
+ ],
+ "United States|Tulsa": [
+  36.15398,
+  -95.99277
+ ],
+ "United States|Tupelo": [
+  34.25807,
+  -88.70464
+ ],
+ "United States|Turlock": [
+  37.49466,
+  -120.84659
+ ],
+ "United States|Tuscaloosa": [
+  33.20984,
+  -87.56917
+ ],
+ "United States|Twentynine Palms": [
+  34.13556,
+  -116.05417
+ ],
+ "United States|Twin Falls": [
+  42.56297,
+  -114.46087
+ ],
+ "United States|Two Rivers (West)": [
+  44.15388,
+  -87.56925
+ ],
+ "United States|Tyler": [
+  32.35126,
+  -95.30106
+ ],
+ "United States|Ukiah": [
+  39.15017,
+  -123.20778
+ ],
+ "United States|Umatilla": [
+  45.91735,
+  -119.34252
+ ],
+ "United States|Utica": [
+  43.1009,
+  -75.23266
+ ],
+ "United States|Vacaville": [
+  38.35658,
+  -121.98774
+ ],
+ "United States|Vail": [
+  32.04786,
+  -110.71203
+ ],
+ "United States|Valdosta": [
+  30.83334,
+  -83.28032
+ ],
+ "United States|Valparaiso": [
+  41.47309,
+  -87.06114
+ ],
+ "United States|Vance": [
+  33.17428,
+  -87.23361
+ ],
+ "United States|Vancouver": [
+  45.63873,
+  -122.66149
+ ],
+ "United States|Vandergrift": [
+  40.60284,
+  -79.56477
+ ],
+ "United States|Ventura": [
+  34.27834,
+  -119.29317
+ ],
+ "United States|Vero Beach": [
+  27.63864,
+  -80.39727
+ ],
+ "United States|Victoria": [
+  28.80527,
+  -97.0036
+ ],
+ "United States|Victorville": [
+  34.53611,
+  -117.29116
+ ],
+ "United States|Village of Oak Creek": [
+  34.7809,
+  -111.76227
+ ],
+ "United States|Vinco": [
+  40.40507,
+  -78.85558
+ ],
+ "United States|Vineland": [
+  34.33878,
+  -78.70307
+ ],
+ "United States|Viola": [
+  41.20309,
+  -90.58708
+ ],
+ "United States|Virginia Beach": [
+  36.85293,
+  -75.97799
+ ],
+ "United States|Visalia": [
+  36.33023,
+  -119.29206
+ ],
+ "United States|Wabasso": [
+  44.4019,
+  -95.25583
+ ],
+ "United States|Waco": [
+  31.54933,
+  -97.14667
+ ],
+ "United States|Wahiawa": [
+  21.50279,
+  -158.02464
+ ],
+ "United States|Wailea": [
+  20.68973,
+  -156.4419
+ ],
+ "United States|Walker": [
+  47.10135,
+  -94.58722
+ ],
+ "United States|Wamego": [
+  39.20194,
+  -96.305
+ ],
+ "United States|Wardsville": [
+  38.48892,
+  -92.17435
+ ],
+ "United States|Warner Robins": [
+  32.61574,
+  -83.62664
+ ],
+ "United States|Warren": [
+  42.49044,
+  -83.01304
+ ],
+ "United States|Warwick": [
+  41.7001,
+  -71.41617
+ ],
+ "United States|Washington": [
+  38.89511,
+  -77.03637
+ ],
+ "United States|Waterloo": [
+  42.49276,
+  -92.34296
+ ],
+ "United States|Watertown": [
+  43.97478,
+  -75.91076
+ ],
+ "United States|Watsonville": [
+  36.91023,
+  -121.75689
+ ],
+ "United States|Waukegan": [
+  42.36363,
+  -87.84479
+ ],
+ "United States|Waukesha": [
+  43.01168,
+  -88.23148
+ ],
+ "United States|Waunakee": [
+  43.19194,
+  -89.45567
+ ],
+ "United States|Waynesboro": [
+  38.06847,
+  -78.88947
+ ],
+ "United States|Weaverville": [
+  40.73098,
+  -122.94197
+ ],
+ "United States|Webster": [
+  45.33218,
+  -97.52009
+ ],
+ "United States|Wellsburg": [
+  40.27201,
+  -80.60952
+ ],
+ "United States|Wenatchee": [
+  47.42346,
+  -120.31035
+ ],
+ "United States|West": [
+  31.80238,
+  -97.09167
+ ],
+ "United States|West Bend": [
+  43.42528,
+  -88.18343
+ ],
+ "United States|West Fort Smith": [
+  35.39704,
+  -94.43994
+ ],
+ "United States|West Memphis": [
+  35.14648,
+  -90.18454
+ ],
+ "United States|West Palm Beach": [
+  26.71534,
+  -80.05337
+ ],
+ "United States|Westfield": [
+  42.12509,
+  -72.74954
+ ],
+ "United States|Wetumpka": [
+  32.54374,
+  -86.21191
+ ],
+ "United States|Weyers Cave": [
+  38.28846,
+  -78.91308
+ ],
+ "United States|Wheelersburg": [
+  38.73035,
+  -82.85545
+ ],
+ "United States|Wheeling": [
+  40.06396,
+  -80.72091
+ ],
+ "United States|Whispering Pines": [
+  35.25571,
+  -79.37225
+ ],
+ "United States|White Plains": [
+  41.03399,
+  -73.76291
+ ],
+ "United States|Whitehouse": [
+  32.22682,
+  -95.2255
+ ],
+ "United States|Whitetown": [
+  34.62982,
+  -93.7452
+ ],
+ "United States|Whitewater": [
+  42.83362,
+  -88.73233
+ ],
+ "United States|Whitley Gardens": [
+  35.65914,
+  -120.50766
+ ],
+ "United States|Wichita": [
+  37.69224,
+  -97.33754
+ ],
+ "United States|Wichita Falls": [
+  33.91371,
+  -98.49339
+ ],
+ "United States|Wiley Ford": [
+  39.61453,
+  -78.77502
+ ],
+ "United States|Wilkes-Barre": [
+  41.24591,
+  -75.88131
+ ],
+ "United States|Williamsburg": [
+  37.2707,
+  -76.70746
+ ],
+ "United States|Williamsport": [
+  41.24119,
+  -77.00108
+ ],
+ "United States|Williamsville": [
+  39.95422,
+  -89.54871
+ ],
+ "United States|Willimantic": [
+  41.71065,
+  -72.20813
+ ],
+ "United States|Willow Street": [
+  39.97927,
+  -76.27635
+ ],
+ "United States|Wilmington": [
+  34.23556,
+  -77.94604
+ ],
+ "United States|Wilson": [
+  35.72127,
+  -77.91554
+ ],
+ "United States|Wilsonville": [
+  37.59727,
+  -90.62734
+ ],
+ "United States|Winchester": [
+  39.18566,
+  -78.16333
+ ],
+ "United States|Windber": [
+  40.2398,
+  -78.83502
+ ],
+ "United States|Wininger": [
+  34.74286,
+  -86.15943
+ ],
+ "United States|Winston": [
+  43.12234,
+  -123.41257
+ ],
+ "United States|Winston-Salem": [
+  36.09986,
+  -80.24422
+ ],
+ "United States|Winterhaven": [
+  32.73949,
+  -114.63468
+ ],
+ "United States|Wisconsin Dells": [
+  43.62748,
+  -89.77096
+ ],
+ "United States|Woodbridge": [
+  40.5576,
+  -74.28459
+ ],
+ "United States|Woodlands": [
+  35.02888,
+  -120.55239
+ ],
+ "United States|Woodstock": [
+  42.31474,
+  -88.4487
+ ],
+ "United States|Woody Creek": [
+  39.27026,
+  -106.88615
+ ],
+ "United States|Woonsocket": [
+  44.0536,
+  -98.27564
+ ],
+ "United States|Worcester": [
+  42.26259,
+  -71.80229
+ ],
+ "United States|Yakima": [
+  46.60207,
+  -120.5059
+ ],
+ "United States|Yellowstone National Park": [
+  44.42796,
+  -110.58846
+ ],
+ "United States|York": [
+  39.9626,
+  -76.72774
+ ],
+ "United States|Yosemite Valley": [
+  37.74075,
+  -119.57788
+ ],
+ "United States|Youngstown": [
+  41.09978,
+  -80.64952
+ ],
+ "United States|Yuba City": [
+  39.14045,
+  -121.61691
+ ],
+ "United States|Yuma": [
+  32.72532,
+  -114.6244
+ ],
+ "United States|Zachary": [
+  30.64852,
+  -91.1565
+ ],
+ "United States|Zanesville": [
+  39.94035,
+  -82.01319
+ ],
+ "United States|Zion National Park": [
+  37.29824,
+  -113.02644
+ ],
+ "Vatican City|Entire country": [
+  41.90268,
+  12.45414
+ ]
+}

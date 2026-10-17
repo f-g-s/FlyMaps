@@ -1,6 +1,10 @@
 import * as Cesium from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import spotsByCountry from "./google_earth_3d_locations_by_country.json";
+// Vorab ermittelte Koordinaten der Spots ({ "Land|Spot-Name": [lat, lng] }),
+// erzeugt mit scripts/build-spot-coordinates.mjs. Leer ({}) ist erlaubt - dann
+// werden Spots wie bisher per Geocoding aufgelöst.
+import spotCoordinates from "./spot_coordinates.json";
 import { initDiscovery } from "./discover.js";
 import { getApiKey, requestApiKey } from "./apikey.js";
 import { geocode, setGeocodingPaused, isGeocodingPaused } from "./geocode.js";
@@ -797,15 +801,32 @@ async function fetchGeocode(query) {
 // viel häufiger dran als Länder mit vielen (z.B. USA).
 let randomSpotPool = null;
 
-function pickRandomSpotQuery() {
+// Suchanfrage für einen Spot: "Entire country ..."-Einträge -> Ländername.
+const spotQuery = (spot) =>
+  /^entire country/i.test(spot.name) ? spot.country : spot.name;
+// Vorab hinterlegte Koordinaten [lat, lng] eines Spots (oder null).
+const getSpotCoords = (spot) =>
+  spotCoordinates[`${spot.country}|${spot.name}`] ?? null;
+const hasSpotCoordinates = Object.keys(spotCoordinates).length > 0;
+
+// onlyWithCoords: nur Spots mit hinterlegten Koordinaten (für den Betrieb
+// ohne Geocoding). Liefert null, wenn es keinen passenden Spot gibt.
+function pickRandomSpot(onlyWithCoords = false) {
   if (!randomSpotPool) {
     randomSpotPool = [];
     for (const [country, names] of Object.entries(spotsByCountry)) {
       for (const name of names) randomSpotPool.push({ country, name });
     }
   }
-  const spot = randomSpotPool[Math.floor(Math.random() * randomSpotPool.length)];
-  return /^entire country/i.test(spot.name) ? spot.country : spot.name;
+  const pool = onlyWithCoords
+    ? randomSpotPool.filter((spot) => getSpotCoords(spot))
+    : randomSpotPool;
+  if (pool.length === 0) return null;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function pickRandomSpotQuery() {
+  return spotQuery(pickRandomSpot());
 }
 
 async function loadGoogleTiles() {
@@ -2326,7 +2347,9 @@ async function getGroundHeight(lon, lat) {
   return 0; // Fallback: Meeresspiegel, falls an der Stelle nichts samplebar ist
 }
 
-async function geocodeAndFlyTo(query) {
+// knownLocation ({ lat, lng, label }): bereits bekannte Koordinaten (z.B. aus
+// spot_coordinates.json) - dann entfällt die Geocoding-Anfrage komplett.
+async function geocodeAndFlyTo(query, knownLocation = null) {
   if (!query.trim()) return;
   searchStatusEl.textContent = "Suche…";
   // Formularfelder/Tabs ausblenden, solange Suche/Anflug/Kacheln-Laden
@@ -2335,7 +2358,14 @@ async function geocodeAndFlyTo(query) {
   searchPanel.classList.add("searching");
   try {
     // Direkt über die Geocoding API mit dem Key des Spielers (siehe geocode.js).
-    const data = await fetchGeocode(query);
+    const data = knownLocation
+      ? {
+          status: "OK",
+          lat: knownLocation.lat,
+          lng: knownLocation.lng,
+          formatted_address: knownLocation.label,
+        }
+      : await fetchGeocode(query);
 
     if (data.status !== "OK") {
       searchStatusEl.textContent =
@@ -2504,27 +2534,46 @@ tabSearchBtn.addEventListener("click", () => switchSearchTab("search"));
 tabSpotsBtn.addEventListener("click", () => switchSearchTab("spots"));
 tabFavoritesBtn.addEventListener("click", () => switchSearchTab("favorites"));
 
-// Ohne Geocoding (Schalter in den Einstellungen) funktionieren Ortssuche,
-// 3D-Spots-Liste und Zufallsspot nicht - alle gehen über geocodeAndFlyTo().
-// Favoriten fliegen dagegen direkt per gespeicherter Kameraposition und
-// bleiben nutzbar. Aktiver Tab wird bei Bedarf auf Favoriten umgestellt.
+// Ohne Geocoding (Schalter in den Einstellungen) geht die freie Ortssuche
+// nicht - sie läuft über geocodeAndFlyTo(query). Spots-Liste und Zufällig
+// funktionieren weiter, soweit für die Spots Koordinaten vorab hinterlegt sind
+// (src/spot_coordinates.json, erzeugt mit scripts/build-spot-coordinates.mjs);
+// ist die Datei leer, sind sie ebenfalls gesperrt. Favoriten fliegen direkt per
+// gespeicherter Kameraposition und bleiben immer nutzbar.
 const GEOCODING_OFF_HINT = "Nicht verfügbar: Geocoding ist ausgeschaltet";
+const GEOCODING_OFF_SPOTS_HINT =
+  "Geocoding aus: nur Spots mit hinterlegten Koordinaten";
+const setHint = (el, text) =>
+  text ? (el.title = text) : el.removeAttribute("title");
+
 onGeocodingEnabledChange = (enabled) => {
-  const dependentControls = [
-    tabSearchBtn,
+  const spotsUsable = enabled || hasSpotCoordinates;
+  for (const el of [tabSearchBtn, searchInput, searchButton])
+    el.disabled = !enabled;
+  for (const el of [
     tabSpotsBtn,
-    searchInput,
-    searchButton,
-    randomSpotButton,
     spotCountrySelect,
     spotFilterInput,
-  ];
-  for (const el of dependentControls) el.disabled = !enabled;
-  for (const el of [tabSearchBtn, tabSpotsBtn, randomSpotButton]) {
-    if (enabled) el.removeAttribute("title");
-    else el.title = GEOCODING_OFF_HINT;
+    randomSpotButton,
+  ])
+    el.disabled = !spotsUsable;
+
+  setHint(tabSearchBtn, enabled ? "" : GEOCODING_OFF_HINT);
+  const spotsHint = enabled
+    ? ""
+    : spotsUsable
+      ? GEOCODING_OFF_SPOTS_HINT
+      : GEOCODING_OFF_HINT;
+  setHint(tabSpotsBtn, spotsHint);
+  setHint(randomSpotButton, spotsHint);
+
+  // Aktiven Tab ggf. wechseln bzw. die Spot-Liste neu filtern.
+  if (!enabled && !tabSearchPanel.hidden) {
+    switchSearchTab(spotsUsable ? "spots" : "favorites", false);
+  } else if (!tabSpotsPanel.hidden) {
+    if (spotsUsable) renderSpotList();
+    else switchSearchTab("favorites", false);
   }
-  if (!enabled && tabFavoritesPanel.hidden) switchSearchTab("favorites", false);
 };
 onGeocodingEnabledChange(geocodingEnabled);
 searchPanelCloseBtn.addEventListener("click", () => {
@@ -2549,8 +2598,14 @@ function renderSpotList() {
       spot.name.toLowerCase().includes(filterText),
     );
 
+  // Ohne Geocoding nur Spots anbieten, die sich per Koordinaten anfliegen lassen.
+  if (!geocodingEnabled) matches = matches.filter(getSpotCoords);
+  const offNote = geocodingEnabled
+    ? ""
+    : " Geocoding aus: nur Spots mit hinterlegten Koordinaten.";
+
   if (matches.length === 0) {
-    spotStatusEl.textContent = "Keine Treffer.";
+    spotStatusEl.textContent = "Keine Treffer." + offNote;
     return;
   }
 
@@ -2559,9 +2614,10 @@ function renderSpotList() {
   const truncated = matches.length > SPOT_RESULT_LIMIT;
   const shown = truncated ? matches.slice(0, SPOT_RESULT_LIMIT) : matches;
 
-  spotStatusEl.textContent = truncated
-    ? `${matches.length} Treffer - bitte weiter eingrenzen (zeige ${SPOT_RESULT_LIMIT}).`
-    : `${matches.length} Treffer.`;
+  spotStatusEl.textContent =
+    (truncated
+      ? `${matches.length} Treffer - bitte weiter eingrenzen (zeige ${SPOT_RESULT_LIMIT}).`
+      : `${matches.length} Treffer.`) + offNote;
 
   for (const spot of shown) {
     const li = document.createElement("li");
@@ -2574,11 +2630,13 @@ function renderSpotList() {
       // geocodieren, da sie keinen echten Ortsnamen enthalten - stattdessen
       // den Ländernamen als Suchanfrage verwenden. Angezeigt wird trotzdem
       // weiterhin der Original-Spot-Name.
-      const query = /^entire country/i.test(spot.name)
-        ? spot.country
-        : spot.name;
+      const query = spotQuery(spot);
+      const coords = getSpotCoords(spot);
       searchInput.value = query;
-      geocodeAndFlyTo(query);
+      geocodeAndFlyTo(
+        query,
+        coords && { lat: coords[0], lng: coords[1], label: spot.name },
+      );
     });
     spotListEl.appendChild(li);
   }
@@ -2594,8 +2652,10 @@ spotFilterInput.addEventListener("input", renderSpotList);
 let isRandomSpotFlightActive = false;
 
 async function flyToRandomSpot() {
-  // Zufallsspot braucht Geocoding (Taste R und Button).
-  if (!geocodingEnabled) return;
+  // Ohne Geocoding geht der Zufallsspot nur über Spots mit hinterlegten
+  // Koordinaten (Taste R und Button).
+  const spot = pickRandomSpot(!geocodingEnabled);
+  if (!spot) return;
   // Doppelauslösung verhindern (z.B. R mehrfach gedrückt, solange der
   // Anflug bzw. das Kachel-Laden noch läuft).
   if (isRandomSpotFlightActive) return;
@@ -2608,9 +2668,13 @@ async function flyToRandomSpot() {
     // am Ende selbst wieder fort (togglePause).
     if (!isPaused) togglePause();
 
-    const query = pickRandomSpotQuery();
+    const query = spotQuery(spot);
+    const coords = getSpotCoords(spot);
     searchInput.value = query;
-    await geocodeAndFlyTo(query);
+    await geocodeAndFlyTo(
+      query,
+      coords && { lat: coords[0], lng: coords[1], label: spot.name },
+    );
   } finally {
     isRandomSpotFlightActive = false;
   }
@@ -3001,7 +3065,10 @@ function togglePause() {
     updateCurrentLocation();
     searchStatusEl.textContent = "";
     searchInput.value = "";
-    switchSearchTab(geocodingEnabled ? "search" : "favorites", false);
+    switchSearchTab(
+      geocodingEnabled ? "search" : hasSpotCoordinates ? "spots" : "favorites",
+      false,
+    );
     searchPanelCloseBtn.focus();
   } else {
     statusEl.textContent = baseStatusText;

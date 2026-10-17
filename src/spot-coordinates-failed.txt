@@ -1,0 +1,92 @@
+Canada|Annmore	NOT_FOUND
+Canada|Coolwood	NOT_FOUND
+Canada|Sheerwood Park	NOT_FOUND
+Canada|Hamwell	NOT_FOUND
+Canada|Emeryville	NOT_FOUND
+Canada|Hampton Shediac	NOT_FOUND
+Canada|East St. Paul	NOT_FOUND
+Canada|Saint-Charles-de-Bellechasse Sherbrooke	NOT_FOUND
+United States|Waterholes Canyon	NOT_FOUND
+United States|Areas Southeast of La Union	NOT_FOUND
+United States|Skaitook	NOT_FOUND
+United States|Aguadilla	NOT_FOUND
+United States|Arecibo	NOT_FOUND
+United States|Mayagüez	NOT_FOUND
+United States|Maleza Alta	NOT_FOUND
+United States|Ponce	NOT_FOUND
+United States|St Albans	NOT_FOUND
+Argentina|Renacimiento | )	NOT_FOUND
+Argentina|Los Olmos)	NOT_FOUND
+Austria|St Gilgen	NOT_FOUND
+Albania|New Shtoj	NOT_FOUND
+Croatia|Omišto	NOT_FOUND
+Brazil|Arena de Pernambuco	NOT_FOUND
+France|Veigy-Foncenex	NOT_FOUND
+Austria|Athaler Siedlung	NOT_FOUND
+France|Banyuls-sur-Mer	NOT_FOUND
+France|Elbuef Port-en-Bessin-Huppain	NOT_FOUND
+Germany|Panketal	NOT_FOUND
+France|Leyman Strasbourg Troyes	NOT_FOUND
+Greece|Chalcis	NOT_FOUND
+Greece|Kalabaka	NOT_FOUND
+Ireland|Bray	NOT_FOUND
+Germany|Ludersdorf-Hernnberg Rostock Schwerin	NOT_FOUND
+Italy|Castera	NOT_FOUND
+Iceland|Thingvellir National Park	NOT_FOUND
+Italy|Area North of Il Gallo Lungo Avellino Benevento Capri Ischia	NOT_FOUND
+Italy|Casal Borsetti Reggio Emilia	NOT_FOUND
+Italy|Naxos Trapani	NOT_FOUND
+Italy|Busalia Ponte San Ludovico Sanremo	NOT_FOUND
+Norway|Rykkinn	NOT_FOUND
+Norway|Ås	NOT_FOUND
+Italy|Rotavo Campione d'Italia Cremona Desenzano del Garda	NOT_FOUND
+Norway|Motavn	NOT_FOUND
+Poland|dolnośląskie	NOT_FOUND
+Italy|Capoliveri) Empoli Florence	NOT_FOUND
+Poland|kujawsko-pomorskie	NOT_FOUND
+Poland|lubelskie	NOT_FOUND
+Poland|lubuskie	NOT_FOUND
+Poland|łódzkie	NOT_FOUND
+Poland|małopolskie	NOT_FOUND
+Poland|mazowieckie	NOT_FOUND
+Poland|opolskie	NOT_FOUND
+Poland|podkarpackie	NOT_FOUND
+Poland|podlaskie	NOT_FOUND
+Poland|Ciezsyn	NOT_FOUND
+Poland|warmińsko-mazurskie	NOT_FOUND
+Poland|wielkopolskie	NOT_FOUND
+Poland|zachodniopomorskie	NOT_FOUND
+Romania|Lehlui Gară	NOT_FOUND
+Spain|Vilaricos Jaén	NOT_FOUND
+Spain|Muskiz Oion	NOT_FOUND
+Spain|Torredelcampo Linares Los Palacios y Villafranca Málaga	NOT_FOUND
+Spain|San José de la Rinconada Úbeda	NOT_FOUND
+Spain|Area Southeast of El Campillar Area Southeast of Moreta Bilbao	NOT_FOUND
+Spain|V Vic	NOT_FOUND
+Spain|Gévora	NOT_FOUND
+Spain|Laserna Donostia-San Sebastián	NOT_FOUND
+Spain|T	NOT_FOUND
+Spain|Amasa-Villabona Vitoria-Gasteiz	NOT_FOUND
+Switzerland|Bienne	NOT_FOUND
+Switzerland|Ems	NOT_FOUND
+Spain|Area Northeast of El Cortijo Logroño	NOT_FOUND
+Switzerland|Schwanderbärgli	NOT_FOUND
+Switzerland|Lucerne	NOT_FOUND
+Switzerland|Sion	NOT_FOUND
+Switzerland|Rapperswil-Jona	NOT_FOUND
+United Kingdom|Boston	NOT_FOUND
+Spain|Loñoá Santiago de Compostela	NOT_FOUND
+United Kingdom|Lancaster	NOT_FOUND
+United Kingdom|Gibraltar	NOT_FOUND
+Japan|Aizuwakamatsu	NOT_FOUND
+Japan|Isakaya	NOT_FOUND
+Japan|Kinugawaonsen Ōhara	NOT_FOUND
+Singapore|Central Area	NOT_FOUND
+Singapore|Sungei Kadut	NOT_FOUND
+South Africa|Kurgersdorp	NOT_FOUND
+Malaysia|Port Klang	NOT_FOUND
+Australia|Windsor	NOT_FOUND
+Australia|Brighton	NOT_FOUND
+New Zealand|Wakefield	NOT_FOUND
+New Zealand|Mount Creighton	NOT_FOUND
+Australia|Rocky View Sunshine Coast	NOT_FOUND
