@@ -625,7 +625,8 @@ body.pause-mode #fullscreen-toggle-button {
 #search-panel.searching #controls-help-button,
 #search-panel.searching #settings-menu-button,
 #search-panel.searching #layout-toggle-button,
-#search-panel.searching #settings-menu {
+#search-panel.searching #settings-menu,
+#search-panel.searching .title-heading {
   display: none;
 }
 
