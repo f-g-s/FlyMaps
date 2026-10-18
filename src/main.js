@@ -1360,6 +1360,56 @@ try {
   applyMenuLayout("centered");
 }
 
+// --- Theme: Dark <-> Light --------------------------------------------------
+// Button im Panel-Header (#theme-toggle-button) setzt data-theme="light" auf
+// <html> (Dark = Attribut fehlt). Die Farben stehen als CSS-Variablen in
+// style.css; das gespeicherte Theme wird zusätzlich schon im <head> von
+// index.html angewendet, damit es beim Laden nicht flackert.
+const THEME_KEY = "flymaps_theme";
+const themeToggleButton = document.getElementById("theme-toggle-button");
+
+function applyTheme(theme) {
+  const light = theme === "light";
+  if (light) document.documentElement.dataset.theme = "light";
+  else delete document.documentElement.dataset.theme;
+  const label = light ? "Dunklen Modus aktivieren" : "Hellen Modus aktivieren";
+  themeToggleButton.setAttribute("aria-label", label);
+  themeToggleButton.title = label;
+}
+
+themeToggleButton.addEventListener("click", () => {
+  const next =
+    document.documentElement.dataset.theme === "light" ? "dark" : "light";
+  applyTheme(next);
+  try {
+    localStorage.setItem(THEME_KEY, next);
+  } catch {
+    // localStorage kann z.B. im privaten Modus fehlschlagen - dann eben ohne Persistenz
+  }
+  // Fokus abgeben, sonst würde die Leertaste den Button statt Pause auslösen.
+  themeToggleButton.blur();
+});
+
+// Ohne gespeicherte Wahl gilt die Systemeinstellung - und folgt ihr auch live,
+// wenn das System zwischen hell und dunkel wechselt. Sobald der Button benutzt
+// wurde, ist die Wahl fest gespeichert und überschreibt das System.
+const systemThemeQuery = window.matchMedia("(prefers-color-scheme: light)");
+const systemTheme = () => (systemThemeQuery.matches ? "light" : "dark");
+
+function savedTheme() {
+  try {
+    const theme = localStorage.getItem(THEME_KEY);
+    return theme === "light" || theme === "dark" ? theme : null;
+  } catch {
+    return null;
+  }
+}
+
+applyTheme(savedTheme() ?? systemTheme());
+systemThemeQuery.addEventListener("change", () => {
+  if (!savedTheme()) applyTheme(systemTheme());
+});
+
 fovSlider.addEventListener("input", () => {
   applyFov(Number(fovSlider.value));
   saveCameraState();

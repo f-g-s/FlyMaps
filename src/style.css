@@ -1,3 +1,81 @@
+/* --- Farb-Themes ---------------------------------------------------------
+   Dark ist der Standard; Light wird über <html data-theme="light"> aktiviert
+   (Umschalter #theme-toggle-button, siehe main.js). Die UI-Regeln unten
+   verwenden nur noch diese Variablen. Instrumente (Horizont, Minimap,
+   Drohnen-Symbol, Kollisionsblitz) behalten bewusst ihre festen Farben.
+   --ov-N = Überlagerung mit Alpha 0.N (Dark: weiß, Light: schwarz). */
+:root {
+  color-scheme: dark;
+  --surface: #16181d;
+  --surface-2: #1f222a;
+  --surface-translucent: rgba(22, 24, 29, 0.85);
+  --surface-translucent-2: rgba(16, 18, 21, 0.75);
+  --input-bg: #0f1114;
+  --key-bg: #2a2e38;
+  --text: #e6e8ec;
+  --text-strong: #fff;
+  --text-2: #c3c6cc;
+  --text-2b: #c4c8ce;
+  --text-2c: #cfd3da;
+  --text-muted: #9aa0aa;
+  --placeholder: #656b76;
+  --knob: #e6e8ec;
+  --accent-soft: rgba(42, 109, 244, 0.35);
+  --shadow-1: rgba(0, 0, 0, 0.35);
+  --shadow-2: rgba(0, 0, 0, 0.5);
+  --text-shadow-color: rgba(0, 0, 0, 0.6);
+  --scrollbar: rgb(58, 63, 74);
+  --btn-hover-solid: rgb(48, 49, 51);
+  --danger-text: #ff8a8a;
+  --ok-text: #3ddc73;
+  --link-arrow: #6ea0ff;
+  --ov-3: rgba(255, 255, 255, 0.03);
+  --ov-6: rgba(255, 255, 255, 0.06);
+  --ov-8: rgba(255, 255, 255, 0.08);
+  --ov-10: rgba(255, 255, 255, 0.1);
+  --ov-12: rgba(255, 255, 255, 0.12);
+  --ov-14: rgba(255, 255, 255, 0.14);
+  --ov-15: rgba(255, 255, 255, 0.15);
+  --ov-18: rgba(255, 255, 255, 0.18);
+  --ov-25: rgba(255, 255, 255, 0.25);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --surface: #e6eaf3;
+  --surface-2: #ffffff;
+  --surface-translucent: rgba(255, 255, 255, 0.9);
+  --surface-translucent-2: rgba(255, 255, 255, 0.85);
+  --input-bg: #eef0f4;
+  --key-bg: #e9ebf0;
+  --text: #1b1e24;
+  --text-strong: #0b0d11;
+  --text-2: #3b414c;
+  --text-2b: #3b414c;
+  --text-2c: #3b414c;
+  --text-muted: #5e6572;
+  --placeholder: #8b919c;
+  --knob: #ffffff;
+  --accent-soft: rgba(42, 109, 244, 0.16);
+  --shadow-1: rgba(20, 30, 50, 0.18);
+  --shadow-2: rgba(20, 30, 50, 0.22);
+  --text-shadow-color: rgba(255, 255, 255, 0.7);
+  --scrollbar: #c3c8d1;
+  --btn-hover-solid: #e2e5ea;
+  --danger-text: #c62828;
+  --ok-text: #1a9e4a;
+  --link-arrow: #1d55c4;
+  --ov-3: rgba(0, 0, 0, 0.04);
+  --ov-6: rgba(0, 0, 0, 0.09);
+  --ov-8: rgba(0, 0, 0, 0.11);
+  --ov-10: rgba(0, 0, 0, 0.13);
+  --ov-12: rgba(0, 0, 0, 0.15);
+  --ov-14: rgba(0, 0, 0, 0.17);
+  --ov-15: rgba(0, 0, 0, 0.18);
+  --ov-18: rgba(0, 0, 0, 0.2);
+  --ov-25: rgba(0, 0, 0, 0.25);
+}
+
 html,
 body {
   margin: 0;
@@ -82,9 +160,9 @@ body.hide-hud #horizon-wrapper
   justify-content: center;
   border: none;
   border-radius: 50%;
-  background: rgba(22, 24, 29, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #9aa0aa;
+  background: var(--surface-translucent);
+  border: 1px solid var(--ov-8);
+  color: var(--text-muted);
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
@@ -107,8 +185,8 @@ body.pause-mode #fullscreen-toggle-button {
 }
 
 #fullscreen-toggle-button:hover {
-  background: rgb(48, 49, 51) !important;
-  color: #fff !important;
+  background: var(--btn-hover-solid) !important;
+  color: var(--text-strong) !important;
 }
 
 #fullscreen-toggle-button:focus-visible {
@@ -118,8 +196,8 @@ body.pause-mode #fullscreen-toggle-button {
 
 #loading-overlay {
   z-index: 30;
-  background: #16181d;
-  color: #e6e8ec;
+  background: var(--surface);
+  color: var(--text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -137,10 +215,10 @@ body.pause-mode #fullscreen-toggle-button {
   top: 12px;
   left: 12px;
   z-index: 10;
-  color: #e6e8ec;
-  background: rgba(22, 24, 29, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text);
+  background: var(--surface-translucent);
+  border: 1px solid var(--ov-8);
+  box-shadow: 0 8px 24px var(--shadow-1);
   padding: 6px 10px;
   border-radius: 8px;
   font-size: 13px;
@@ -156,10 +234,10 @@ body.pause-mode #fullscreen-toggle-button {
   left: 12px;
   transition: bottom 0.2s ease;
   z-index: 10;
-  color: #e6e8ec;
-  background: rgba(22, 24, 29, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text);
+  background: var(--surface-translucent);
+  border: 1px solid var(--ov-8);
+  box-shadow: 0 8px 24px var(--shadow-1);
   padding: 6px 10px;
   border-radius: 8px;
   font-size: 13px;
@@ -176,8 +254,8 @@ body.pause-mode #fullscreen-toggle-button {
   height: 220px;
   border-radius: 8px;
   overflow: hidden;
-  border: 3px solid #16181d;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 24px rgba(0, 0, 0, 0.35);
+  border: 3px solid var(--surface);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 24px var(--shadow-1);
   z-index: 10;
   background: #000;
 }
@@ -432,12 +510,12 @@ body.pause-mode #fullscreen-toggle-button {
 #search-panel {
   z-index: 20;
   display: none;
-  background: #16181d;
+  background: var(--surface);
   padding: 48px 20px 20px 20px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  color: #e6e8ec;
+  border-radius: 8px;
+  border: 1px solid var(--ov-8);
+  box-shadow: 0 20px 60px var(--shadow-2);
+  color: var(--text);
   font-family: system-ui, sans-serif;
   width: 1000px;
 }
@@ -492,14 +570,15 @@ body.pause-mode #fullscreen-toggle-button {
   left: 59px;
   font-size: 20px;
   font-weight: 600;
-  color: #e6e8ec;
+  color: var(--text);
 }
 
 #search-panel-close,
 #controls-panel-close,
 #controls-help-button,
 #settings-menu-button,
-#layout-toggle-button {
+#layout-toggle-button,
+#theme-toggle-button {
   position: absolute;
   top: 16px;
   right: 28px;
@@ -511,7 +590,7 @@ body.pause-mode #fullscreen-toggle-button {
   border: none;
   border-radius: 50%;
   background: transparent;
-  color: #9aa0aa;
+  color: var(--text-muted);
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
@@ -530,11 +609,27 @@ body.pause-mode #fullscreen-toggle-button {
   left: 20px;
 }
 
+#theme-toggle-button {
+  right: 148px;
+  /* links neben dem Einstellungen-Button */
+}
+
+/* Sonne im Dark-Theme (Klick -> hell), Mond im Light-Theme (Klick -> dunkel) */
+#theme-toggle-button .icon-moon,
+:root[data-theme="light"] #theme-toggle-button .icon-sun {
+  display: none;
+}
+
+:root[data-theme="light"] #theme-toggle-button .icon-moon {
+  display: block;
+}
+
 #search-panel-close svg,
 #controls-panel-close svg,
 #controls-help-button svg,
 #settings-menu-button svg,
-#layout-toggle-button svg {
+#layout-toggle-button svg,
+#theme-toggle-button svg {
   width: 18px;
   height: 18px;
 }
@@ -544,17 +639,19 @@ body.pause-mode #fullscreen-toggle-button {
 #controls-help-button:hover,
 #settings-menu-button:hover,
 #layout-toggle-button:hover,
+#theme-toggle-button:hover,
 #layout-toggle-button[aria-pressed="true"],
 #settings-menu-button[aria-expanded="true"] {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  background: var(--ov-8);
+  color: var(--text-strong);
 }
 
 #search-panel-close:focus-visible,
 #controls-panel-close:focus-visible,
 #controls-help-button:focus-visible,
 #settings-menu-button:focus-visible,
-#layout-toggle-button:focus-visible {
+#layout-toggle-button:focus-visible,
+#theme-toggle-button:focus-visible {
   outline: 2px solid #2a6df4;
   outline-offset: 2px;
 }
@@ -564,9 +661,9 @@ body.pause-mode #fullscreen-toggle-button {
    liegen - sorgt für klare visuelle Trennung der Bereiche. */
 #search-panel .container {
   flex: 1 1 280px;
-  background: #1f222a;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--ov-6);
+  border-radius: 8px;
   padding: 16px;
 }
 
@@ -587,7 +684,7 @@ body.pause-mode #fullscreen-toggle-button {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #9aa0aa;
+  color: var(--text-muted);
 }
 
 /* Wrapper um den kompletten "normalen" Inhalt (Tabs/Eingaben/Settings) -
@@ -602,7 +699,7 @@ body.pause-mode #fullscreen-toggle-button {
   min-height: 0px;
   overflow: hidden auto;
   /* scrollbar-width: thin; */
-  scrollbar-color: rgb(58, 63, 74) transparent;
+  scrollbar-color: var(--scrollbar) transparent;
   padding-bottom: 16px;
   margin-top: 16px;
   padding-right: 4px;
@@ -625,6 +722,7 @@ body.pause-mode #fullscreen-toggle-button {
 #search-panel.searching #controls-help-button,
 #search-panel.searching #settings-menu-button,
 #search-panel.searching #layout-toggle-button,
+#search-panel.searching #theme-toggle-button,
 #search-panel.searching #settings-menu,
 #search-panel.searching .title-heading {
   display: none;
@@ -648,7 +746,7 @@ body.pause-mode #fullscreen-toggle-button {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  border: 3px solid rgba(255, 255, 255, 0.25);
+  border: 3px solid var(--ov-25);
   border-top-color: #2a6df4;
   animation: search-spinner-spin 0.8s linear infinite;
 }
@@ -666,12 +764,12 @@ body.pause-mode #fullscreen-toggle-button {
   gap: 8px;
   padding-bottom: 10px;
   margin-bottom: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--ov-8);
 }
 
 #current-location {
   font-size: 14px;
-  color: #9aa0aa;
+  color: var(--text-muted);
 }
 
 #current-location-maps-link {
@@ -682,7 +780,7 @@ body.pause-mode #fullscreen-toggle-button {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  color: #9aa0aa;
+  color: var(--text-muted);
   transition: background 0.15s ease, color 0.15s ease;
 }
 
@@ -692,8 +790,8 @@ body.pause-mode #fullscreen-toggle-button {
 }
 
 #current-location-maps-link:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  background: var(--ov-8);
+  color: var(--text-strong);
 }
 
 #current-location-maps-link[hidden] {
@@ -717,7 +815,7 @@ body.pause-mode #fullscreen-toggle-button {
   border: none;
   border-bottom: 2px solid transparent;
   background: transparent;
-  color: #9aa0aa;
+  color: var(--text-muted);
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
@@ -731,11 +829,11 @@ body.pause-mode #fullscreen-toggle-button {
 }
 
 .search-tab:hover {
-  color: #e6e8ec;
+  color: var(--text);
 }
 
 .search-tab.active {
-  color: #fff;
+  color: var(--text-strong);
   font-weight: 600;
   border-bottom-color: #2a6df4;
 }
@@ -750,16 +848,16 @@ body.pause-mode #fullscreen-toggle-button {
 #search-panel select {
   box-sizing: border-box;
   padding: 9px 11px;
-  border-radius: 7px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: #0f1114;
-  color: #e6e8ec;
+  border-radius: 4px;
+  border: 1px solid var(--ov-10);
+  background: var(--input-bg);
+  color: var(--text);
   font-size: 14px;
   font-family: inherit;
 }
 
 #search-panel input::placeholder {
-  color: #656b76;
+  color: var(--placeholder);
 }
 
 #search-panel input:focus,
@@ -772,7 +870,7 @@ body.pause-mode #fullscreen-toggle-button {
 #spot-status {
   font-size: 12px;
   min-height: 14px;
-  color: #9aa0aa;
+  color: var(--text-muted);
 }
 
 #spot-list {
@@ -781,16 +879,16 @@ body.pause-mode #fullscreen-toggle-button {
   padding: 0;
   max-height: 50vh;
   overflow-y: auto;
-  border-radius: 7px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  background: var(--ov-3);
+  border: 1px solid var(--ov-6);
 }
 
 .spot-item {
   padding: 8px 11px;
   font-size: 16px;
   cursor: pointer;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--ov-6);
 }
 
 .spot-item:last-child {
@@ -798,7 +896,7 @@ body.pause-mode #fullscreen-toggle-button {
 }
 
 .spot-item:hover {
-  background: rgba(42, 109, 244, 0.35);
+  background: var(--accent-soft);
 }
 
 #favorite-save-row {
@@ -838,7 +936,7 @@ body.pause-mode #fullscreen-toggle-button {
 #favorite-status {
   font-size: 12px;
   min-height: 14px;
-  color: #9aa0aa;
+  color: var(--text-muted);
 }
 
 #favorite-list {
@@ -847,9 +945,9 @@ body.pause-mode #fullscreen-toggle-button {
   padding: 0;
   max-height: 220px;
   overflow-y: auto;
-  border-radius: 7px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  background: var(--ov-3);
+  border: 1px solid var(--ov-6);
 }
 
 .favorite-item {
@@ -859,7 +957,7 @@ body.pause-mode #fullscreen-toggle-button {
   gap: 8px;
   padding: 8px 11px;
   font-size: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--ov-6);
 }
 
 .favorite-item:last-child {
@@ -873,7 +971,7 @@ body.pause-mode #fullscreen-toggle-button {
 }
 
 .favorite-item-info:hover {
-  color: #fff;
+  color: var(--text-strong);
 }
 
 .favorite-item-name {
@@ -884,7 +982,7 @@ body.pause-mode #fullscreen-toggle-button {
 .favorite-item-location {
   display: block;
   font-size: 14px;
-  color: #9aa0aa;
+  color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -900,7 +998,7 @@ body.pause-mode #fullscreen-toggle-button {
   border: none;
   border-radius: 50%;
   background: transparent;
-  color: #9aa0aa;
+  color: var(--text-muted);
   font-size: 16px;
   line-height: 1;
   cursor: pointer;
@@ -908,8 +1006,8 @@ body.pause-mode #fullscreen-toggle-button {
 }
 
 .favorite-item-delete:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  background: var(--ov-8);
+  color: var(--text-strong);
 }
 
 .favorite-item-delete:focus-visible {
@@ -917,9 +1015,9 @@ body.pause-mode #fullscreen-toggle-button {
   outline-offset: 2px;
 }
 
-#search-panel button:not(.search-tab):not(#search-panel-close):not(#controls-help-button):not(#settings-menu-button):not(#layout-toggle-button):not(#settings-api-key-item):not(.favorite-item-delete) {
+#search-panel button:not(.search-tab):not(#search-panel-close):not(#controls-help-button):not(#settings-menu-button):not(#layout-toggle-button):not(#theme-toggle-button):not(#settings-api-key-item):not(.favorite-item-delete) {
   padding: 9px 12px;
-  border-radius: 7px;
+  border-radius: 4px;
   border: none;
   background: #2a6df4;
   color: #fff;
@@ -929,7 +1027,7 @@ body.pause-mode #fullscreen-toggle-button {
   transition: background 0.15s ease;
 }
 
-#search-panel button:not(.search-tab):not(#search-panel-close):not(#controls-help-button):not(#settings-menu-button):not(#layout-toggle-button):not(#settings-api-key-item):not(.favorite-item-delete):hover {
+#search-panel button:not(.search-tab):not(#search-panel-close):not(#controls-help-button):not(#settings-menu-button):not(#layout-toggle-button):not(#theme-toggle-button):not(#settings-api-key-item):not(.favorite-item-delete):hover {
   background: #1d55c4;
 }
 
@@ -958,14 +1056,14 @@ body.pause-mode #fullscreen-toggle-button {
   text-transform: none;
   letter-spacing: normal;
   background: transparent !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  color: #9aa0aa !important;
+  border: 1px solid var(--ov-15) !important;
+  color: var(--text-muted) !important;
 }
 
 #filters-reset-button:hover,
 #random-spot-button:hover {
-  background: rgba(255, 255, 255, 0.06) !important;
-  color: #e6e8ec;
+  background: var(--ov-6) !important;
+  color: var(--text);
 }
 
 .setting-row {
@@ -982,7 +1080,7 @@ body.pause-mode #fullscreen-toggle-button {
 
 .setting-row label {
   flex-shrink: 0;
-  color: #c4c8ce;
+  color: var(--text-2b);
 }
 
 .setting-row select {
@@ -993,7 +1091,7 @@ body.pause-mode #fullscreen-toggle-button {
   min-width: 34px;
   text-align: right;
   flex-shrink: 0;
-  color: #9aa0aa;
+  color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1007,7 +1105,7 @@ body.pause-mode #fullscreen-toggle-button {
   appearance: none;
   height: 4px;
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--ov-12);
   cursor: pointer;
 }
 
@@ -1018,7 +1116,7 @@ body.pause-mode #fullscreen-toggle-button {
   height: 15px;
   border-radius: 50%;
   background: #2a6df4;
-  border: 2px solid #e6e8ec;
+  border: 2px solid var(--knob);
   cursor: pointer;
 }
 
@@ -1027,14 +1125,14 @@ body.pause-mode #fullscreen-toggle-button {
   height: 15px;
   border-radius: 50%;
   background: #2a6df4;
-  border: 2px solid #e6e8ec;
+  border: 2px solid var(--knob);
   cursor: pointer;
 }
 
 .setting-row input[type='range']::-moz-range-track {
   height: 4px;
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--ov-12);
 }
 
 /* Toggle-Switch (z.B. Minimap-Beschriftungen) - eigenes Element statt
@@ -1059,7 +1157,7 @@ body.pause-mode #fullscreen-toggle-button {
 }
 
 .search-tab:disabled:hover {
-  color: #9aa0aa;
+  color: var(--text-muted);
 }
 
 /* Ausgegraute Zeile (z.B. Stadtname, solange Geocoding pausiert ist) */
@@ -1081,7 +1179,7 @@ body.pause-mode #fullscreen-toggle-button {
 .switch-slider {
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--ov-15);
   border-radius: 20px;
   cursor: pointer;
   transition: background 0.15s ease;
@@ -1094,7 +1192,7 @@ body.pause-mode #fullscreen-toggle-button {
   height: 16px;
   left: 2px;
   top: 2px;
-  background: #e6e8ec;
+  background: var(--knob);
   border-radius: 50%;
   transition: transform 0.15s ease;
 }
@@ -1122,8 +1220,8 @@ body.pause-mode #fullscreen-toggle-button {
   height: 140px;
   border-radius: 50%;
   overflow: hidden;
-  border: 3px solid #16181d;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 24px rgba(0, 0, 0, 0.35);
+  border: 3px solid var(--surface);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 24px var(--shadow-1);
   z-index: 10;
   background: #000;
   pointer-events: none;
@@ -1263,10 +1361,10 @@ body.pause-mode #fullscreen-toggle-button {
   left: 12px;
   z-index: 30;
   padding: 8px 12px;
-  background: rgba(16, 18, 21, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--surface-translucent-2);
+  border: 1px solid var(--ov-12);
   border-radius: 8px;
-  color: #cfd3da;
+  color: var(--text-2c);
   font-family: monospace;
   font-size: 12px;
   line-height: 1.5;
@@ -1293,9 +1391,9 @@ body.pause-mode #fullscreen-toggle-button {
 }
 
 .stick-box {
-  background: rgba(22, 24, 29, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  background: var(--surface-translucent);
+  border: 1px solid var(--ov-14);
+  box-shadow: 0 8px 24px var(--shadow-1);
   border-radius: 8px;
 }
 
@@ -1310,7 +1408,7 @@ body.pause-mode #fullscreen-toggle-button {
 .stick-cross::after {
   content: "";
   position: absolute;
-  background: rgba(255, 255, 255, 0.18);
+  background: var(--ov-18);
 }
 
 .stick-cross::before {
@@ -1358,12 +1456,12 @@ body.pause-mode #fullscreen-toggle-button {
 #controls-panel {
   z-index: 20;
   display: none;
-  background: #16181d;
+  background: var(--surface);
   padding: 20px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  color: #e6e8ec;
+  border-radius: 8px;
+  border: 1px solid var(--ov-8);
+  box-shadow: 0 20px 60px var(--shadow-2);
+  color: var(--text);
   font-family: system-ui, sans-serif;
   width: 380px;
 }
@@ -1377,9 +1475,9 @@ body.pause-mode #fullscreen-toggle-button {
 }
 
 #controls-panel .container {
-  background: #1f222a;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--ov-6);
+  border-radius: 8px;
   padding: 16px;
 }
 
@@ -1389,7 +1487,7 @@ body.pause-mode #fullscreen-toggle-button {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #9aa0aa;
+  color: var(--text-muted);
 }
 
 #controls-list {
@@ -1415,13 +1513,13 @@ body.pause-mode #fullscreen-toggle-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
-  background: #2a2e38;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: var(--key-bg);
+  border: 1px solid var(--ov-10);
   border-bottom-width: 2px;
   font-size: 13px;
   font-weight: 600;
-  color: #e6e8ec;
+  color: var(--text);
 }
 
 .key-badge-arrow {
@@ -1435,13 +1533,13 @@ body.pause-mode #fullscreen-toggle-button {
 
 .control-desc {
   font-size: 14px;
-  color: #c3c6cc;
+  color: var(--text-2);
 }
 
 #controls-panel-start-button {
   width: 100%;
   padding: 9px 12px;
-  border-radius: 7px;
+  border-radius: 8px;
   border: none;
   background: #2a6df4;
   color: #fff;
@@ -1495,9 +1593,9 @@ body.pause-mode #fullscreen-toggle-button {
   transition: opacity 0.4s ease, transform 0.4s ease;
   text-align: left;
   font-family: inherit;
-  color: #fff;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
-  background: rgba(22, 24, 29, 0.85);
+  color: var(--text-strong);
+  text-shadow: 0 1px 4px var(--text-shadow-color);
+  background: var(--surface-translucent);
   border-left: 2px solid #2a6df4;
   border-radius: 8px 0 0 8px;
   padding: 8px 28px 8px 16px;
@@ -1541,9 +1639,9 @@ body.pause-mode #fullscreen-toggle-button {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.4s ease, transform 0.4s ease;
-  color: #fff;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
-  background: rgba(22, 24, 29, 0.85);
+  color: var(--text-strong);
+  text-shadow: 0 1px 4px var(--text-shadow-color);
+  background: var(--surface-translucent);
   border-left: 2px solid #2a6df4;
   border-radius: 8px;
   padding: 8px 16px 8px 12px;
@@ -1556,13 +1654,13 @@ body.pause-mode #fullscreen-toggle-button {
 
 #discovery-hint-arrow {
   flex: none;
-  color: #6ea0ff;
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
+  color: var(--link-arrow);
+  filter: drop-shadow(0 1px 3px var(--text-shadow-color));
   transition: transform 0.1s linear, color 0.3s ease;
 }
 
 #discovery-hint-arrow.arrived {
-  color: #3ddc73;
+  color: var(--ok-text);
 }
 
 #discovery-hint-text {
@@ -1595,7 +1693,7 @@ body.pause-mode #fullscreen-toggle-button {
 
 #discovery-hint-visited {
   flex: none;
-  color: #3ddc73;
+  color: var(--ok-text);
 }
 
 /* [hidden] greift bei Inline-SVG nicht von selbst */
@@ -1631,8 +1729,8 @@ body.pause-mode #fullscreen-toggle-button {
   justify-content: center;
   padding: 16px;
   overflow-y: auto;
-  background: #16181d;
-  color: #e6e8ec;
+  background: var(--surface);
+  color: var(--text);
 }
 
 #api-key-gate[hidden] {
@@ -1653,13 +1751,13 @@ body.pause-mode #fullscreen-toggle-button {
 
 .api-key-card p {
   margin: 0 0 12px;
-  color: #c3c6cc;
+  color: var(--text-2);
 }
 
 .api-key-card ol {
   margin: 0 0 16px;
   padding-left: 20px;
-  color: #c3c6cc;
+  color: var(--text-2);
 }
 
 .api-key-card li {
@@ -1681,10 +1779,10 @@ body.pause-mode #fullscreen-toggle-button {
   box-sizing: border-box;
   width: 100%;
   padding: 9px 10px;
-  border-radius: 7px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: #1f222a;
-  color: #e6e8ec;
+  border-radius: 8px;
+  border: 1px solid var(--ov-15);
+  background: var(--surface-2);
+  color: var(--text);
   font-size: 14px;
   font-family: ui-monospace, monospace;
 }
@@ -1700,12 +1798,12 @@ body.pause-mode #fullscreen-toggle-button {
   gap: 6px;
   margin: 8px 0 0;
   font-weight: 400;
-  color: #9aa0aa;
+  color: var(--text-muted);
 }
 
 #api-key-error {
   margin: 12px 0 0;
-  color: #ff8a8a;
+  color: var(--danger-text);
 }
 
 #api-key-error[hidden] {
@@ -1721,7 +1819,7 @@ body.pause-mode #fullscreen-toggle-button {
 
 .api-key-actions button {
   padding: 9px 14px;
-  border-radius: 7px;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -1745,8 +1843,8 @@ body.pause-mode #fullscreen-toggle-button {
 
 #api-key-cancel {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #9aa0aa;
+  border: 1px solid var(--ov-15);
+  color: var(--text-muted);
 }
 
 #api-key-cancel[hidden] {
@@ -1761,10 +1859,10 @@ body.pause-mode #fullscreen-toggle-button {
   z-index: 5;
   min-width: 220px;
   padding: 6px;
-  background: #1f222a;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  background: var(--surface-2);
+  border: 1px solid var(--ov-12);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px var(--shadow-2);
 }
 
 #settings-menu[hidden] {
@@ -1776,9 +1874,9 @@ body.pause-mode #fullscreen-toggle-button {
   width: 100%;
   padding: 8px 10px;
   border: none;
-  border-radius: 7px;
+  border-radius: 8px;
   background: transparent;
-  color: #e6e8ec;
+  color: var(--text);
   font-size: 14px;
   text-align: left;
   cursor: pointer;
@@ -1786,13 +1884,13 @@ body.pause-mode #fullscreen-toggle-button {
 
 #settings-api-key-item:hover,
 #settings-api-key-item:focus-visible {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--ov-8);
   outline: none;
 }
 
 .setting-divider {
   border: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--ov-8);
 }
 
 .visually-hidden {
