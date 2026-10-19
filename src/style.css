@@ -28,6 +28,7 @@
   --btn-hover-solid: rgb(48, 49, 51);
   --danger-text: #ff8a8a;
   --ok-text: #3ddc73;
+  --horizon-ground: linear-gradient(to top, #16181d, #1f222a);
   --link-arrow: #6ea0ff;
   --ov-3: rgba(255, 255, 255, 0.03);
   --ov-6: rgba(255, 255, 255, 0.06);
@@ -64,6 +65,8 @@
   --btn-hover-solid: #e2e5ea;
   --danger-text: #c62828;
   --ok-text: #1a9e4a;
+  --horizon-ground: linear-gradient(to top, #6f7889, #99a2b3);
+  /* Schiefergrau */
   --link-arrow: #1d55c4;
   --ov-3: rgba(0, 0, 0, 0.04);
   --ov-6: rgba(0, 0, 0, 0.09);
@@ -230,20 +233,67 @@ body.pause-mode #fullscreen-toggle-button {
 #flight-data {
   position: absolute;
   bottom: 192px;
-  /* über #horizon-wrapper (40px + 140px Höhe + 12px Abstand) */
-  left: 12px;
+  left: 172px;
   transition: bottom 0.2s ease;
   z-index: 10;
-  color: var(--text);
+  color: var(--text-strong);
   background: var(--surface-translucent);
   border: 1px solid var(--ov-8);
   box-shadow: 0 8px 24px var(--shadow-1);
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-size: 13px;
+  padding: 10px 16px 11px;
+  border-radius: 10px;
   pointer-events: none;
   display: flex;
-  gap: 12px;
+  gap: 0;
+  font-family: ui-rounded, "SF Pro Rounded", "Segoe UI Variable Display",
+    "Segoe UI", system-ui, sans-serif;
+}
+
+#flight-data .fd-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+#flight-data .fd-item + .fd-item {
+  margin-left: 16px;
+  padding-left: 16px;
+  border-left: 1px solid var(--ov-8);
+}
+
+#flight-data .fd-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+#flight-data .fd-reading {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+/* Tabellenziffern + feste Mindestbreite: Zahlen springen beim Hochzählen
+   nicht hin und her, Einheiten bleiben stabil an ihrer Stelle. */
+#flight-data .fd-value {
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  min-width: 3ch;
+  text-align: right;
+  text-shadow: 0 1px 6px var(--text-shadow-color);
+}
+
+#flight-data .fd-unit {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
 }
 
 #minimap-wrapper {
@@ -254,8 +304,8 @@ body.pause-mode #fullscreen-toggle-button {
   height: 220px;
   border-radius: 8px;
   overflow: hidden;
-  border: 3px solid var(--surface);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 24px var(--shadow-1);
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 24px var(--shadow-2);
   z-index: 10;
   background: #000;
 }
@@ -279,7 +329,7 @@ body.pause-mode #fullscreen-toggle-button {
   margin: -220px 0 0 -220px;
   transform: scale(0.5);
   transform-origin: center;
-  filter: brightness(0.7);
+  filter: brightness(0.6);
 }
 
 /* fester Punkt in der Mitte - die Karte selbst wird pro Frame neu
@@ -511,7 +561,7 @@ body.pause-mode #fullscreen-toggle-button {
   z-index: 20;
   display: none;
   background: var(--surface);
-  padding: 48px 20px 20px 20px;
+  padding: 36px 20px 20px 20px;
   border-radius: 8px;
   border: 1px solid var(--ov-8);
   box-shadow: 0 20px 60px var(--shadow-2);
@@ -566,7 +616,7 @@ body.pause-mode #fullscreen-toggle-button {
 
 .title-heading {
   position: absolute;
-  top: 4px;
+  top: -2px;
   left: 59px;
   font-size: 20px;
   font-weight: 600;
@@ -580,7 +630,7 @@ body.pause-mode #fullscreen-toggle-button {
 #layout-toggle-button,
 #theme-toggle-button {
   position: absolute;
-  top: 16px;
+  top: 10px;
   right: 28px;
   width: 32px;
   height: 32px;
@@ -594,6 +644,12 @@ body.pause-mode #fullscreen-toggle-button {
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
+
+#controls-panel-close {
+  right: 24px;
+  top: 24px;
+}
+
 
 #controls-help-button {
   right: 68px;
@@ -684,7 +740,7 @@ body.pause-mode #fullscreen-toggle-button {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--text-muted);
+  color: var(--text);
 }
 
 /* Wrapper um den kompletten "normalen" Inhalt (Tabs/Eingaben/Settings) -
@@ -1083,8 +1139,32 @@ body.pause-mode #fullscreen-toggle-button {
   color: var(--text-2b);
 }
 
+/* Einheitliche Spalten in Zeilen mit Regler oder Auswahl:
+   Label | Steuerelement | Wert. Alle Slider-Spuren und Selects beginnen und
+   enden dadurch an derselben Stelle. Die Labelbreite richtet sich nach dem
+   längsten Label ("Sichtfeld (FOV)"). Schalter-Zeilen bleiben unverändert. */
+.setting-row {
+  --setting-label-w: 7em;
+  --setting-value-w: 0;
+}
+
+.setting-row:has(input[type='range'], select)>label:first-child {
+  flex: 0 0 var(--setting-label-w);
+}
+
+.setting-row>span {
+  flex: 0 0 var(--setting-value-w);
+}
+
 .setting-row select {
   flex: 1;
+  min-width: 0;
+  /* endet bündig mit den Slider-Spuren (Wertspalte + Abstand freihalten) */
+  margin-right: calc(var(--setting-value-w) + 10px);
+}
+
+.setting-row input[type='range'] {
+  min-width: 0;
 }
 
 .setting-row span {
@@ -1220,8 +1300,8 @@ body.pause-mode #fullscreen-toggle-button {
   height: 140px;
   border-radius: 50%;
   overflow: hidden;
-  border: 3px solid var(--surface);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 24px var(--shadow-1);
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 24px var(--shadow-2);
   z-index: 10;
   background: #000;
   pointer-events: none;
@@ -1259,7 +1339,7 @@ body.pause-mode #fullscreen-toggle-button {
   left: 0;
   width: 100%;
   height: 50%;
-  background: linear-gradient(to top, #16181d, #1f222a);
+  background: var(--horizon-ground);
 }
 
 #horizon-line {
@@ -1457,7 +1537,7 @@ body.pause-mode #fullscreen-toggle-button {
   z-index: 20;
   display: none;
   background: var(--surface);
-  padding: 20px;
+  padding: 16px;
   border-radius: 8px;
   border: 1px solid var(--ov-8);
   box-shadow: 0 20px 60px var(--shadow-2);
@@ -1469,9 +1549,9 @@ body.pause-mode #fullscreen-toggle-button {
 #controls-panel.visible {
   display: block;
   position: absolute;
-  top: 60px;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
 }
 
 #controls-panel .container {
@@ -1895,4 +1975,124 @@ body.pause-mode #fullscreen-toggle-button {
 
 .visually-hidden {
   display: none;
+}
+
+/*
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+*/
+/* Pixelfont fürs FPV-OSD: DotGothic16 (SIL Open Font License, Lizenztext
+   liegt in src/fonts/), Monospace - Ziffern springen beim Zählen nicht. */
+@font-face {
+  font-family: "DotGothic16";
+  src: url("./fonts/dotgothic16-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* --- FPV-OSD (Overlay, das ein analoges Betaflight-OSD nachahmt) ---------
+   Reine Optik, statische Werte (nur Flugzeit/mAh zählen mit, siehe
+   updateFpvOsdTime in main.js). Bewusst unabhängig von "Anzeigen | HUD":
+   so lässt sich das normale HUD ausblenden und nur das OSD behalten.
+   Seitenränder halten Abstand zu Horizont-Kugel (links) und Minimap
+   (rechts unten). Weißer Text mit schwarzem Rand wie beim Analog-OSD. */
+#fpv-osd {
+  /* Prozentwerte beziehen sich auf die OSD-Box = sichtbares Bild (siehe
+     body.view-cropped unten). Die Mindestabstände (172px/72px) gelten ab
+     Bildschirmrand: (100vw - 100%) / 2 ist die Breite des schwarzen
+     Seitenbalkens und wird davon abgezogen. */
+  --osd-left: max(5%, calc(172px - (100vw - 100%) / 2));
+  --osd-right: max(5%, calc(72px - (100vw - 100%) / 2));
+  position: fixed;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  color: #f2f2f2;
+  font-family: "DotGothic16", "Lucida Console", "Courier New", monospace;
+  font-weight: 400;
+  font-synthesis: none;
+  -webkit-text-stroke: 0.5px currentColor; /* Pixelstriche etwas kräftiger */
+  text-rendering: optimizeSpeed;
+  /* 3.2vh bei Vollbild; im Ausschnitt 3.2% der Bildhöhe (Bildhöhe = Breite
+     / Seitenverhältnis), damit die Schrift mit dem Bild skaliert. */
+  font-size: clamp(16px, min(3.2vh, calc(3.2vw / var(--view-aspect, 0.001))), 32px);
+  letter-spacing: 0.12em;
+  line-height: 1.2;
+  opacity: 0.85;
+  filter: drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000)
+    drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000);
+}
+
+#fpv-osd[hidden] {
+  display: none;
+}
+
+/* Gewähltes Bildformat: OSD bekommt exakt Größe und Position des Viewers
+   (gleiche Formel wie body.view-cropped #cesiumContainer), liegt also
+   immer auf dem sichtbaren Bild statt halb in den schwarzen Balken. */
+body.view-cropped #fpv-osd {
+  inset: 0;
+  margin: auto;
+  width: min(100vw, calc(100vh * var(--view-aspect)));
+  height: min(100vh, calc(100vw / var(--view-aspect)));
+}
+
+#fpv-osd .osd-group {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15em;
+}
+
+#fpv-osd .osd-line {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  white-space: nowrap;
+}
+
+#fpv-osd .osd-icon {
+  height: 0.85em;
+  width: auto;
+  fill: currentColor;
+}
+
+#fpv-osd .osd-battery {
+  height: 1.7em;
+}
+
+#fpv-osd .osd-top-left {
+  top: 7%;
+  left: var(--osd-left);
+  align-items: flex-start;
+}
+
+#fpv-osd .osd-top-right {
+  top: 7%;
+  right: var(--osd-right);
+  align-items: flex-end;
+}
+
+#fpv-osd .osd-right-middle {
+  top: 38%;
+  right: var(--osd-right);
+  align-items: flex-end;
+}
+
+#fpv-osd .osd-bottom-center {
+  bottom: 17%;
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: row;
+  align-items: center;
+  gap: 0.6em;
+}
+
+#fpv-osd .osd-bottom-left {
+  bottom: 6%;
+  left: var(--osd-left);
+  align-items: flex-start;
 }

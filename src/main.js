@@ -169,9 +169,13 @@ function crashSnapshot() {
       nacht: nightMode,
       horizontGlow: horizonGlowEnabled,
       flugzeugSichtbar: planeVisible,
+      fpvOsd: fpvOsdEnabled,
       fovDeg: Math.round(Cesium.Math.toDegrees(viewer.camera.frustum.fov)),
       grainPct: Math.round((colorGradeSettings.grainAmount / GRAIN_MAX_INTENSITY) * 100),
       blurPct: Math.round(colorGradeSettings.blurAmount * 100),
+      fisheyePct: Math.round(
+        (colorGradeSettings.fisheyeAmount / FISHEYE_MAX_STRENGTH) * 100,
+      ),
       vignettePct: Math.round(colorGradeSettings.vignetteAmount * 100),
       pausiert: isPaused || isViewPaused,
     },
@@ -249,6 +253,7 @@ function saveCameraState() {
         minimapLabelsVisible,
         planeVisible,
         hudHidden,
+        fpvOsdEnabled,
         locationBannerEnabled,
         geocodingEnabled,
         contrastPct: colorGradeSettings.contrastAmount * 100,
@@ -259,6 +264,8 @@ function saveCameraState() {
         vignettePct: colorGradeSettings.vignetteAmount * 100,
         grainPct: (colorGradeSettings.grainAmount / GRAIN_MAX_INTENSITY) * 100,
         blurPct: colorGradeSettings.blurAmount * 100,
+        fisheyePct:
+          (colorGradeSettings.fisheyeAmount / FISHEYE_MAX_STRENGTH) * 100,
         dofEnabled: dofSettings.enabled,
         dofStrengthPct: dofSettings.strengthPct,
         dofFocusSlider: dofSettings.focusSlider,
@@ -317,6 +324,7 @@ let colorGradeSettings = {
   vignetteAmount: 0.12, // 1 - bisheriger fixer Wert 0.88
   grainAmount: 0,
   blurAmount: 0,
+  fisheyeAmount: 0, // Fischaugen-Verzerrung, 0 = aus
 };
 
 // Miniatur-Effekt (Schärfentiefe/Tilt-Shift-Look): Cesiums eingebaute
@@ -453,6 +461,8 @@ function setupCinematicFilters() {
         uniform float vignetteAmount;
         uniform float grainAmount;
         uniform float blurAmount;
+        uniform float fisheyeAmount;
+        uniform float aspectRatio;
         uniform sampler2D depthTexture;
         uniform float moonAmount;
         uniform float starBrightness;
@@ -483,19 +493,39 @@ function setupCinematicFilters() {
           return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
         }
 
+        // Fischaugen-Linse (Tonnenverzerrung): Der Bildpunkt wird aus einer
+        // weiter außen liegenden Stelle des Originalbilds gelesen, je weiter
+        // er vom Zentrum entfernt ist - die Bildmitte wirkt vergrößert, die
+        // Ränder werden gestaucht. Radius ist seitenverhältnis-korrigiert
+        // (Verzerrung kreisförmig) und auf die Bildecke normiert, sodass
+        // die Ecken exakt auf die Ecken des Originals zeigen (nie außerhalb
+        // des Bildes lesen, keine schwarzen Ränder).
+        vec2 fisheyeUv(vec2 texCoord) {
+          vec2 q = (texCoord - 0.5) * 2.0;
+          q.x *= aspectRatio;
+          float t = dot(q, q) / (aspectRatio * aspectRatio + 1.0);
+          q *= (1.0 + fisheyeAmount * t) / (1.0 + fisheyeAmount);
+          q.x /= aspectRatio;
+          return q * 0.5 + 0.5;
+        }
+
         void main() {
+          // Mit Fischauge verzerrte Lese-Koordinate (ohne Fischauge unverändert).
+          // Vignette und Filmkorn bleiben bewusst an den Bildschirm gebunden.
+          vec2 lensUv = fisheyeAmount > 0.0 ? fisheyeUv(v_textureCoordinates) : v_textureCoordinates;
+
           // Neun Bildpunkte mitteln: ein leichter, gleichmäßiger Blur ohne
           // zusätzliche Post-Process-Stufe und damit ohne weitere Renderpass-Kosten.
           vec2 blurOffset = vec2(0.004) * blurAmount;
-          vec4 color = texture(colorTexture, v_textureCoordinates) * 0.20;
-          color += texture(colorTexture, v_textureCoordinates + vec2(blurOffset.x, 0.0)) * 0.10;
-          color += texture(colorTexture, v_textureCoordinates - vec2(blurOffset.x, 0.0)) * 0.10;
-          color += texture(colorTexture, v_textureCoordinates + vec2(0.0, blurOffset.y)) * 0.10;
-          color += texture(colorTexture, v_textureCoordinates - vec2(0.0, blurOffset.y)) * 0.10;
-          color += texture(colorTexture, v_textureCoordinates + blurOffset) * 0.10;
-          color += texture(colorTexture, v_textureCoordinates - blurOffset) * 0.10;
-          color += texture(colorTexture, v_textureCoordinates + vec2(blurOffset.x, -blurOffset.y)) * 0.10;
-          color += texture(colorTexture, v_textureCoordinates + vec2(-blurOffset.x, blurOffset.y)) * 0.10;
+          vec4 color = texture(colorTexture, lensUv) * 0.20;
+          color += texture(colorTexture, lensUv + vec2(blurOffset.x, 0.0)) * 0.10;
+          color += texture(colorTexture, lensUv - vec2(blurOffset.x, 0.0)) * 0.10;
+          color += texture(colorTexture, lensUv + vec2(0.0, blurOffset.y)) * 0.10;
+          color += texture(colorTexture, lensUv - vec2(0.0, blurOffset.y)) * 0.10;
+          color += texture(colorTexture, lensUv + blurOffset) * 0.10;
+          color += texture(colorTexture, lensUv - blurOffset) * 0.10;
+          color += texture(colorTexture, lensUv + vec2(blurOffset.x, -blurOffset.y)) * 0.10;
+          color += texture(colorTexture, lensUv + vec2(-blurOffset.x, blurOffset.y)) * 0.10;
           color.rgb = clamp(color.rgb, 0.0, 1.0);
 
           // Kontrast
@@ -532,13 +562,13 @@ function setupCinematicFilters() {
           // Gelände und Gebäude ihn korrekt verdecken. Wird nach Helligkeit/
           // Tönung/Vignette gezeichnet, bleibt also hell und unverfärbt.
           if (moonAmount > 0.0) {
-            float skyDepth = czm_unpackDepth(texture(depthTexture, v_textureCoordinates));
+            float skyDepth = czm_unpackDepth(texture(depthTexture, lensUv));
             if (skyDepth >= 1.0) {
               // Sterne/Skybox abdunkeln bzw. aufhellen, bevor Mond + Schein
               // gezeichnet werden (diese bleiben davon unberührt).
               color.rgb = clamp(color.rgb * starBrightness, 0.0, 1.0);
 
-              vec4 eyePoint = czm_inverseProjection * vec4(v_textureCoordinates * 2.0 - 1.0, 0.0, 1.0);
+              vec4 eyePoint = czm_inverseProjection * vec4(lensUv * 2.0 - 1.0, 0.0, 1.0);
               vec3 viewDirWorld = normalize(czm_inverseViewRotation * normalize(eyePoint.xyz / eyePoint.w));
 
               float moonAngle = acos(clamp(dot(viewDirWorld, moonDirection), -1.0, 1.0));
@@ -602,6 +632,9 @@ function setupCinematicFilters() {
         vignetteAmount: () => colorGradeSettings.vignetteAmount,
         grainAmount: () => colorGradeSettings.grainAmount,
         blurAmount: () => colorGradeSettings.blurAmount,
+        fisheyeAmount: () => colorGradeSettings.fisheyeAmount,
+        aspectRatio: () =>
+          viewer.scene.drawingBufferWidth / viewer.scene.drawingBufferHeight,
       },
     }),
   );
@@ -876,6 +909,8 @@ async function loadGoogleTiles() {
         applyPlaneVisible(usableSavedState.planeVisible);
       if (typeof usableSavedState.hudHidden === "boolean")
         applyHudHidden(usableSavedState.hudHidden);
+      if (typeof usableSavedState.fpvOsdEnabled === "boolean")
+        applyFpvOsdEnabled(usableSavedState.fpvOsdEnabled);
       if (typeof usableSavedState.locationBannerEnabled === "boolean")
         applyLocationBannerEnabled(usableSavedState.locationBannerEnabled);
       if (typeof usableSavedState.geocodingEnabled === "boolean")
@@ -896,6 +931,8 @@ async function loadGoogleTiles() {
         applyGrain(usableSavedState.grainPct);
       if (Number.isFinite(usableSavedState.blurPct))
         applyBlur(usableSavedState.blurPct);
+      if (Number.isFinite(usableSavedState.fisheyePct))
+        applyFisheye(usableSavedState.fisheyePct);
       if (Number.isFinite(usableSavedState.dofStrengthPct))
         applyDofStrength(usableSavedState.dofStrengthPct);
       if (Number.isFinite(usableSavedState.dofFocusSlider))
@@ -1291,7 +1328,7 @@ applyFov(FOV_FLIGHT_DEFAULT_DEG);
 // Breite > Höhe horizontal - bei gleichem FOV-Wert wird der Ausschnitt
 // also höher, nicht schmaler beschnitten.
 const ASPECT_KEY = "flymaps_view_aspect";
-const ASPECT_DRONE_DEFAULT = "5/4"; // Vorgabe mit Controller
+const ASPECT_DRONE_DEFAULT = "3/2"; // Vorgabe mit Controller
 const ASPECT_FLIGHT_DEFAULT = "auto"; // Vorgabe im Flug-Modus (Vollbild)
 const aspectSelect = document.getElementById("aspect-select");
 
@@ -1489,7 +1526,7 @@ const flightDataEl = document.getElementById("flight-data");
 // normalerweise über #horizon-wrapper (192px), rutscht aber auf dessen
 // Position (40px) runter, wenn der Horizont bei verbundenem Controller
 // ausgeblendet ist - sonst würde die Box über der leeren Lücke "schweben".
-const FLIGHT_DATA_BOTTOM_WITH_HORIZON_PX = 192;
+const FLIGHT_DATA_BOTTOM_WITH_HORIZON_PX = 40;
 const FLIGHT_DATA_BOTTOM_WITHOUT_HORIZON_PX = 40;
 
 function updateHorizonVisibility() {
@@ -1702,6 +1739,44 @@ hideHudToggle.addEventListener("change", () => {
   saveCameraState();
 });
 applyHudHidden(hudHidden);
+
+// --- FPV-OSD (analoges Overlay, siehe #fpv-osd in index.html/style.css) ---
+// Rein optisch, statische Werte; nur Flugzeit und verbrauchte mAh zählen
+// mit, solange nicht pausiert ist. Unabhängig von "Anzeigen | HUD".
+let fpvOsdEnabled = false;
+let fpvOsdSeconds = 0;
+const fpvOsdEl = document.getElementById("fpv-osd");
+const fpvOsdToggle = document.getElementById("fpv-osd-toggle");
+const fpvOsdTimeEl = document.getElementById("fpv-osd-time");
+const fpvOsdMahEl = document.getElementById("fpv-osd-mah");
+const FPV_OSD_MAH_PER_SECOND = 5.5;
+
+function renderFpvOsdTime() {
+  const mm = String(Math.floor(fpvOsdSeconds / 60)).padStart(2, "0");
+  const ss = String(fpvOsdSeconds % 60).padStart(2, "0");
+  fpvOsdTimeEl.textContent = `${mm}:${ss}`;
+  fpvOsdMahEl.textContent = String(
+    Math.round(fpvOsdSeconds * FPV_OSD_MAH_PER_SECOND),
+  );
+}
+
+function applyFpvOsdEnabled(enabled) {
+  fpvOsdEnabled = enabled;
+  fpvOsdToggle.checked = enabled;
+  fpvOsdEl.hidden = !enabled;
+}
+
+fpvOsdToggle.addEventListener("change", () => {
+  applyFpvOsdEnabled(fpvOsdToggle.checked);
+  saveCameraState();
+});
+
+setInterval(() => {
+  if (isPaused || isViewPaused) return;
+  fpvOsdSeconds++;
+  if (fpvOsdEnabled) renderFpvOsdTime();
+}, 1000);
+applyFpvOsdEnabled(fpvOsdEnabled);
 
 // --- Standort-Banner ("Bauchbinde") -------------------------------------
 // Zeigt beim Überfliegen einer neuen Region kurz Ort + Land ein (siehe
@@ -2042,6 +2117,13 @@ const BLUR_MIN_PCT = 0;
 const BLUR_MAX_PCT = 150;
 const BLUR_DEFAULT_PCT = 5;
 
+// Fischauge: 0% = aus (Standard). Der Prozentwert wird im Shader auf die
+// Verzerrungsstärke gemappt (100% = 0.8, Bildmitte ca. 1,8x vergrößert).
+const FISHEYE_MIN_PCT = 0;
+const FISHEYE_MAX_PCT = 150;
+const FISHEYE_DEFAULT_PCT = 0;
+const FISHEYE_MAX_STRENGTH = 0.8;
+
 const contrastSlider = document.getElementById("contrast-slider");
 const contrastValueEl = document.getElementById("contrast-value");
 const saturationSlider = document.getElementById("saturation-slider");
@@ -2066,6 +2148,8 @@ const STAR_BRIGHTNESS_MAX_PCT = 150;
 const STAR_BRIGHTNESS_DEFAULT_PCT = 150;
 const blurSlider = document.getElementById("blur-slider");
 const blurValueEl = document.getElementById("blur-value");
+const fisheyeSlider = document.getElementById("fisheye-slider");
+const fisheyeValueEl = document.getElementById("fisheye-value");
 
 function applyContrast(pct) {
   const clamped = Cesium.Math.clamp(pct, CONTRAST_MIN_PCT, CONTRAST_MAX_PCT);
@@ -2142,6 +2226,13 @@ function applyBlur(pct) {
   blurValueEl.textContent = `${Math.round(clamped)}%`;
 }
 
+function applyFisheye(pct) {
+  const clamped = Cesium.Math.clamp(pct, FISHEYE_MIN_PCT, FISHEYE_MAX_PCT);
+  colorGradeSettings.fisheyeAmount = (clamped / 100) * FISHEYE_MAX_STRENGTH;
+  fisheyeSlider.value = clamped;
+  fisheyeValueEl.textContent = `${Math.round(clamped)}%`;
+}
+
 contrastSlider.min = CONTRAST_MIN_PCT;
 contrastSlider.max = CONTRAST_MAX_PCT;
 applyContrast(CONTRAST_DEFAULT_PCT);
@@ -2166,6 +2257,9 @@ applyGrain(GRAIN_DEFAULT_PCT);
 blurSlider.min = BLUR_MIN_PCT;
 blurSlider.max = BLUR_MAX_PCT;
 applyBlur(BLUR_DEFAULT_PCT);
+fisheyeSlider.min = FISHEYE_MIN_PCT;
+fisheyeSlider.max = FISHEYE_MAX_PCT;
+applyFisheye(FISHEYE_DEFAULT_PCT);
 starBrightnessSlider.min = STAR_BRIGHTNESS_MIN_PCT;
 starBrightnessSlider.max = STAR_BRIGHTNESS_MAX_PCT;
 applyStarBrightness(STAR_BRIGHTNESS_DEFAULT_PCT);
@@ -2204,6 +2298,10 @@ grainSlider.addEventListener("input", () => {
 });
 blurSlider.addEventListener("input", () => {
   applyBlur(Number(blurSlider.value));
+  saveCameraState();
+});
+fisheyeSlider.addEventListener("input", () => {
+  applyFisheye(Number(fisheyeSlider.value));
   saveCameraState();
 });
 
@@ -2316,6 +2414,7 @@ function applyFilterValues(values) {
 const filtersResetButton = document.getElementById("filters-reset-button");
 filtersResetButton.addEventListener("click", () => {
   applyFilterValues(nightMode ? NIGHT_FILTER_PRESET : FILTER_DEFAULTS);
+  applyFisheye(FISHEYE_DEFAULT_PCT);
   applyDofStrength(DOF_STRENGTH_DEFAULT_PCT);
   applyDofFocus(DOF_FOCUS_DEFAULT_SLIDER);
   applyDofEnabled(false);
@@ -2943,6 +3042,11 @@ async function saveFavorite() {
     vignettePct: colorGradeSettings.vignetteAmount * 100,
     grainPct: (colorGradeSettings.grainAmount / GRAIN_MAX_INTENSITY) * 100,
     blurPct: colorGradeSettings.blurAmount * 100,
+    fisheyePct: (colorGradeSettings.fisheyeAmount / FISHEYE_MAX_STRENGTH) * 100,
+    dofEnabled: dofSettings.enabled,
+    dofStrengthPct: dofSettings.strengthPct,
+    dofFocusSlider: dofSettings.focusSlider,
+    fpvOsdEnabled,
     nightMode,
     horizonGlowEnabled,
     nightDaySnapshot,
@@ -3030,6 +3134,27 @@ async function flyToFavorite(favorite) {
       applyVignette(favorite.vignettePct);
     if (Number.isFinite(favorite.grainPct)) applyGrain(favorite.grainPct);
     if (Number.isFinite(favorite.blurPct)) applyBlur(favorite.blurPct);
+    // Ältere Favoriten kennen kein Fischauge -> aus.
+    applyFisheye(
+      Number.isFinite(favorite.fisheyePct)
+        ? favorite.fisheyePct
+        : FISHEYE_DEFAULT_PCT,
+    );
+    // Ältere Favoriten kennen keinen Miniatur-Effekt -> aus.
+    applyDofStrength(
+      Number.isFinite(favorite.dofStrengthPct)
+        ? favorite.dofStrengthPct
+        : DOF_STRENGTH_DEFAULT_PCT,
+    );
+    applyDofFocus(
+      Number.isFinite(favorite.dofFocusSlider)
+        ? favorite.dofFocusSlider
+        : DOF_FOCUS_DEFAULT_SLIDER,
+    );
+    applyDofEnabled(favorite.dofEnabled === true);
+    // Ältere Favoriten kennen kein OSD -> aktuelle Einstellung bleibt.
+    if (typeof favorite.fpvOsdEnabled === "boolean")
+      applyFpvOsdEnabled(favorite.fpvOsdEnabled);
     if (Number.isFinite(favorite.starBrightnessPct))
       applyStarBrightness(favorite.starBrightnessPct);
     if (Number.isFinite(favorite.moonAzimuthDeg))
@@ -4461,12 +4586,12 @@ viewer.clock.onTick.addEventListener(() => {
   lastAppliedUp = Cesium.Cartesian3.clone(camera.up, lastAppliedUp);
 
   // Geschwindigkeitsanzeige (HUD): m/s -> km/h
-  speedEl.textContent = `${Math.round(speed * 3.6)} km/h`;
+  speedEl.textContent = String(Math.round(speed * 3.6));
 
   // Höhenanzeige (HUD): Höhe über dem WGS84-Ellipsoid, nicht exakt über
   // Grund/Meeresspiegel, für einen Flugsimulator aber ausreichend genau.
   const altitude = Cesium.Cartographic.fromCartesian(camera.positionWC).height;
-  altitudeEl.textContent = `${Math.round(altitude)} m`;
+  altitudeEl.textContent = String(Math.round(altitude));
 
   updateMinimap();
   updateHorizon();

@@ -99,6 +99,48 @@
     <div id="hud">
       <span id="status">Lade Weltdaten…</span>
     </div>
+    <div id="fpv-osd" hidden aria-hidden="true">
+      <div class="osd-group osd-top-left">
+        <span class="osd-line">FLYMAPS</span>
+        <span class="osd-line">
+          <svg class="osd-icon" viewBox="0 0 19 16" aria-hidden="true">
+            <rect x="0" y="12" width="4" height="4" />
+            <rect x="5" y="8" width="4" height="8" />
+            <rect x="10" y="4" width="4" height="12" />
+            <rect x="15" y="0" width="4" height="16" />
+          </svg>
+          -78
+        </span>
+        <span class="osd-line"><span>LQ</span>100</span>
+      </div>
+      <div class="osd-group osd-top-right">
+        <span class="osd-line">ACRO</span>
+        <span class="osd-line"><span>FLY</span><span id="fpv-osd-time">00:00</span></span>
+      </div>
+      <div class="osd-group osd-right-middle">
+        <span class="osd-line"><span>SAT</span>14</span>
+        <span class="osd-line">12.4A</span>
+      </div>
+      <div class="osd-group osd-bottom-center">
+        <svg class="osd-icon osd-battery" viewBox="0 0 14 24" aria-hidden="true">
+          <rect x="4" y="0" width="6" height="3" />
+          <rect
+            x="1"
+            y="3"
+            width="12"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          />
+          <rect x="3.5" y="5.5" width="7" height="15" />
+        </svg>
+        <span class="osd-line">16.1V</span>
+      </div>
+      <div class="osd-group osd-bottom-left">
+        <span class="osd-line"><span id="fpv-osd-mah">0</span>MAH</span>
+      </div>
+    </div>
     <div id="location-banner">
       <span id="location-banner-place"></span>
       <span id="location-banner-district"></span>
@@ -230,8 +272,20 @@
       <div id="horizon-roll-pointer"></div>
     </div>
     <div id="flight-data">
-      <span id="speed">0 km/h</span>
-      <span id="altitude">0 m</span>
+      <div class="fd-item">
+        <span class="fd-label">Tempo</span>
+        <span class="fd-reading">
+          <span id="speed" class="fd-value">0</span>
+          <span class="fd-unit">km/h</span>
+        </span>
+      </div>
+      <div class="fd-item">
+        <span class="fd-label">Höhe</span>
+        <span class="fd-reading">
+          <span id="altitude" class="fd-value">0</span>
+          <span class="fd-unit">m</span>
+        </span>
+      </div>
     </div>
     <div id="search-panel">
       <h1 class="title-heading">FlyMaps</h1>
@@ -278,7 +332,9 @@
           stroke-linejoin="round"
         >
           <circle cx="12" cy="12" r="4"></circle>
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+          <path
+            d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+          ></path>
         </svg>
         <svg
           class="icon-moon"
@@ -493,6 +549,7 @@
           </div>
           <div id="camera-tilt-row" class="setting-row">
             <label for="camera-tilt-slider">Kamerawinkel</label>
+            <span id="camera-tilt-value"></span>
             <input
               id="camera-tilt-slider"
               type="range"
@@ -500,12 +557,11 @@
               max="30"
               step="1"
             />
-            <span id="camera-tilt-value"></span>
           </div>
           <div id="fov-row" class="setting-row">
             <label for="fov-slider">Sichtfeld (FOV)</label>
-            <input id="fov-slider" type="range" min="30" max="100" step="1" />
             <span id="fov-value"></span>
+            <input id="fov-slider" type="range" min="30" max="100" step="1" />
           </div>
           <div id="stick-overlay-row" class="setting-row">
             <label for="stick-overlay-toggle">Stick-Overlay</label>
@@ -518,6 +574,13 @@
             <label for="hide-hud-toggle">Anzeigen | HUD</label>
             <label class="switch">
               <input id="hide-hud-toggle" type="checkbox" />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          <div id="fpv-osd-row" class="setting-row">
+            <label for="fpv-osd-toggle">FPV-OSD (analog)</label>
+            <label class="switch">
+              <input id="fpv-osd-toggle" type="checkbox" />
               <span class="switch-slider"></span>
             </label>
           </div>
@@ -558,7 +621,10 @@
           </div>
           <hr class="setting-divider" />
           <div id="sounds-row" class="setting-row">
-            <label for="sounds-toggle">Sounds</label>
+            <label for="sounds-toggle">Sound</label>
+            <input id="sounds-toggle" type="checkbox" checked />
+            </label>
+            <span id="sounds-volume-value">15%</span>
             <input
               id="sounds-volume-slider"
               type="range"
@@ -568,11 +634,6 @@
               value="15"
               aria-label="Sound-Lautstärke"
             />
-            <span id="sounds-volume-value">15%</span>
-            <label class="switch">
-              <input id="sounds-toggle" type="checkbox" checked />
-              <span class="switch-slider"></span>
-            </label>
           </div>
           <div id="crash-log-row" hidden class="setting-row">
             <label for="crash-log-toggle"
@@ -623,6 +684,7 @@
             style="display: none"
           >
             <label for="star-brightness-slider">Sterne</label>
+            <span id="star-brightness-value"></span>
             <input
               id="star-brightness-slider"
               type="range"
@@ -630,10 +692,10 @@
               max="150"
               step="1"
             />
-            <span id="star-brightness-value"></span>
           </div>
           <div id="contrast-row" class="setting-row">
             <label for="contrast-slider">Kontrast</label>
+            <span id="contrast-value"></span>
             <input
               id="contrast-slider"
               type="range"
@@ -641,10 +703,10 @@
               max="150"
               step="1"
             />
-            <span id="contrast-value"></span>
           </div>
           <div id="saturation-row" class="setting-row">
             <label for="saturation-slider">Sättigung</label>
+            <span id="saturation-value"></span>
             <input
               id="saturation-slider"
               type="range"
@@ -652,10 +714,10 @@
               max="150"
               step="1"
             />
-            <span id="saturation-value"></span>
           </div>
           <div id="brightness-row" class="setting-row">
             <label for="brightness-slider">Helligkeit</label>
+            <span id="brightness-value"></span>
             <input
               id="brightness-slider"
               type="range"
@@ -663,20 +725,20 @@
               max="150"
               step="1"
             />
-            <span id="brightness-value"></span>
           </div>
           <div id="sepia-row" class="setting-row">
             <label for="sepia-slider">Sepia</label>
-            <input id="sepia-slider" type="range" min="0" max="150" step="1" />
             <span id="sepia-value"></span>
+            <input id="sepia-slider" type="range" min="0" max="150" step="1" />
           </div>
           <div id="tint-row" class="setting-row">
             <label for="tint-slider">Blaustich</label>
-            <input id="tint-slider" type="range" min="0" max="150" step="1" />
             <span id="tint-value"></span>
+            <input id="tint-slider" type="range" min="0" max="150" step="1" />
           </div>
           <div id="vignette-row" class="setting-row">
             <label for="vignette-slider">Vignette</label>
+            <span id="vignette-value"></span>
             <input
               id="vignette-slider"
               type="range"
@@ -684,17 +746,27 @@
               max="150"
               step="1"
             />
-            <span id="vignette-value"></span>
           </div>
           <div id="grain-row" class="setting-row">
             <label for="grain-slider">Filmkorn</label>
-            <input id="grain-slider" type="range" min="0" max="150" step="1" />
             <span id="grain-value"></span>
+            <input id="grain-slider" type="range" min="0" max="150" step="1" />
           </div>
           <div id="blur-row" class="setting-row">
             <label for="blur-slider">Blur</label>
-            <input id="blur-slider" type="range" min="0" max="150" step="1" />
             <span id="blur-value"></span>
+            <input id="blur-slider" type="range" min="0" max="150" step="1" />
+          </div>
+          <div id="fisheye-row" class="setting-row">
+            <label for="fisheye-slider">Fischauge</label>
+            <span id="fisheye-value"></span>
+            <input
+              id="fisheye-slider"
+              type="range"
+              min="0"
+              max="150"
+              step="1"
+            />
           </div>
           <div id="dof-row" class="setting-row">
             <label for="dof-toggle">Miniatur-Effekt</label>
@@ -705,6 +777,7 @@
           </div>
           <div id="dof-strength-row" class="setting-row" hidden>
             <label for="dof-strength-slider">Stärke</label>
+            <span id="dof-strength-value"></span>
             <input
               id="dof-strength-slider"
               type="range"
@@ -712,10 +785,10 @@
               max="100"
               step="1"
             />
-            <span id="dof-strength-value"></span>
           </div>
           <div id="dof-focus-row" class="setting-row" hidden>
             <label for="dof-focus-slider">Fokusdistanz</label>
+            <span id="dof-focus-value"></span>
             <input
               id="dof-focus-slider"
               type="range"
@@ -723,7 +796,6 @@
               max="100"
               step="1"
             />
-            <span id="dof-focus-value"></span>
           </div>
         </div>
       </div>
@@ -797,7 +869,7 @@
             >
           </li>
         </ul>
-        <button id="controls-panel-start-button" type="button">
+        <button id="controls-panel-start-button" type="button" hidden>
           Los geht's
         </button>
       </div>
