@@ -2,6 +2,9 @@
 
 Fly over the real world in your browser. FlyMaps is a drone-style 3D explorer built with Vite and CesiumJS on top of Google's Photorealistic 3D Tiles.
 
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/1f89f27e-1633-42f0-90d3-834a331cec3e" />
+
+
 ## Features
 
 - **Flight:** fly with a drone controller (acro/FPV) or the keyboard (airplane mode), three drone presets (sporty, relaxed, cinematic), adjustable camera tilt and FOV, optional stick overlay
