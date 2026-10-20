@@ -176,6 +176,7 @@ function crashSnapshot() {
       fisheyePct: Math.round(
         (colorGradeSettings.fisheyeAmount / FISHEYE_MAX_STRENGTH) * 100,
       ),
+      analogPct: Math.round(colorGradeSettings.analogAmount * 100),
       vignettePct: Math.round(colorGradeSettings.vignetteAmount * 100),
       pausiert: isPaused || isViewPaused,
     },
@@ -266,6 +267,7 @@ function saveCameraState() {
         blurPct: colorGradeSettings.blurAmount * 100,
         fisheyePct:
           (colorGradeSettings.fisheyeAmount / FISHEYE_MAX_STRENGTH) * 100,
+        analogPct: colorGradeSettings.analogAmount * 100,
         dofEnabled: dofSettings.enabled,
         dofStrengthPct: dofSettings.strengthPct,
         dofFocusSlider: dofSettings.focusSlider,
@@ -325,6 +327,7 @@ let colorGradeSettings = {
   grainAmount: 0,
   blurAmount: 0,
   fisheyeAmount: 0, // Fischaugen-Verzerrung, 0 = aus
+  analogAmount: 0, // Analog-Videolook (FPV-Signal), 0 = aus
 };
 
 // Miniatur-Effekt (Schärfentiefe/Tilt-Shift-Look): Cesiums eingebaute
@@ -460,6 +463,7 @@ function setupCinematicFilters() {
         uniform float tintAmount;
         uniform float vignetteAmount;
         uniform float grainAmount;
+        uniform float analogAmount;
         uniform float blurAmount;
         uniform float fisheyeAmount;
         uniform float aspectRatio;
@@ -481,6 +485,22 @@ function setupCinematicFilters() {
           return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
         }
 
+        // Analog-Video (PAL/NTSC-artig): Helligkeit (Y) und Farbe (U/V) werden
+        // getrennt übertragen - die Farbe hat dabei deutlich weniger
+        // Auflösung und "läuft" nach rechts aus. Dafür die Umrechnung RGB <-> YUV.
+        vec3 analogRgbToYuv(vec3 c) {
+          float y = dot(c, vec3(0.299, 0.587, 0.114));
+          return vec3(y, 0.492 * (c.b - y), 0.877 * (c.r - y));
+        }
+
+        vec3 analogYuvToRgb(vec3 c) {
+          return vec3(
+            c.x + 1.140 * c.z,
+            c.x - 0.395 * c.y - 0.581 * c.z,
+            c.x + 2.032 * c.y
+          );
+        }
+
         // Einfaches Value-Noise für die Mondoberfläche (dunklere "Meere").
         float noise2(vec2 p) {
           vec2 i = floor(p);
@@ -491,6 +511,72 @@ function setupCinematicFilters() {
           float c = randomFromVec2(i + vec2(0.0, 1.0));
           float d = randomFromVec2(i + vec2(1.0, 1.0));
           return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+        }
+
+        // Analog-Look: Die Störungen kommen unregelmäßig. analogSignalLoss
+        // schwankt langsam und zufällig zwischen "sauber" (0) und "starke
+        // Störung" (1) - die Fehler treten also in Wellen auf statt gleichmäßig.
+        float analogSignalLoss(float t) {
+          float n = noise2(vec2(t * 0.35, 1.7)) * 0.65 + noise2(vec2(t * 1.9, 5.3)) * 0.35;
+          return smoothstep(0.38, 0.8, n);
+        }
+
+        // Ein zufälliges Störband. Position, Höhe, Drift und ob es überhaupt
+        // erscheint, werden pro Zeitfenster neu gewürfelt (jeder Slot hat eine
+        // andere Fensterlänge, dadurch überlagern sich die Bänder nie im Takt).
+        float analogBandMask(float y, float t, float slot) {
+          float period = 0.8 + slot * 0.55;
+          float phase = t / period + slot * 13.0;
+          float w = floor(phase);
+          float f = fract(phase);
+          float r1 = randomFromVec2(vec2(w, slot + 1.0));
+          float r2 = randomFromVec2(vec2(w, slot + 11.0));
+          float r3 = randomFromVec2(vec2(w, slot + 21.0));
+          float bandOn = step(0.45, r3);
+          float center = r1 + (f - 0.5) * (r2 - 0.5) * 0.4;
+          float height = 0.01 + r2 * r2 * 0.14;
+          float fade = smoothstep(0.0, 0.12, f) * smoothstep(1.0, 0.8, f);
+          return bandOn * fade * smoothstep(height, height * 0.3, abs(y - center));
+        }
+
+        // Analog-Look: Farbflecken, bewusst OHNE gleichmäßige Bewegung (kein
+        // "Fließen"). Jede Ebene steht still und wechselt nur sprunghaft:
+        // pro Zeitfenster wird das Rauschfeld an eine völlig andere Stelle
+        // gesetzt, mit anderer Größe und anderen Farben, und kurz ein-/
+        // ausgeblendet (manche Fenster bleiben leer). Die Fenster laufen pro
+        // Bildbereich (horizontale Streifen) zeitversetzt, dadurch tauchen
+        // Flecken an verschiedenen Stellen unabhängig voneinander auf und
+        // verschwinden wieder, teils mit waagerechter Abrisskante.
+        // Zerrissene Ränder: Domain-Warp, mehrere Rauschebenen und ein
+        // flackerndes Zellraster, das Löcher hineinstanzt.
+        // Rückgabe: Farbversatz (U/V), 0 = kein Fleck.
+        vec2 analogFleckLayer(vec2 uv, float t, float line, float rate, float seed, vec2 scale, float thLo, float thHi) {
+          float row = floor(uv.y * 8.0 + seed);
+          float ph = t * rate + randomFromVec2(vec2(row, seed)) * 7.0;
+          float e = floor(ph);
+          float f = fract(ph);
+          vec2 r = vec2(randomFromVec2(vec2(e, row + seed)), randomFromVec2(vec2(e + 9.0, row + seed)));
+          float on = step(0.5, randomFromVec2(vec2(e + 21.0, row + seed * 3.0)));
+          float fade = smoothstep(0.0, 0.08, f) * smoothstep(1.0, 0.9, f);
+
+          vec2 p = vec2(uv.x * scale.x, uv.y * scale.y) * (0.8 + 0.6 * r.x) + r * 97.0;
+          p += (vec2(noise2(p * 0.7), noise2(p * 0.7 + 17.0)) - 0.5) * 2.4;
+          float n = noise2(p) * 0.55 + noise2(p * 2.3 + 5.0) * 0.30 + noise2(p * 5.0) * 0.15;
+          float m = smoothstep(thLo, thHi, n) * on * fade;
+
+          float speck = randomFromVec2(floor(vec2(uv.x * 140.0, line * 0.5)) + floor(t * 8.0));
+          m *= mix(1.0, step(0.25, speck), 0.85);
+
+          float h = noise2(p * 0.45 + 31.0) * 12.566;
+          float sat = 0.25 + 0.55 * noise2(p * 0.8 + 71.0);
+          return vec2(cos(h), sin(h)) * sat * m;
+        }
+
+        vec2 analogFlecks(vec2 uv, float t, float line) {
+          vec2 a = analogFleckLayer(uv, t, line, 0.9, 1.0, vec2(24.0, 55.0), 0.55, 0.8);
+          vec2 b = analogFleckLayer(uv, t, line, 1.6, 2.0, vec2(30.0, 70.0), 0.58, 1.3);
+          vec2 c = analogFleckLayer(uv, t, line, 3.0, 3.0, vec2(70.0, 150.0), 0.66, 2.0);
+          return a + b * 0.8 + c * 0.6;
         }
 
         // Fischaugen-Linse (Tonnenverzerrung): Der Bildpunkt wird aus einer
@@ -514,6 +600,34 @@ function setupCinematicFilters() {
           // Vignette und Filmkorn bleiben bewusst an den Bildschirm gebunden.
           vec2 lensUv = fisheyeAmount > 0.0 ? fisheyeUv(v_textureCoordinates) : v_textureCoordinates;
 
+          // Analog-Look, Teil 1 (Signalstörung, bewusst unregelmäßig): die
+          // Signalqualität schwankt zufällig (analogLoss), dazu erscheinen
+          // zufällige Störbänder (analogBand) an wechselnden Stellen. Jede der
+          // 240 Zeilen wackelt leicht seitlich, einzelne Zeilen reißen
+          // gelegentlich stark aus, vor allem in Störbändern und bei schlechtem
+          // Signal. Der Versatz wirkt auf lensUv und damit auf Blur und Mond mit.
+          float analogTime = czm_frameNumber / 60.0;
+          float analogFrame = mod(czm_frameNumber, 997.0);
+          float analogLine = floor(v_textureCoordinates.y * 240.0);
+          float analogLoss = 0.0;
+          float analogBand = 0.0;
+          if (analogAmount > 0.0) {
+            float by = v_textureCoordinates.y;
+            analogLoss = analogSignalLoss(analogTime);
+            analogBand = max(analogBandMask(by, analogTime, 0.0),
+                         max(analogBandMask(by, analogTime, 1.0),
+                             analogBandMask(by, analogTime, 2.0)));
+            analogBand *= 0.35 + 0.65 * analogLoss;
+            float lineJitter = randomFromVec2(vec2(analogLine, floor(analogTime * 30.0))) - 0.5;
+            float wobble = (noise2(vec2(by * 7.0, analogTime * 1.3)) - 0.5) * 0.004 * (0.4 + analogLoss);
+            float tearRand = randomFromVec2(vec2(analogLine * 1.7, analogFrame));
+            float tear = step(0.992 - 0.03 * analogLoss - 0.1 * analogBand, tearRand)
+                       * (randomFromVec2(vec2(analogLine, analogFrame + 3.0)) - 0.5) * 0.08;
+            lensUv.x += (lineJitter * 0.0012 * (1.0 + 2.0 * analogLoss)
+                       + wobble + analogBand * lineJitter * 0.02 + tear) * analogAmount;
+            lensUv.x = clamp(lensUv.x, 0.0, 1.0);
+          }
+
           // Neun Bildpunkte mitteln: ein leichter, gleichmäßiger Blur ohne
           // zusätzliche Post-Process-Stufe und damit ohne weitere Renderpass-Kosten.
           vec2 blurOffset = vec2(0.004) * blurAmount;
@@ -527,6 +641,43 @@ function setupCinematicFilters() {
           color += texture(colorTexture, lensUv + vec2(blurOffset.x, -blurOffset.y)) * 0.10;
           color += texture(colorTexture, lensUv + vec2(-blurOffset.x, blurOffset.y)) * 0.10;
           color.rgb = clamp(color.rgb, 0.0, 1.0);
+
+          // Analog-Look, Teil 2 (Farbfehler): Die Farbinformation wird aus
+          // Bildpunkten links vom aktuellen gemittelt (Farbkanten bluten nach
+          // rechts aus, je Zeile unterschiedlich stark). Dazu kommen
+          // - zerrissene, verstreute Farbflecken in wechselnden Farben, mit
+          //   Regenbogensäumen an Kanten (bei schlechtem Signal häufiger) und
+          // - farbiges Chroma-Rauschen, das fast nur in den Störbändern auftritt.
+          if (analogAmount > 0.0) {
+            vec2 uvPos = v_textureCoordinates;
+            float lineRand = randomFromVec2(vec2(analogLine, 17.0));
+            float smearStep = 0.0035 * analogAmount * (0.6 + 1.2 * analogLoss + analogBand) * (0.7 + 0.6 * lineRand);
+            vec3 smear = color.rgb;
+            smear += texture(colorTexture, lensUv + vec2(-1.0 * smearStep, 0.0)).rgb;
+            smear += texture(colorTexture, lensUv + vec2(-2.0 * smearStep, 0.0)).rgb;
+            smear += texture(colorTexture, lensUv + vec2(-3.0 * smearStep, 0.0)).rgb;
+            smear += texture(colorTexture, lensUv + vec2(smearStep, 0.0)).rgb;
+            smear /= 5.0;
+            vec3 yuvSharp = analogRgbToYuv(color.rgb);
+            vec3 yuvSmear = analogRgbToYuv(smear);
+            vec3 yuv = vec3(mix(yuvSharp.x, yuvSmear.x, 0.4), yuvSmear.y, yuvSmear.z);
+
+            float lumaL = dot(texture(colorTexture, lensUv - vec2(0.004, 0.0)).rgb, vec3(0.299, 0.587, 0.114));
+            float lumaR = dot(texture(colorTexture, lensUv + vec2(0.004, 0.0)).rgb, vec3(0.299, 0.587, 0.114));
+            float edge = clamp(abs(lumaR - lumaL) * 4.0, 0.0, 1.0);
+            float rainbowPhase = uvPos.x * 70.0 + analogLine * 0.35 + floor(analogTime * 10.0) * 1.7;
+            vec2 fleck = analogFlecks(uvPos, analogTime, analogLine) * (0.3 + 0.7 * analogLoss);
+            yuv.yz += fleck * 0.8 + vec2(cos(rainbowPhase), sin(rainbowPhase)) * edge * length(fleck) * 0.6;
+
+            float cellX = floor(uvPos.x * mix(120.0, 420.0, lineRand));
+            vec2 chromaNoise = vec2(
+              randomFromVec2(vec2(cellX, analogLine + analogFrame * 1.31)),
+              randomFromVec2(vec2(cellX + 41.0, analogLine - analogFrame * 0.77))
+            ) - 0.5;
+            yuv.yz += chromaNoise * (0.9 * analogBand + 0.12 * analogLoss);
+
+            color.rgb = mix(color.rgb, clamp(analogYuvToRgb(yuv), 0.0, 1.0), clamp(analogAmount, 0.0, 1.0));
+          }
 
           // Kontrast
           color.rgb = clamp((color.rgb - 0.5) * contrastAmount + 0.5, 0.0, 1.0);
@@ -602,6 +753,36 @@ function setupCinematicFilters() {
             }
           }
 
+          // Analog-Look, Teil 3 (Bildröhre/Funkstrecke): Zeilenstruktur,
+          // angehobene Schwarzwerte, Schneerauschen (im Störband und bei
+          // schlechtem Signal deutlich stärker), zufällige horizontale
+          // Aussetzer-Streifen und unregelmäßiges Flackern bzw. Helligkeits-
+          // einbrüche. Bleibt wie Vignette/Korn an den Bildschirm gebunden.
+          if (analogAmount > 0.0) {
+            float amt = min(analogAmount, 1.0);
+            float scan = 0.5 + 0.5 * sin(v_textureCoordinates.y * 240.0 * 6.28318);
+            color.rgb *= 1.0 - 0.16 * analogAmount * scan;
+            color.rgb = mix(color.rgb, color.rgb * 0.92 + 0.04, amt);
+
+            float frameSeed = analogFrame;
+            float lineNoise = randomFromVec2(vec2(analogLine, frameSeed)) - 0.5;
+            float snow = randomFromVec2(vec2(floor(v_textureCoordinates.x * 320.0), analogLine) + vec2(frameSeed * 0.37)) - 0.5;
+            float snowAmp = 0.03 + 0.06 * analogLoss + 0.6 * analogBand;
+            color.rgb += (lineNoise * 0.05 + snow * snowAmp) * analogAmount;
+
+            float streakR = randomFromVec2(vec2(analogLine + 0.5, frameSeed * 0.13));
+            float streakOn = step(1.0 - (0.004 + 0.02 * analogLoss + 0.35 * analogBand), streakR);
+            float streakStart = randomFromVec2(vec2(analogLine, frameSeed + 5.0));
+            float streakLen = 0.04 + 0.35 * randomFromVec2(vec2(analogLine, frameSeed + 9.0));
+            float inStreak = step(streakStart, v_textureCoordinates.x) * step(v_textureCoordinates.x, streakStart + streakLen);
+            float streakLevel = randomFromVec2(vec2(analogLine, frameSeed + 13.0));
+            color.rgb = mix(color.rgb, vec3(streakLevel * streakLevel), inStreak * streakOn * 0.75 * amt);
+
+            float dip = 1.0 - analogLoss * step(0.93, randomFromVec2(vec2(frameSeed, 3.0))) * 0.25;
+            color.rgb *= (1.0 + (randomFromVec2(vec2(frameSeed, 7.0)) - 0.5) * 0.05 * analogAmount) * mix(1.0, dip, amt);
+            color.rgb = clamp(color.rgb, 0.0, 1.0);
+          }
+
           // Filmkorn: pro Pixel und Frame neu berechnetes Rauschen (mit
           // czm_frameNumber als zusätzlichem Seed-Offset, damit es wie
           // echtes Korn flimmert statt als starres Muster übers Bild zu
@@ -631,6 +812,7 @@ function setupCinematicFilters() {
         moonTextureBrightness: () => MOON_TEXTURE_BRIGHTNESS,
         vignetteAmount: () => colorGradeSettings.vignetteAmount,
         grainAmount: () => colorGradeSettings.grainAmount,
+        analogAmount: () => colorGradeSettings.analogAmount,
         blurAmount: () => colorGradeSettings.blurAmount,
         fisheyeAmount: () => colorGradeSettings.fisheyeAmount,
         aspectRatio: () =>
@@ -933,6 +1115,8 @@ async function loadGoogleTiles() {
         applyBlur(usableSavedState.blurPct);
       if (Number.isFinite(usableSavedState.fisheyePct))
         applyFisheye(usableSavedState.fisheyePct);
+      if (Number.isFinite(usableSavedState.analogPct))
+        applyAnalog(usableSavedState.analogPct);
       if (Number.isFinite(usableSavedState.dofStrengthPct))
         applyDofStrength(usableSavedState.dofStrengthPct);
       if (Number.isFinite(usableSavedState.dofFocusSlider))
@@ -1528,6 +1712,10 @@ const flightDataEl = document.getElementById("flight-data");
 // ausgeblendet ist - sonst würde die Box über der leeren Lücke "schweben".
 const FLIGHT_DATA_BOTTOM_WITH_HORIZON_PX = 40;
 const FLIGHT_DATA_BOTTOM_WITHOUT_HORIZON_PX = 40;
+// Horizontal: normalerweise rechts neben dem Horizont (172px), bei
+// ausgeblendetem Horizont rückt die Box an dessen Stelle nach links (12px).
+const FLIGHT_DATA_LEFT_WITH_HORIZON_PX = 172;
+const FLIGHT_DATA_LEFT_WITHOUT_HORIZON_PX = 12;
 
 function updateHorizonVisibility() {
   const droneView = isDroneView();
@@ -1537,6 +1725,11 @@ function updateHorizonVisibility() {
       droneView
         ? FLIGHT_DATA_BOTTOM_WITHOUT_HORIZON_PX
         : FLIGHT_DATA_BOTTOM_WITH_HORIZON_PX
+    }px`;
+    flightDataEl.style.left = `${
+      droneView
+        ? FLIGHT_DATA_LEFT_WITHOUT_HORIZON_PX
+        : FLIGHT_DATA_LEFT_WITH_HORIZON_PX
     }px`;
   }
 }
@@ -2124,6 +2317,13 @@ const FISHEYE_MAX_PCT = 150;
 const FISHEYE_DEFAULT_PCT = 0;
 const FISHEYE_MAX_STRENGTH = 0.8;
 
+// Analog-Look: 0% = aus (Standard), 100% = deutlich erkennbares analoges
+// FPV-Videosignal (Zeilen, Farbverschmierung, Rauschen, Störband). Der
+// Prozentwert geht direkt (/100) als Stärke in den Shader.
+const ANALOG_MIN_PCT = 0;
+const ANALOG_MAX_PCT = 150;
+const ANALOG_DEFAULT_PCT = 0;
+
 const contrastSlider = document.getElementById("contrast-slider");
 const contrastValueEl = document.getElementById("contrast-value");
 const saturationSlider = document.getElementById("saturation-slider");
@@ -2138,6 +2338,8 @@ const vignetteSlider = document.getElementById("vignette-slider");
 const vignetteValueEl = document.getElementById("vignette-value");
 const grainSlider = document.getElementById("grain-slider");
 const grainValueEl = document.getElementById("grain-value");
+const analogSlider = document.getElementById("analog-slider");
+const analogValueEl = document.getElementById("analog-value");
 // Sternhelligkeit: nur im Nacht-Modus sichtbar/wirksam, bewusst nicht Teil der
 // Filter-Presets/Favoriten.
 const starBrightnessRow = document.getElementById("star-brightness-row");
@@ -2219,6 +2421,13 @@ function applyGrain(pct) {
   grainValueEl.textContent = `${Math.round(clamped)}%`;
 }
 
+function applyAnalog(pct) {
+  const clamped = Cesium.Math.clamp(pct, ANALOG_MIN_PCT, ANALOG_MAX_PCT);
+  colorGradeSettings.analogAmount = clamped / 100;
+  analogSlider.value = clamped;
+  analogValueEl.textContent = `${Math.round(clamped)}%`;
+}
+
 function applyBlur(pct) {
   const clamped = Cesium.Math.clamp(pct, BLUR_MIN_PCT, BLUR_MAX_PCT);
   colorGradeSettings.blurAmount = clamped / 100;
@@ -2254,6 +2463,9 @@ applyVignette(VIGNETTE_DEFAULT_PCT);
 grainSlider.min = GRAIN_MIN_PCT;
 grainSlider.max = GRAIN_MAX_PCT;
 applyGrain(GRAIN_DEFAULT_PCT);
+analogSlider.min = ANALOG_MIN_PCT;
+analogSlider.max = ANALOG_MAX_PCT;
+applyAnalog(ANALOG_DEFAULT_PCT);
 blurSlider.min = BLUR_MIN_PCT;
 blurSlider.max = BLUR_MAX_PCT;
 applyBlur(BLUR_DEFAULT_PCT);
@@ -2294,6 +2506,10 @@ vignetteSlider.addEventListener("input", () => {
 });
 grainSlider.addEventListener("input", () => {
   applyGrain(Number(grainSlider.value));
+  saveCameraState();
+});
+analogSlider.addEventListener("input", () => {
+  applyAnalog(Number(analogSlider.value));
   saveCameraState();
 });
 blurSlider.addEventListener("input", () => {
@@ -2415,6 +2631,7 @@ const filtersResetButton = document.getElementById("filters-reset-button");
 filtersResetButton.addEventListener("click", () => {
   applyFilterValues(nightMode ? NIGHT_FILTER_PRESET : FILTER_DEFAULTS);
   applyFisheye(FISHEYE_DEFAULT_PCT);
+  applyAnalog(ANALOG_DEFAULT_PCT);
   applyDofStrength(DOF_STRENGTH_DEFAULT_PCT);
   applyDofFocus(DOF_FOCUS_DEFAULT_SLIDER);
   applyDofEnabled(false);
@@ -3043,6 +3260,7 @@ async function saveFavorite() {
     grainPct: (colorGradeSettings.grainAmount / GRAIN_MAX_INTENSITY) * 100,
     blurPct: colorGradeSettings.blurAmount * 100,
     fisheyePct: (colorGradeSettings.fisheyeAmount / FISHEYE_MAX_STRENGTH) * 100,
+    analogPct: colorGradeSettings.analogAmount * 100,
     dofEnabled: dofSettings.enabled,
     dofStrengthPct: dofSettings.strengthPct,
     dofFocusSlider: dofSettings.focusSlider,
@@ -3139,6 +3357,12 @@ async function flyToFavorite(favorite) {
       Number.isFinite(favorite.fisheyePct)
         ? favorite.fisheyePct
         : FISHEYE_DEFAULT_PCT,
+    );
+    // Ältere Favoriten kennen keinen Analog-Look -> aus.
+    applyAnalog(
+      Number.isFinite(favorite.analogPct)
+        ? favorite.analogPct
+        : ANALOG_DEFAULT_PCT,
     );
     // Ältere Favoriten kennen keinen Miniatur-Effekt -> aus.
     applyDofStrength(
@@ -3625,6 +3849,7 @@ function controllerRate(x, rates) {
 // --- Flugcharakter-Schalter (Menü) -----------------------------------------
 const FLIGHT_FEEL_KEY = "flymaps_flight_feel";
 const flightFeelSelect = document.getElementById("flight-feel-select");
+const flightFeelRowEl = document.getElementById("flight-feel-row");
 
 function applyControllerRatePreset(name) {
   const key = name in CONTROLLER_RATE_PRESETS ? name : "sport";
@@ -3855,6 +4080,7 @@ function updateControllerDebugOverlay() {
 // Achsen-Zuordnung/Invertierung aus CONTROLLER_AXIS. Positiv = rechts bzw. oben.
 const stickOverlayEl = document.getElementById("stick-overlay");
 const stickOverlayToggle = document.getElementById("stick-overlay-toggle");
+const stickOverlayRowEl = document.getElementById("stick-overlay-row");
 stickOverlayToggle.addEventListener("change", updateStickOverlay);
 const stickLeftDotEl = document.getElementById("stick-left-dot");
 const stickRightDotEl = document.getElementById("stick-right-dot");
@@ -3873,8 +4099,17 @@ function setStickDot(dotEl, x, y) {
 
 function updateStickOverlay() {
   if (!stickOverlayEl) return;
+  // Controller-Einstellungen nur anbieten, solange ein Controller verbunden ist
+  const controllerConnected = connectedGamepadIndex !== null;
+  for (const rowEl of [stickOverlayRowEl, flightFeelRowEl]) {
+    if (rowEl && rowEl.hidden === controllerConnected) {
+      rowEl.hidden = !controllerConnected;
+    }
+  }
   const visible = stickOverlayToggle.checked && connectedGamepadIndex !== null;
   if (stickOverlayEl.hidden === visible) stickOverlayEl.hidden = !visible;
+  // Ohne Stick-Overlay rückt die OSD-Mitte nach unten (siehe style.css)
+  if (fpvOsdEl) fpvOsdEl.classList.toggle("stick-overlay-off", !visible);
   if (!visible) return;
   const gp = navigator.getGamepads()[connectedGamepadIndex];
   if (!gp) return;

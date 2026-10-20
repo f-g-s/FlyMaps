@@ -10,6 +10,7 @@
   --surface-2: #1f222a;
   --surface-translucent: rgba(22, 24, 29, 0.85);
   --surface-translucent-2: rgba(16, 18, 21, 0.75);
+  --surface-translucent-3: rgba(16, 18, 21, 0.5);
   --input-bg: #0f1114;
   --key-bg: #2a2e38;
   --text: #e6e8ec;
@@ -47,6 +48,7 @@
   --surface-2: #ffffff;
   --surface-translucent: rgba(255, 255, 255, 0.9);
   --surface-translucent-2: rgba(255, 255, 255, 0.85);
+  --surface-translucent-3: rgba(255, 255, 255, 0.5);
   --input-bg: #eef0f4;
   --key-bg: #e9ebf0;
   --text: #1b1e24;
@@ -234,7 +236,7 @@ body.pause-mode #fullscreen-toggle-button {
   position: absolute;
   bottom: 192px;
   left: 172px;
-  transition: bottom 0.2s ease;
+  transition: bottom 0.2s ease, left 0.2s ease;
   z-index: 10;
   color: var(--text-strong);
   background: var(--surface-translucent);
@@ -1471,7 +1473,7 @@ body.pause-mode #fullscreen-toggle-button {
 }
 
 .stick-box {
-  background: var(--surface-translucent);
+  background: var(--surface-translucent-3);
   border: 1px solid var(--ov-14);
   box-shadow: 0 8px 24px var(--shadow-1);
   border-radius: 8px;
@@ -2091,8 +2093,12 @@ body.view-cropped #fpv-osd {
   gap: 0.6em;
 }
 
-#fpv-osd .osd-bottom-left {
+#fpv-osd.stick-overlay-off .osd-bottom-center {
   bottom: 6%;
+}
+
+#fpv-osd .osd-bottom-left {
+  top: 38%;
   left: var(--osd-left);
   align-items: flex-start;
 }

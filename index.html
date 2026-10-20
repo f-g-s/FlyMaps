@@ -47,9 +47,13 @@
             ein Projekt anlegen oder auswählen.
           </li>
           <li>
-            Abrechnung aktivieren (ein Zahlungsmittel ist nötig). Google gewährt
-            je API ein monatliches Gratis-Kontingent, die aktuellen Preise
-            stehen in Googles Preisliste.
+            Abrechnung aktivieren (ein Zahlungsmittel ist nötig).
+            <b>Die Rechnungsadresse muss außerhalb des Europäischen
+            Wirtschaftsraums (EWR) liegen</b>, also nicht in einem EU-Land,
+            Island, Liechtenstein oder Norwegen: Für Projekte mit EWR-Abrechnung
+            liefert Google keine Photorealistic 3D Tiles (Fehler 403). Google
+            gewährt je API ein monatliches Gratis-Kontingent, die aktuellen
+            Preise stehen in Googles Preisliste.
           </li>
           <li>
             Unter „APIs &amp; Dienste → Bibliothek“ die <b>Map Tiles API</b> und
@@ -539,7 +543,7 @@
               <option value="1/1">1:1</option>
             </select>
           </div>
-          <div id="flight-feel-row" class="setting-row">
+          <div id="flight-feel-row" class="setting-row" hidden>
             <label for="flight-feel-select">Flugcharakter</label>
             <select id="flight-feel-select">
               <option value="sport">Sportlich</option>
@@ -563,7 +567,7 @@
             <span id="fov-value"></span>
             <input id="fov-slider" type="range" min="30" max="100" step="1" />
           </div>
-          <div id="stick-overlay-row" class="setting-row">
+          <div id="stick-overlay-row" class="setting-row" hidden>
             <label for="stick-overlay-toggle">Stick-Overlay</label>
             <label class="switch">
               <input id="stick-overlay-toggle" type="checkbox" checked />
@@ -751,6 +755,11 @@
             <label for="grain-slider">Filmkorn</label>
             <span id="grain-value"></span>
             <input id="grain-slider" type="range" min="0" max="150" step="1" />
+          </div>
+          <div id="analog-row" class="setting-row">
+            <label for="analog-slider">Analog-Look</label>
+            <span id="analog-value"></span>
+            <input id="analog-slider" type="range" min="0" max="150" step="1" />
           </div>
           <div id="blur-row" class="setting-row">
             <label for="blur-slider">Blur</label>
