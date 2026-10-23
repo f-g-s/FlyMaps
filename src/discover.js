@@ -35,6 +35,8 @@ let lastRequestEndedAt = 0;
 
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const ENABLED_KEY = "flymaps_discovery_enabled";
+const SORT_MODE_KEY = "flymaps_discovery_sort_mode"; // "near" | "fame" | "mixed"
+const LEGACY_FAME_SORT_KEY = "flymaps_discovery_fame_sort";
 
 const NEARBY_RADIUS_M = 10000;
 const ARRIVED_RADIUS_M = 100; // Pin erscheint und Ort gilt als besucht
@@ -753,6 +755,41 @@ export function initDiscovery() {
       "discovery-toggle"
     );
 
+  // Sortierung der Ziele:
+  //  near  = nächster Ort zuerst (Standard, mit Stadt-Gewichtung)
+  //  fame  = bekanntester Ort zuerst (meiste Wikipedia-Sprachversionen)
+  //  mixed = Bekanntheit und Entfernung gemischt (scoreOf)
+  const sortModeEl =
+    document.getElementById(
+      "discovery-sort-select"
+    );
+
+  let sortMode = "near";
+
+  try {
+    const saved =
+      localStorage.getItem(
+        SORT_MODE_KEY
+      );
+
+    if (
+      saved === "near" ||
+      saved === "fame" ||
+      saved === "mixed"
+    ) {
+      sortMode = saved;
+    } else if (
+      localStorage.getItem(
+        LEGACY_FAME_SORT_KEY
+      ) === "1"
+    ) {
+      sortMode = "fame";
+    }
+  } catch {
+    // ohne localStorage bleibt
+    // der Standard (Nähe)
+  }
+
   const pois = new Map();
   const loadedCells = new Set();
   const failedUntil = new Map();
@@ -842,6 +879,50 @@ export function initDiscovery() {
   );
 
   toggleEl.checked = enabled;
+
+  function setSortMode(value) {
+    if (
+      value !== "near" &&
+      value !== "fame" &&
+      value !== "mixed"
+    ) {
+      return;
+    }
+
+    sortMode = value;
+
+    if (sortModeEl) {
+      sortModeEl.value = value;
+    }
+
+    try {
+      localStorage.setItem(
+        SORT_MODE_KEY,
+        value
+      );
+    } catch {
+      // egal
+    }
+
+    // Neue Reihenfolge sofort anwenden: aktuelles Ziel verwerfen und
+    // wieder automatisch das erste Ziel der neuen Sortierung wählen.
+    clearTarget();
+    targetSelectionStarted = false;
+    allVisitedHidden = false;
+    lastEvaluate = 0;
+  }
+
+  if (sortModeEl) {
+    sortModeEl.value = sortMode;
+
+    sortModeEl.addEventListener(
+      "change",
+      () =>
+        setSortMode(
+          sortModeEl.value
+        )
+    );
+  }
 
   function clearTarget() {
     target = null;
@@ -1084,7 +1165,7 @@ export function initDiscovery() {
     }
 
     // In der Stadt: Berge für die Reihenfolge weiter weg rechnen.
-    if (urbanNearby >= CITY_MIN_POIS) {
+    if (sortMode === "near" && urbanNearby >= CITY_MIN_POIS) {
       for (const entry of list) {
         if (
           DEPRIORITIZED_IN_CITY_IDS.has(
@@ -1101,14 +1182,35 @@ export function initDiscovery() {
     // Noch nicht besuchte zuerst, darin nach (ggf. gewichteter) Entfernung
     // aufsteigend; bei Gleichstand entscheidet die Bekanntheit.
     // Besuchte Orte folgen danach, ebenfalls nach Entfernung.
+    // Sortierung je nach Modus (siehe sortMode). Immer zuerst unbesuchte,
+    // dann besuchte Orte.
+    //  fame:  Bekanntheit (Sitelinks) absteigend, bei Gleichstand näher zuerst
+    //  mixed: Score = Sitelinks / (1 + Entfernung in km), absteigend
+    //  near:  (ggf. gewichtete) Entfernung aufsteigend, bei Gleichstand bekannter
     list.sort(
-      (a, b) =>
-        Number(a.visited) -
-          Number(b.visited) ||
-        a.sortDistance -
-          b.sortDistance ||
-        b.poi.sl -
-          a.poi.sl
+      sortMode === "fame"
+        ? (a, b) =>
+            Number(a.visited) -
+              Number(b.visited) ||
+            b.poi.sl -
+              a.poi.sl ||
+            a.distance -
+              b.distance
+        : sortMode === "mixed"
+          ? (a, b) =>
+              Number(a.visited) -
+                Number(b.visited) ||
+              b.score -
+                a.score ||
+              a.distance -
+                b.distance
+          : (a, b) =>
+              Number(a.visited) -
+                Number(b.visited) ||
+              a.sortDistance -
+                b.sortDistance ||
+              b.poi.sl -
+                a.poi.sl
     );
 
     return list;
@@ -1155,6 +1257,8 @@ export function initDiscovery() {
           name: candidate.poi.name,
           kategorie: CATEGORIES[candidate.poi.cat].label,
           entfernung_m: Math.round(candidate.distance),
+          sitelinks: candidate.poi.sl,
+          score: Math.round(candidate.score * 10) / 10,
           besucht: candidate.visited,
           id: candidate.poi.id,
         }))
@@ -1543,6 +1647,7 @@ export function initDiscovery() {
     update,
     cycleTarget,
     setEnabled,
+    setSortMode,
     setSuspended,
   };
 }
